@@ -1,0 +1,92 @@
+{$meta author} FelixEckert
+{$meta date} 05-01-2022
+{$start}
+{$title} deash Script Specification
+
+{$begin-section} syntax
+{$head} Syntax
+
+deash syntax follows the style of Pascal/ALGOL.
+
+0. Comments
+1. Code-Blocks
+2. Variables
+3. Conditionals
+4. Procedures
+
+{$begin-section} comments
+{$sub-head} Comments
+
+Line-Comments are made using a Pound-Sign (#) and block-comments are opened and closed
+using curly braces.
+
+Example: {$style fraktur}
+  # Line comment
+  { Block Comment
+    very cool
+    yes } {$reset-all}
+{$end-section}
+{$begin-section} code-blocks
+{$sub-head} Code-Blocks
+
+Code blocks in deash are opened using the begin keyword and closed using the end keyword.
+
+Example: {$style fraktur}
+  begin
+    # some code....
+  end {$reset-all}
+{$end-section}
+{$begin-section} variables
+{$sub-head} Variables
+
+deash supports Strings (String), Integers (Integer) and Booleans (Boolean). Strings are C-Style, since thats the more based way,
+Integers are always Signed 32-Bit. Boolean literals are true and false.
+
+Strings are empty, Integers are 0 and Booleans are false by default.
+
+Variables are declared using the var keyword and can be either declared for a procedure or an entire
+script. If a Variable is not immediatly initialised, its type is to be specified using a colon
+followed by the type name.
+
+Example: {$style fraktur}
+  var
+    strvar = '';
+    _strvar: String;
+    bool = true;
+    _bool: Boolean;
+    num = 100;
+    _num: Integer; {$reset-all}
+{$end-section}
+{$begin-section} procedures
+{$sub-head} Procedures
+
+deash supports two kinds of procedures, script-private procedures and
+exported procedures. Exported procedures will be stored within the shell
+and can be called from other scripts or in the shell.
+
+Procedures are decalred using the proc keyword, this is to be followed by
+the procedures name. If the procedure takes parameters these are to be declared
+within parenthesis after the name, seperated by semi-colons. If there are no
+parameters, the parenthesis mustn't be added. The declaration is ended with a
+semi-colon.
+
+Example: {$style fraktur}
+  proc Foo;
+  begin
+    writeln('Bar');
+  end
+
+  proc Bar(writeFoo: Boolean);
+  begin
+    if writeFoo then writeln('Foo');
+  end {$reset-all}
+
+Procedures can be exported using the exp keyword infront of their declaration.
+
+Example: {$style fraktur}
+  exp proc Ping(param: String);
+  begin
+    writeln('Pong: '+param);
+  end {$reset-all}
+{$end-section}
+{$end-section}
