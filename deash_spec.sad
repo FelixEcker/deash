@@ -57,6 +57,30 @@ Example: {$style fraktur}
     num = 100;
     _num: Integer; {$reset-all}
 {$end-section}
+{$begin-section} conditionals
+{$sub-head} Conditionals
+
+deash has support for conditional branching which can exclusively be achieved through If-Elif-Else
+conditions. These are capable of evaluating integer, boolean and string comparisons. A condition has
+to be wrapped inside parenthesis, the then keyword is used to signal the end of conditions and the
+start of the code which is to be executed if the conditions are True.
+
+Conditionals can be chained using the and keyword and the or keyword, which perform their respective
+logical operations on their left and right standing conditions
+
+To check if two values are equal a single equals-sign is used, to check if an integer value is
+greater or lesser than another the < and > signs are to be used.
+
+To negate a condition the not keyword is to be used.
+
+Example: {$style fraktur}
+  if (bool) and (strvar = '') then
+    # do something
+  elif (strvar = 'test') then
+    # do another thing
+  else
+    # do a fallback thing {$reset-all}
+{$end-section}
 {$begin-section} procedures
 {$sub-head} Procedures
 

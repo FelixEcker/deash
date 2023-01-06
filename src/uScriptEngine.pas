@@ -47,4 +47,10 @@ implementation
       writeln(Format('%.3d %s', [script.nline, script.cline]));
     end;
   end;
+
+  function Eval(const ALine: String): TEvalResult;
+  begin
+    Eval.success := True;
+    Eval.message := 'succ';
+  end;
 end.
