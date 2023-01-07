@@ -1,11 +1,40 @@
 {$meta author} FelixEckert
 {$meta date} 05-01-2022
 {$start}
-{$title} deash Script Specification
+{$title} deash Specification
 
-{$begin-section} syntax
-{$head} Syntax
+{$begin-section} parsing
+{$head} Parsing Commands
 
+This section specifies how Commands should be parsed, this includes:
+  1. Invoke-Search-Order
+  2. Piping, chaining and forking Commands
+  3. C-Style String-Escaping
+
+{$begin-section} invoke-search-order
+{$sub-head} Invoke-Search-Order
+
+The Invoke-Search-Order specifies which places are searched in what order
+for the specific Invoke. An Invoke means a binary, alias or exported procedures.
+
+By Default deash searches the following places in this order:
+  1. Preffered Exported Procedures
+  2. Aliases
+  3. /bin
+  4. /usr/bin
+  5. Exported Procedures
+{$end-section}
+{$begin-section} pipes-chains-forks
+{$head} Piping, chaing and forking Commands
+
+Just like bash, deash supports piping the output of one command into another,
+chaining commands and forking of Commands
+{$end-section}
+{$end-section}
+{$begin-section} script-syntax
+{$head} Script Syntax
+
+This section specifies the syntax of a deash script.
 deash syntax follows the style of Pascal/ALGOL.
 
 0. Comments
@@ -69,7 +98,8 @@ Conditionals can be chained using the and keyword and the or keyword, which perf
 logical operations on their left and right standing conditions
 
 To check if two values are equal a single equals-sign is used, to check if an integer value is
-greater or lesser than another the < and > signs are to be used.
+greater or lesser than another the < and > signs are to be used. The equal- and lesse-than signs
+can be combined to form the "is not equal"-diamond operator.
 
 To negate a condition the not keyword is to be used.
 
@@ -79,7 +109,9 @@ Example: {$style fraktur}
   elif (strvar = 'test') then
     # do another thing
   else
-    # do a fallback thing {$reset-all}
+    # do a fallback thing 
+
+  if (SH_MODE <> MODE_INTERACTIVE) then exit; {$reset-all}
 {$end-section}
 {$begin-section} procedures
 {$sub-head} Procedures
@@ -88,7 +120,7 @@ deash supports two kinds of procedures, script-private procedures and
 exported procedures. Exported procedures will be stored within the shell
 and can be called from other scripts or in the shell.
 
-Procedures are decalred using the proc keyword, this is to be followed by
+Procedures are declared using the proc keyword, this is to be followed by
 the procedures name. If the procedure takes parameters these are to be declared
 within parenthesis after the name, seperated by semi-colons. If there are no
 parameters, the parenthesis mustn't be added. The declaration is ended with a
@@ -97,20 +129,29 @@ semi-colon.
 Example: {$style fraktur}
   proc Foo;
   begin
-    writeln('Bar');
+    echo Bar
   end
 
   proc Bar(writeFoo: Boolean);
   begin
-    if writeFoo then writeln('Foo');
+    if writeFoo then echo Foo;
   end {$reset-all}
 
-Procedures can be exported using the exp keyword infront of their declaration.
+Procedures can be exported using the export modifier behind their declaration.
 
 Example: {$style fraktur}
-  exp proc Ping(param: String);
+  proc Ping(param: String); export;
   begin
-    writeln('Pong: '+param);
+    echo >Concat('Pong: ', param);
   end {$reset-all}
+
+deash supports "preferring" procedures over binaries when an invoke is searched,
+this is done by adding the preffered modifier behind the declaration.
+
+Example: {$style fraktur}
+  proc ls; export; preffered;
+  begin
+    exa --color=auto -l
+  end; {$reset-all}
 {$end-section}
 {$end-section}
