@@ -87,6 +87,7 @@ implementation
         AProcRec := exported_procs[i];
         FindExpProc := True;
         exit;
+       end;
     end;
   end;
   
@@ -102,6 +103,7 @@ implementation
         AProcRec := preffered_exported_procs[i];
         FindPrefferedExpProc := True;
         exit;
+       end;
     end;
   end;
 
@@ -117,6 +119,7 @@ implementation
         AAliasRec := aliases[i];
         FindAlias := True;
         exit;
+       end;
     end;
   end;
 
@@ -126,6 +129,12 @@ implementation
     evalres: TEvalResult;
   begin
     debugwriteln('Executing deash script '+APath);
+
+    if not FileExists(APath) then
+    begin
+      DeashError('File not Found: '+APath);
+      exit;
+    end;
 
     script.scriptpath := APath;
     Assign(script.scriptfile, script.scriptpath);
@@ -140,7 +149,7 @@ implementation
 
       if not evalres.success then
       begin
-        writeln(Format('deash <ERROR>:: eval for script %s failed at line %d:%s:: %s', 
+        DeashError(Format('eval for script %s failed at line %d:%s:: %s', 
               [script.scriptpath, script.nline, sLineBreak, evalres.message]));
         break;
       end;
