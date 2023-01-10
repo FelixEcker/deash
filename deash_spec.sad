@@ -67,7 +67,7 @@ used for.
   Close a Block-Comment
 
 {$style bold} > {$reset-all}
-  Start the implicit invocation of a procedure
+  Start the explicit invocation of a procedure
 
 {$style bold} ; {$reset-all}
   Terminate a procedure invocation or a procedure, (environment) variable or alias declaration.
