@@ -3,6 +3,12 @@
 {$start}
 {$title} deash Specification
 
+{$begin-section} contents
+{$head} Contents
+  1. Parsing Commands
+  2. Script Syntax
+{$end-section}
+
 {$begin-section} parsing
 {$head} Parsing Commands
 
@@ -31,6 +37,12 @@ By Default deash searches the following places in this order:
 Just like bash, deash supports piping and chaining commands. By default this
 is implemented using the Pipe and Chain functions, however the standardlibrary
 implements macros to allow for bash-style syntax for this.
+
+{$style bold} Pipe procedure {$reset-all} {$style fraktur}
+  Pipe(source_command: String; dest_command: String; pipe_mode: Integer); {$reset-all}
+
+{$style bold} Chain / Sequence procedure {$reset-all} {$style fraktur}
+  Seq(first_command: String; second_command: String; chain_condition: Integer); {$reset-all}
 {$end-section}
 {$begin-section} string-escaping
 {$sub-head} C-Style String-Escaping
@@ -221,5 +233,15 @@ Example: {$style fraktur}
   begin
     exa --color=auto -l
   end; {$reset-all}
+
+deash supports two calling conventions: shell-like and pascal-like.
+A shell like call is structured as follows: {$style fraktur}
+  < procedure-name > < parameters, space seperated > {$reset-all}
+
+Whereas a pascal-like call is structured like this: {$style fraktur}
+  < procedure-name >(< paramters, comma seperated >) {$reset-all}
+
+{$style bold} NOTE: {$reset-all} {$style italic} When using the pascal-like calling convention,
+the binary search paths as well as aliases are ignored! {$reset-all}
 {$end-section}
 {$end-section}
