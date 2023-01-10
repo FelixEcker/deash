@@ -76,15 +76,48 @@ interface
     aliases                  : TAliasDynArray;
 implementation
   function FindExpProc(const AName: String; var AProcRec: TProcedure): Boolean;
+  var
+    i: Integer;
   begin
+    FindExpProc := False;
+    for i := 0 to Length(exported_procs)-1 do
+    begin
+      if (exported_procs[i].name = AName) then
+      begin
+        AProcRec := exported_procs[i];
+        FindExpProc := True;
+        exit;
+    end;
   end;
   
   function FindPrefferedExpProc(const AName: String; var AProcRec: TProcedure): Boolean;
+  var
+    i: Integer;
   begin
+    FindPrefferedExpProc := False;
+    for i := 0 to Length(preffered_exported_procs)-1 do
+    begin
+      if (preffered_exported_procs[i].name = AName) then
+      begin
+        AProcRec := preffered_exported_procs[i];
+        FindPrefferedExpProc := True;
+        exit;
+    end;
   end;
 
   function FindAlias(const AName: String; var AAliasRec: TAlias): Boolean;
+  var
+    i: Integer;
   begin
+    FindAlias := False;
+    for i := 0 to Length(aliases)-1 do
+    begin
+      if (aliases[i].name = AName) then
+      begin
+        AAliasRec := aliases[i];
+        FindAlias := True;
+        exit;
+    end;
   end;
 
   procedure DoScriptExec(const APath: String);
@@ -167,6 +200,9 @@ implementation
       'else': exit;
       'begin': exit;
       'end': exit;
+      'env': exit;
+      'alias': exit;
+      'var': exit;
     else begin
       if not GetInvoke(tokens[0], invoke) then
       begin
