@@ -61,11 +61,12 @@ interface
     TAliasDynArray = array of TAlias;
 
   { Helper funcs }
+  function ExtractProcName(const ASrc: String): String;
   function FindExpProc(const AName: String; var AProcRec: TProcedure): Boolean;
   function FindPrefferedExpProc(const AName: String; var AProcRec: TProcedure): Boolean;
   function FindAlias(const AName: String; var AAliasRec: TAlias): Boolean;
 
-  { Execution helper }
+  { Execution funcs }
   procedure DoScriptExec(const APath: String);
   function GetInvoke(const AName: String; var ATargetRec: TInvoke): Boolean;
   function Eval(var AScript: TScript): TEvalResult;
@@ -75,6 +76,21 @@ interface
     exported_procs           : TProcedureDynArray;
     aliases                  : TAliasDynArray;
 implementation
+  { Helper funcs }
+  function ExtractProcName(const ASrc: String): String;
+  var
+    i: Integer;
+  begin
+    ExtractProcName := '';
+    for i := 1 to Length(ASrc) do
+      if (ASrc[i] = ' ') or (ASrc[i] = '(') or (ASrc[i] = ';') then
+        break
+      else
+        ExtractProcName := ExtractProcName + ASrc[i];
+        
+    writeln(ExtractProcName);
+  end;
+  
   function FindExpProc(const AName: String; var AProcRec: TProcedure): Boolean;
   var
     i: Integer;
@@ -123,6 +139,8 @@ implementation
     end;
   end;
 
+  { Execution funcs }
+
   procedure DoScriptExec(const APath: String);
   var
     script: TScript;
@@ -164,7 +182,7 @@ implementation
   begin
     GetInvoke := True;
 
-    if FindPrefferedExpProc(AName, procrec) then
+    if FindPrefferedExpProc(ExtractProcName(AName), procrec) then
     begin
       ATargetRec.invoketype := INVOKETYPE_PREF_PROC;
       ATargetRec.location := AName;
@@ -184,7 +202,7 @@ implementation
       exit;
     end;
 
-    if FindExpProc(AName, procrec) then
+    if FindExpProc(ExtractProcName(AName), procrec) then
     begin
       ATargetRec.invoketype := INVOKETYPE_PROC;
       ATargetRec.location := AName;
@@ -201,6 +219,9 @@ implementation
   begin
     Eval.success := True;
     Eval.message := 'succ';
+    
+    if (Length(AScript.cline) = 0) then exit;
+    if (AScript.cline[1] = '#') then exit;
 
     tokens := SplitString(AScript.cline, ' ');
     case tokens[0] of
@@ -212,6 +233,7 @@ implementation
       'env': exit;
       'alias': exit;
       'var': exit;
+      'proc': exit;
     else begin
       if not GetInvoke(tokens[0], invoke) then
       begin
