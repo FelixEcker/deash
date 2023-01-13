@@ -24,6 +24,7 @@ interface
       scriptpath : String;
       cline      : String;
       nline      : Integer;
+      incomment  : Boolean;
       vars       : TVariableDynArray;
     end;
 
@@ -86,9 +87,7 @@ implementation
       if (ASrc[i] = ' ') or (ASrc[i] = '(') or (ASrc[i] = ';') then
         break
       else
-        ExtractProcName := ExtractProcName + ASrc[i];
-        
-    writeln(ExtractProcName);
+        ExtractProcName := ExtractProcName + ASrc[i];   
   end;
   
   function FindExpProc(const AName: String; var AProcRec: TProcedure): Boolean;
@@ -216,6 +215,8 @@ implementation
   var
     tokens: TStringDynArray;
     invoke: TInvoke;
+    escaping: Boolean;
+    i, j: Integer;
   begin
     Eval.success := True;
     Eval.message := 'succ';
@@ -223,7 +224,31 @@ implementation
     if (Length(AScript.cline) = 0) then exit;
     if (AScript.cline[1] = '#') then exit;
 
-    tokens := SplitString(AScript.cline, ' ');
+    tokens := SplitString(Trim(AScript.cline), ' ');
+
+    { Skip until out of comment }
+    i := 0;
+    escaping := False;
+    while AScript.incomment and (i < Length(tokens)) do
+    begin
+      for j := 1 to Length(tokens[i]) do
+      begin
+        if (tokens[i][j] = '}') and not escaping then
+        begin
+          tokens[i] := Copy(tokens[i], j, Length(tokens[i])-1);
+          tokens := Copy(tokens, i, Length(tokens)-1);
+          AScript.incomment := False;
+          escaping := False;
+          break;
+        end;
+        if (tokens[i][j] = '\') then
+          escaping := not escaping;
+      end;
+      i := i + 1;
+    end;
+    if AScript.incomment then exit;
+    if tokens[0] = '' then exit;
+
     case tokens[0] of
       'if': exit;
       'elif': exit;
@@ -234,6 +259,7 @@ implementation
       'alias': exit;
       'var': exit;
       'proc': exit;
+      '{': begin AScript.incomment := True; exit; end;
     else begin
       if not GetInvoke(tokens[0], invoke) then
       begin
