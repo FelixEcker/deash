@@ -25,6 +25,7 @@ interface
       cline      : String;
       nline      : Integer;
       incomment  : Boolean;
+      codeblockcodeblocks : TIntegerDynArray;
       vars       : TVariableDynArray;
     end;
 
@@ -211,6 +212,7 @@ implementation
     GetInvoke := False;
   end;
 
+  { Evaluates the cline of the given TScript record }
   function Eval(var AScript: TScript): TEvalResult;
   var
     tokens: TStringDynArray;
@@ -250,11 +252,11 @@ implementation
     if tokens[0] = '' then exit;
 
     case tokens[0] of
-      'if': exit;
+      'if': begin ArrPush(AScript.codeblocks, BLOCKTYPE_IF); exit; end;
       'elif': exit;
       'else': exit;
       'begin': exit;
-      'end': exit;
+      'end': begin ArrPop(AScript.codeblocks) exit; end;
       'env': exit;
       'alias': exit;
       'var': exit;
