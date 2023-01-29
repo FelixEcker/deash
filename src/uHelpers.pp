@@ -7,7 +7,7 @@ unit uHelpers;
 {$H+}{$R+}
 
 interface
-  uses Types;
+  uses SysUtils, Types;
 
   procedure DeashError(const AMsg: String);
   function BinaryExists(const AName: String; var APath: String): Boolean;
@@ -20,8 +20,22 @@ implementation
   end;
 
   function BinaryExists(const AName: String; var APath: String): Boolean;
+  const
+    LOCATIONS : array of String = ('/bin', '/usr/bin', '/usr/local/bin');
+  var
+    location: String;
   begin
     BinaryExists := False;
+
+    for location in LOCATIONS do
+    begin
+      if FileExists(location+'/'+AName) then
+      begin
+        APath := location+'/'+AName;
+        BinaryExists := True;
+        exit;
+      end;
+    end;
   end;
 
   procedure ArrPushInt(var AArr: TIntegerDynArray; const AVal: Integer);
