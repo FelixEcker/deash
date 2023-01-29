@@ -4,7 +4,7 @@ unit uScriptEngine;
 { uScriptEngine.pas ; deash Script Execution Engine }
 { Author: Felix Eckert                              }
 
-{$H+}
+{$H+}{$R+}
 
 interface
   uses SysUtils, StrUtils, Types, uXDebug, uDEASHConsts, uHelpers;
@@ -25,7 +25,7 @@ interface
       cline      : String;
       nline      : Integer;
       incomment  : Boolean;
-      codeblockcodeblocks : TIntegerDynArray;
+      codeblocks : TIntegerDynArray;
       vars       : TVariableDynArray;
     end;
 
@@ -37,6 +37,11 @@ interface
     TInvoke = record
       invoketype : Integer;
       location   : String;
+    end;
+
+    TInvokeResult = record
+      code: Integer;
+      message: String;
     end;
 
     TParameter = record
@@ -67,10 +72,12 @@ interface
   function FindExpProc(const AName: String; var AProcRec: TProcedure): Boolean;
   function FindPrefferedExpProc(const AName: String; var AProcRec: TProcedure): Boolean;
   function FindAlias(const AName: String; var AAliasRec: TAlias): Boolean;
+  function IsInternalCmd(const ACmd: String): Boolean;
 
   { Execution funcs }
   procedure DoScriptExec(const APath: String);
   function GetInvoke(const AName: String; var ATargetRec: TInvoke): Boolean;
+  function DoInvoke(const AInvoke: TInvoke): TInvokeResult;
   function Eval(var AScript: TScript): TEvalResult;
 
   var
@@ -139,6 +146,18 @@ implementation
     end;
   end;
 
+  function IsInternalCmd(const ACmd: String): Boolean;
+  begin
+    IsInternalCmd := True;
+
+    case ACmd of
+      'cd': exit;
+      'purr': exit;
+    end;
+
+    IsInternalCmd := False;
+  end;
+
   { Execution funcs }
 
   procedure DoScriptExec(const APath: String);
@@ -158,13 +177,15 @@ implementation
     Assign(script.scriptfile, script.scriptpath);
     ReSet(script.scriptfile);
 
+    SetLength(script.codeblocks, 0);
+
     script.nline := 0;
     while not eof(script.scriptfile) do
     begin
       ReadLn(script.scriptfile, script.cline);
+      debugwriteln('= '+script.cline);
       script.nline := script.nline + 1;
       evalres := Eval(script);
-
       if not evalres.success then
       begin
         DeashError(Format('eval for script %s failed at line %d:%s:: %s', 
@@ -181,6 +202,13 @@ implementation
     path: String;
   begin
     GetInvoke := True;
+
+    if IsInternalCmd(AName) then
+    begin
+      ATargetRec.invoketype := INVOKETYPE_INTERNAL;
+      ATargeTRec.location := AName;
+      exit;
+    end;
 
     if FindPrefferedExpProc(ExtractProcName(AName), procrec) then
     begin
@@ -212,11 +240,18 @@ implementation
     GetInvoke := False;
   end;
 
+  function DoInvoke(const AInvoke: TInvoke): TInvokeResult;
+  begin
+    DoInvoke.code := 0;
+    DoInvoke.message := '';
+  end;
+
   { Evaluates the cline of the given TScript record }
   function Eval(var AScript: TScript): TEvalResult;
   var
     tokens: TStringDynArray;
     invoke: TInvoke;
+    inv_result: TInvokeResult;
     escaping: Boolean;
     i, j: Integer;
   begin
@@ -227,7 +262,7 @@ implementation
     if (AScript.cline[1] = '#') then exit;
 
     tokens := SplitString(Trim(AScript.cline), ' ');
-
+    
     { Skip until out of comment }
     i := 0;
     escaping := False;
@@ -250,24 +285,42 @@ implementation
     end;
     if AScript.incomment then exit;
     if tokens[0] = '' then exit;
+    if tokens[0] = 'end' then
+    begin
+      ArrPopInt(AScript.codeblocks);
+      exit;
+    end;
 
-    case tokens[0] of
-      'if': begin ArrPush(AScript.codeblocks, BLOCKTYPE_IF); exit; end;
-      'elif': exit;
-      'else': exit;
-      'begin': exit;
-      'end': begin ArrPop(AScript.codeblocks) exit; end;
-      'env': exit;
-      'alias': exit;
-      'var': exit;
-      'proc': exit;
-      '{': begin AScript.incomment := True; exit; end;
-    else begin
-      if not GetInvoke(tokens[0], invoke) then
-      begin
-        Eval.success := False;
-        Eval.message := 'Unrecognized identifier: '+tokens[0];
-      end;
-    end; end;
+    { Only execute line if we are not in any declaration block }
+    if (Length(AScript.codeblocks) = 0)
+    or (AScript.codeblocks[HIGH(AScript.codeblocks)] < BLOCKTYPE_PROC)
+    or (AScript.codeblocks[HIGH(AScript.codeblocks)] > BLOCKTYPE_VAR) then
+    begin
+      case tokens[0] of
+        'if': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_IF); exit; end;
+        'elif': exit;
+        'else': exit;
+        'begin': exit;
+        'env': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ENV); exit; end;
+        'alias': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ALIAS); exit; end;
+        'var': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_VAR); exit; end;
+        'proc': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_PROC); exit; end;
+        '{': begin AScript.incomment := True; exit; end;
+      else begin
+        if not GetInvoke(tokens[0], invoke) then
+        begin
+          Eval.success := False;
+          Eval.message := 'Unrecognized identifier: '+tokens[0];
+          exit;
+        end;
+        
+        inv_result := DoInvoke(invoke);
+        if inv_result.code <> 0 then
+        begin
+          DeashError('Invoke finished with code '+IntToStr(inv_result.code));
+          DeashError('Message: '+inv_result.message);
+        end;
+      end; end;
+    end;
   end;
 end.

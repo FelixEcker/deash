@@ -18,5 +18,6 @@ interface
     INVOKETYPE_ALIAS     = 1;
     INVOKETYPE_BINARY    = 2;
     INVOKETYPE_PROC      = 3;
+    INVOKETYPE_INTERNAL  = 4;
 implementation
 end.

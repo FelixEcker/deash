@@ -4,13 +4,15 @@ unit uHelpers;
 { uHelpers.pas ; Helper functions for deash }
 { Author: Felix Eckert                      }
 
-{$H+}
+{$H+}{$R+}
 
 interface
+  uses Types;
+
   procedure DeashError(const AMsg: String);
   function BinaryExists(const AName: String; var APath: String): Boolean;
-  procedure ArrPush(var AArr: array of const; const AVal);
-  function ArrPopInt(var AArr: array of const): Integer;
+  procedure ArrPushInt(var AArr: TIntegerDynArray; const AVal: Integer);
+  function ArrPopInt(var AArr: TIntegerDynArray): Integer;
 implementation
   procedure DeashError(const AMsg: String);
   begin
@@ -22,15 +24,15 @@ implementation
     BinaryExists := False;
   end;
 
-  procedure ArrPush(var AArr: array of const; const AVal);
+  procedure ArrPushInt(var AArr: TIntegerDynArray; const AVal: Integer);
   begin
     SetLength(AArr, Length(AArr)+1);
     AArr[HIGH(AArr)] := AVal;
   end;
 
-  function ArrPopInt(var AArr: array of const): Integer;
+  function ArrPopInt(var AArr: TIntegerDynArray): Integer;
   begin
-    ArrPopInt := AArr[HIGH(AArr)];
-    SetLength(AArr, HIGH(AArr));
+    ArrPopInt := AArr[Length(AArr)-1];
+    SetLength(AArr, Length(AArr)-1);
   end;
 end.
