@@ -21,7 +21,11 @@ implementation
 
   function BinaryExists(const AName: String; var APath: String): Boolean;
   const
+    {$IF defined(LINUX)}
     LOCATIONS : array of String = ('/bin', '/usr/bin', '/usr/local/bin');
+    {$ELSEIF defined(WINDOWS)}
+    LOCATIONS : array of String = ('"C:\Program Files\"', '"C:\Program Files (x86)\"');
+    {$ENDIF}
   var
     location: String;
   begin
