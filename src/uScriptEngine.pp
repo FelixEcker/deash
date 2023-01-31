@@ -79,6 +79,7 @@ interface
   function GetInvoke(const AName: String; var ATargetRec: TInvoke): Boolean;
   function DoInvoke(const AInvoke: TInvoke): TInvokeResult;
   function Eval(var AScript: TScript): TEvalResult;
+  function EvalIf(var AScript: TScript): Boolean;
 
   var
     preffered_exported_procs : TProcedureDynArray;
@@ -293,13 +294,24 @@ implementation
     end;
 
     { Only execute line if we are not in any declaration block }
-    if (Length(AScript.codeblocks) = 0)
+    if ((Length(AScript.codeblocks) = 0)
     or (AScript.codeblocks[HIGH(AScript.codeblocks)] < BLOCKTYPE_PROC)
-    or (AScript.codeblocks[HIGH(AScript.codeblocks)] > BLOCKTYPE_VAR) then
+    or (AScript.codeblocks[HIGH(AScript.codeblocks)] > BLOCKTYPE_VAR))
+    and (AScript.codeblocks[HIGH(AScript.codeblocks)] <> BLOCKTYPE_IGNORE) then
     begin
       case tokens[0] of
-        'if': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_IF); exit; end;
-        'elif': exit;
+        'if': begin 
+          if EvalIf(AScript) then 
+            ArrPushInt(AScript.codeblocks, BLOCKTYPE_IF)
+          else
+            ArrPushInt(AScript.codeblocks, BLOCKTYPE_IGNORE);
+          exit; 
+        end;
+        'elif': begin
+          if not EvalIf(AScript) then
+            AScript.codeblocks[HIGH(AScript.codeblocks)] := BLOCKTYPE_IGNORE;
+          exit;
+        end;
         'else': exit;
         'begin': exit;
         'env': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ENV); exit; end;
@@ -324,5 +336,10 @@ implementation
         end;
       end; end;
     end;
+  end;
+
+  function EvalIf(var AScript: TScript): Boolean;
+  begin
+    EvalIf := False;
   end;
 end.
