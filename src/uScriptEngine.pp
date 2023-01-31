@@ -173,6 +173,7 @@ implementation
       exit;
     end;
 
+    script.incomment := False;
     script.scriptpath := APath;
     Assign(script.scriptfile, script.scriptpath);
     ReSet(script.scriptfile);
@@ -236,7 +237,6 @@ implementation
       ATargetRec.location := AName;
       exit;
     end;
-
     GetInvoke := False;
   end;
 
@@ -290,7 +290,7 @@ implementation
       ArrPopInt(AScript.codeblocks);
       exit;
     end;
-
+ 
     { Only execute line if we are not in any declaration block }
     if (Length(AScript.codeblocks) = 0)
     or (AScript.codeblocks[HIGH(AScript.codeblocks)] < BLOCKTYPE_PROC)

@@ -1,0 +1,11 @@
+#!/usr/bin/deash
+
+alias
+  ls = "exa -l --color=auto"
+end
+
+env
+  PAGER = "most"
+end
+
+pasfetch
