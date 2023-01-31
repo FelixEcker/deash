@@ -178,10 +178,11 @@ implementation
     Assign(script.scriptfile, script.scriptpath);
     ReSet(script.scriptfile);
 
-    SetLength(script.codeblocks, 0);
+    SetLength(script.codeblocks, 1);
+    script.codeblocks[0] := BLOCKTYPE_NONE;
 
     script.nline := 0;
-    while not eof(script.scriptfile) do
+    while not eof(script.scriptfile) and (Length(script.codeblocks) > 0) do
     begin
       ReadLn(script.scriptfile, script.cline);
       debugwriteln('= '+script.cline);
@@ -290,7 +291,7 @@ implementation
       ArrPopInt(AScript.codeblocks);
       exit;
     end;
- 
+
     { Only execute line if we are not in any declaration block }
     if (Length(AScript.codeblocks) = 0)
     or (AScript.codeblocks[HIGH(AScript.codeblocks)] < BLOCKTYPE_PROC)
@@ -305,6 +306,7 @@ implementation
         'alias': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ALIAS); exit; end;
         'var': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_VAR); exit; end;
         'proc': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_PROC); exit; end;
+        'return': begin ArrPopInt(AScript.codeblocks); exit; end;
         '{': begin AScript.incomment := True; exit; end;
       else begin
         if not GetInvoke(tokens[0], invoke) then
