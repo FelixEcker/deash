@@ -25,6 +25,7 @@ interface
       cline      : String;
       nline      : Integer;
       incomment  : Boolean;
+      falseif    : Boolean;
       codeblocks : TIntegerDynArray;
       vars       : TVariableDynArray;
     end;
