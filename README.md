@@ -1,1 +1,2 @@
 # deash (Name is subject to change)
+## SOURCE CODE IS TERRIBLE RIGHT NOW I JUST WANT IT TO WORK THEN IT WILL GET CLEANED!
