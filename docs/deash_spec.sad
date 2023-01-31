@@ -103,7 +103,7 @@ used for.
 {$style bold} Boolean {$reset-all}
   Used to set a Variables type to Boolean
 
-{$style bold} begin {$reset-all}
+{$style bold} begin (will be removed (?)) {$reset-all}
   Used to start a code-block
 
 {$style bold} end {$reset-all}
@@ -138,6 +138,7 @@ Example: {$style fraktur}
 {$begin-section} code-blocks
 {$sub-head} Code-Blocks
 
+{$style bold;cursive} TO BE REMOVED (?) {$reset-all}
 Code blocks in deash are opened using the begin keyword and closed using the end keyword.
 
 Example: {$style fraktur}
@@ -164,7 +165,8 @@ Example: {$style fraktur}
     bool = true;
     _bool: Boolean;
     num = 100;
-    _num: Integer; {$reset-all}
+    _num: Integer; 
+  end {$reset-all}
 {$end-section}
 {$begin-section} conditionals
 {$sub-head} Conditionals
@@ -183,6 +185,8 @@ can be combined to form the "is not equal"-diamond operator.
 
 To negate a condition the not keyword is to be used.
 
+An If(-Else(-Elif)) block is to be terminated using the end keyword.
+
 Example: {$style fraktur}
   if (bool) and (strvar = '') then
     # do something
@@ -190,8 +194,11 @@ Example: {$style fraktur}
     # do another thing
   else
     # do a fallback thing 
+  end
 
-  if (SH_MODE <> MODE_INTERACTIVE) then exit; {$reset-all}
+  if (SH_MODE <> MODE_INTERACTIVE) then 
+    exit; 
+  end {$reset-all}
 {$end-section}
 {$begin-section} procedures
 {$sub-head} Procedures
@@ -208,12 +215,10 @@ semi-colon.
 
 Example: {$style fraktur}
   proc Foo;
-  begin
     echo Bar
   end
 
   proc Bar(writeFoo: Boolean);
-  begin
     if writeFoo then echo Foo;
   end {$reset-all}
 
@@ -221,7 +226,6 @@ Procedures can be exported using the export modifier behind their declaration.
 
 Example: {$style fraktur}
   proc Ping(param: String); export;
-  begin
     echo >Concat('Pong: ', param);
   end {$reset-all}
 
@@ -230,7 +234,6 @@ this is done by adding the preffered modifier behind the declaration.
 
 Example: {$style fraktur}
   proc ls; export; preffered;
-  begin
     exa --color=auto -l
   end; {$reset-all}
 
