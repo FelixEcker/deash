@@ -1,6 +1,9 @@
 {$mode fpc}
 unit uInteractiveMode;
 
+{ uInteractiveMode.pp ; Interactive Shell for DEASH }
+{ author: Felix Eckert                              }
+
 {$H+}
 
 interface

@@ -1,13 +1,16 @@
 {$mode fpc}
 unit uDEASHConsts;
 
-{ uDEASHConsts.pas ; Constants for deash }
-{ Author: Felix Eckert                   }
+{ uDEASHConsts.pp ; Constants for deash }
+{ Author: Felix Eckert                  }
 
 {$H+}
 
 interface
   const
+    VERSION = '0.0.0';
+    VERSION_TYPE = 'alpha-dev';
+    DEV_INFO = 'Felix Eckert';
     BLOCKTYPE_NONE  = 0;
     BLOCKTYPE_PROC  = 1;
     BLOCKTYPE_ALIAS = 2;

@@ -1,8 +1,8 @@
 {$mode objfpc}
 unit uHelpers;
 
-{ uHelpers.pas ; Helper functions for deash }
-{ Author: Felix Eckert                      }
+{ uHelpers.pp ; Helper functions for deash }
+{ Author: Felix Eckert                     }
 
 {$H+}{$R+}
 

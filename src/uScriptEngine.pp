@@ -1,8 +1,8 @@
 {$mode fpc}
 unit uScriptEngine;
 
-{ uScriptEngine.pas ; deash Script Execution Engine }
-{ Author: Felix Eckert                              }
+{ uScriptEngine.pp ; deash Script Execution Engine }
+{ Author: Felix Eckert                             }
 
 {$H+}{$R+}
 
@@ -257,12 +257,12 @@ implementation
   begin
     Eval.success := True;
     Eval.message := 'succ';
-    
+
     if (Length(AScript.cline) = 0) then exit;
     if (AScript.cline[1] = '#') then exit;
 
     tokens := SplitString(Trim(AScript.cline), ' ');
-    
+
     { Skip until out of comment }
     i := 0;
     escaping := False;
@@ -313,7 +313,7 @@ implementation
           Eval.message := 'Unrecognized identifier: '+tokens[0];
           exit;
         end;
-        
+
         inv_result := DoInvoke(invoke);
         if inv_result.code <> 0 then
         begin
