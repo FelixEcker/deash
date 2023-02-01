@@ -322,6 +322,7 @@ implementation
         'var': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_VAR); exit; end;
         'proc': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_PROC); exit; end;
         'return': begin ArrPopInt(AScript.codeblocks); exit; end;
+        'exit': begin SetLength(AScript.codeblocks, 0); exit; end;
         '{': begin AScript.incomment := True; exit; end;
       else begin
         if (curr_blocktype = BLOCKTYPE_IF) and AScript.falseif then exit;
@@ -344,6 +345,6 @@ implementation
 
   function EvalIf(var AScript: TScript): Boolean;
   begin
-    EvalIf := False;
+    EvalIf := True;
   end;
 end.
