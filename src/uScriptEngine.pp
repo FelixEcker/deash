@@ -316,6 +316,11 @@ implementation
           AScript.falseif := not AScript.falseif;
           exit;
         end;
+      end;
+      
+      if (curr_blocktype = BLOCKTYPE_IF) and AScript.falseif then exit;
+
+      case tokens[0] of
         {'begin': exit; DEPRECATED LANG FEATURE }
         'env': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ENV); exit; end;
         'alias': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ALIAS); exit; end;
@@ -325,14 +330,13 @@ implementation
         'exit': begin SetLength(AScript.codeblocks, 0); exit; end;
         '{': begin AScript.incomment := True; exit; end;
       else begin
-        if (curr_blocktype = BLOCKTYPE_IF) and AScript.falseif then exit;
         if not GetInvoke(tokens[0], invoke) then
         begin
           Eval.success := False;
           Eval.message := 'Unrecognized identifier: '+tokens[0];
           exit;
         end;
-
+        debugwriteln('INVOKE TYPE: '+IntToStr(invoke.invoketype));
         inv_result := DoInvoke(invoke);
         if inv_result.code <> 0 then
         begin
