@@ -309,10 +309,22 @@ implementation
           exit; 
         end;
         'elif': begin
+          if (curr_blocktype <> BLOCKTYPE_IF) then
+          begin
+            Eval.success := False;
+            Eval.message := 'Invalid keyword "elif" outside of an IF-Block';
+            exit;
+          end;
           AScript.falseif := not EvalIf(AScript);
           exit;
         end;
         'else': begin
+          if (curr_blocktype <> BLOCKTYPE_IF) then
+          begin
+            Eval.success := False;
+            Eval.message := 'Invalid keyword "else" outside of an IF-Block';
+            exit;
+          end;
           AScript.falseif := not AScript.falseif;
           exit;
         end;
@@ -336,7 +348,7 @@ implementation
           Eval.message := 'Unrecognized identifier: '+tokens[0];
           exit;
         end;
-        debugwriteln('INVOKE TYPE: '+IntToStr(invoke.invoketype));
+        debugwriteln('INVOKE LOCATION: '+invoke.location+' ; INVOKE TYPE: '+IntToStr(invoke.invoketype));
         inv_result := DoInvoke(invoke);
         if inv_result.code <> 0 then
         begin
@@ -349,6 +361,6 @@ implementation
 
   function EvalIf(var AScript: TScript): Boolean;
   begin
-    EvalIf := True;
+    EvalIf := False;
   end;
 end.
