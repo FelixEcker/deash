@@ -269,6 +269,7 @@ implementation
     tokens := SplitString(Trim(AScript.cline), ' ');
 
     { Skip until out of comment }
+
     i := 0;
     escaping := False;
     while AScript.incomment and (i < Length(tokens)) do

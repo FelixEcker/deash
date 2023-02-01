@@ -1,15 +1,29 @@
 #!/usr/bin/deash
 
-if (SH_MODE <> MODE_INTERACTIVE) then
+# Leave if this is not an interactive session
+if SH_MODE <> SH_INTERACTIVE then 
   exit
+elif
+  # something
+else
+  # something something
 end
 
 alias
-  ls = "exa -l --color=auto"
+  ls = 'exa --color=auto -l';
+  mmpv = 'mpv --no-video';
 end
 
 env
-  PAGER = "most"
+  PAGER = 'most';
 end
 
+{ Simply exists for testing deash
+  - Felix }
+proc wisdom; export; preffered;
+  echo Jeder sollte mal einen alten Stremellachs probiert haben.
+end
+
+# Coole start commands
 pasfetch
+pasmotd cyan bold underline
