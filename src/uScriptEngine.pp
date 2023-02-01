@@ -256,7 +256,7 @@ implementation
     invoke: TInvoke;
     inv_result: TInvokeResult;
     escaping: Boolean;
-    i, j: Integer;
+    curr_blocktype, i, j: Integer;
   begin
     Eval.success := True;
     Eval.message := 'succ';
@@ -294,27 +294,29 @@ implementation
       exit;
     end;
 
+    if Length(AScript.codeblocks) = 0 then exit;
+
     { Only execute line if we are not in any declaration block }
-    if ((Length(AScript.codeblocks) = 0)
-    or (AScript.codeblocks[HIGH(AScript.codeblocks)] < BLOCKTYPE_PROC)
-    or (AScript.codeblocks[HIGH(AScript.codeblocks)] > BLOCKTYPE_VAR))
-    and (AScript.codeblocks[HIGH(AScript.codeblocks)] <> BLOCKTYPE_IGNORE) then
-    begin
+
+    curr_blocktype := AScript.codeblocks[HIGH(AScript.codeblocks)];
+    if (curr_blocktype < BLOCKTYPE_PROC)
+    or (curr_blocktype > BLOCKTYPE_VAR) then
+    begin 
       case tokens[0] of
         'if': begin 
-          if EvalIf(AScript) then 
-            ArrPushInt(AScript.codeblocks, BLOCKTYPE_IF)
-          else
-            ArrPushInt(AScript.codeblocks, BLOCKTYPE_IGNORE);
+          ArrPushInt(AScript.codeblocks, BLOCKTYPE_IF);
+          AScript.falseif := not EvalIf(AScript);
           exit; 
         end;
         'elif': begin
-          if not EvalIf(AScript) then
-            AScript.codeblocks[HIGH(AScript.codeblocks)] := BLOCKTYPE_IGNORE;
+          AScript.falseif := not EvalIf(AScript);
           exit;
         end;
-        'else': exit;
-        'begin': exit;
+        'else': begin
+          AScript.falseif := not AScript.falseif;
+          exit;
+        end;
+        {'begin': exit; DEPRECATED LANG FEATURE }
         'env': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ENV); exit; end;
         'alias': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ALIAS); exit; end;
         'var': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_VAR); exit; end;
@@ -322,6 +324,7 @@ implementation
         'return': begin ArrPopInt(AScript.codeblocks); exit; end;
         '{': begin AScript.incomment := True; exit; end;
       else begin
+        if (curr_blocktype = BLOCKTYPE_IF) and AScript.falseif then exit;
         if not GetInvoke(tokens[0], invoke) then
         begin
           Eval.success := False;

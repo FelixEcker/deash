@@ -1,5 +1,9 @@
 #!/usr/bin/deash
 
+if (SH_MODE <> MODE_INTERACTIVE) then
+  exit
+end
+
 alias
   ls = "exa -l --color=auto"
 end

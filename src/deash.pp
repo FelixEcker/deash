@@ -8,12 +8,30 @@ program deash;
 
 uses SysUtils, uXDebug, uDEASHConsts, uInteractiveMode, uScriptEngine;
 
-procedure DeashInfo;
+procedure GiveVersion;
 begin
   writeln(':: deash version ', VERSION, '-', VERSION_TYPE);
+end;
+
+procedure DeashInfo;
+begin
+  GiveVersion;
   writeln(':: by ', DEV_INFO);
   writeln(':: git repository: https://github.com/FelixEcker/deash.git ');
-  writeln(':: licensed under the bsd 3-claues license');
+  writeln(':: licensed under the bsd 3-clause license');
+end;
+
+procedure DeashHelp;
+begin
+  writeln(':: -- HELP --');
+  GiveVersion;
+  writeln(':: Usage: deash [script file, empty for interactive] [options]');
+  writeln('::');
+  writeln(':: Options:');
+  writeln(':: --info         Info text about deash');
+  writeln(':: --help         This help-text');
+  writeln(':: --no-fallback  Run without a fallback shell to escape into');
+  writeln('::                incase deash crashes');
 end;
 
 begin
@@ -21,6 +39,8 @@ begin
     LaunchShell
   else if (ParamStr(1) = '--info') then
     DeashInfo
+  else if (ParamStr(1) = '--help') then
+    DeashHelp
   else
     DoScriptExec(ParamStr(1));
 end.
