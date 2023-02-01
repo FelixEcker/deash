@@ -7,6 +7,7 @@
 {$head} Contents
   1. Parsing Commands
   2. Script Syntax
+  3. Builtin Commands
 {$end-section}
 
 {$begin-section} parsing
@@ -246,5 +247,34 @@ Whereas a pascal-like call is structured like this: {$style fraktur}
 
 {$style bold} NOTE: {$reset-all} {$style italic} When using the pascal-like calling convention,
 the binary search paths as well as aliases are ignored! {$reset-all}
+{$end-section}
+{$end-section}
+
+{$begin-section} builtin-cmds
+{$head} Built-In Commands
+
+This section details all Builtin commands, their parameters and what they do.
+
+{$begin-section} purr
+{$sub-head} purr
+
+purr prints out all {$style italic} relevant {$reset-all} data about the current
+shell session. More details can be found at {$style underline} https://github.com/FelixEcker/deash/blob/master/docs/purr.sad {$reset-all}
+{$end-section}
+
+{$begin-section} exec
+{$sub-head} exec
+
+Like bash's exec command, exec will replace the shells process with the specified process and
+its parameters.
+
+Example: {$style fraktur}
+  exec bspwm {$reset-all}
+{$end-section}
+
+{$begin-section} exit
+{$sub-head} exit
+
+Terminates the current shell-session.
 {$end-section}
 {$end-section}
