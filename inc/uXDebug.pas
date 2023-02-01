@@ -7,7 +7,6 @@ unit uXDebug;
 { Author: Felix Eckert              }
 
 {$H+}
-{$DEFINE DEBUG}
 
 interface
   uses SysUtils;
