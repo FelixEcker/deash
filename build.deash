@@ -1,0 +1,9 @@
+#!/usr/bin/deash
+# I need this for testing, build.sh is gonna remain the primary
+# build script.
+
+if ParamStr(1) = 'Debug' then
+  fpc src/deash.pp -FE"out/" -Fu"inc/" -g -dDEBUG
+else
+  fpc src/deash.pp -FE"out/" -Fu"inc/" -O4 -XX -Xs
+end
