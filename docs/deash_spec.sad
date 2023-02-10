@@ -7,7 +7,7 @@
 {$head} Contents
   1. Parsing Commands
   2. Script Syntax
-  3. Builtin Commands
+  3. Builtin Commands & Procedures
 {$end-section}
 
 {$begin-section} parsing
@@ -251,10 +251,12 @@ the binary search paths as well as aliases are ignored! {$reset-all}
 {$end-section}
 
 {$begin-section} builtin-cmds
-{$head} Built-In Commands
+{$head} Built-In Commands and Procedures
 
-This section details all Builtin commands, their parameters and what they do.
+This section details all Builtin commands/procedures, their parameters and what they do.
 
+{$begin-sectoin} builtin-cmds-cmds
+{$sub-head} Commands
 {$begin-section} purr
 {$sub-head} purr
 
@@ -276,5 +278,21 @@ Example: {$style fraktur}
 {$sub-head} exit
 
 Terminates the current shell-session.
+{$end-section}
+{$end-section}
+
+{$begin-section} builtin-cmds-procs
+{$sub-head} Procedures
+{$begin-section} paramstr
+{$sub-head} ParamStr
+
+The ParamStr procedure can be used in scripts to access parameters which were passed to it,
+it takes a single Integer as its parameter which specifies which parameter to get.
+
+The 0th Param is always the path to the script, if the passed number exceeds the number of
+parameters an empty string will be returned.
+
+{$style bold} Procedure Definition {$reset-all} {$style fraktur}
+  procedure ParamStr(ParamIndex: Integer); export; {$reset-all}
 {$end-section}
 {$end-section}
