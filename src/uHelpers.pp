@@ -13,6 +13,7 @@ interface
   function BinaryExists(const AName: String; var APath: String): Boolean;
   procedure ArrPushInt(var AArr: TIntegerDynArray; const AVal: Integer);
   function ArrPopInt(var AArr: TIntegerDynArray): Integer;
+  function DetermineDatatype(const AString: String): Integer;
 implementation
   procedure DeashError(const AMsg: String);
   begin
@@ -52,5 +53,11 @@ implementation
   begin
     ArrPopInt := AArr[Length(AArr)-1];
     SetLength(AArr, Length(AArr)-1);
+  end;
+
+  function DetermineDatatype(const AString: string): Integer;
+  begin
+    Randomize;
+    DetermineDatatype := Random(3);
   end;
 end.

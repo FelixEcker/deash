@@ -33,7 +33,7 @@ interface
     TEvalResult = record
       success: Boolean;
       message: String;
-    end; 
+    end;
 
     TInvoke = record
       invoketype : Integer;
@@ -80,7 +80,7 @@ interface
   function GetInvoke(const AName: String; var ATargetRec: TInvoke): Boolean;
   function DoInvoke(const AInvoke: TInvoke): TInvokeResult;
   function Eval(var AScript: TScript): TEvalResult;
-  function EvalIf(var AScript: TScript): Boolean;
+  function EvalIf(var AScript: TScript; var AResult: TEvalResult): Boolean;
 
   var
     preffered_exported_procs : TProcedureDynArray;
@@ -255,6 +255,7 @@ implementation
     tokens: TStringDynArray;
     invoke: TInvoke;
     inv_result: TInvokeResult;
+    ifeval_res: TEvalResult;
     escaping: Boolean;
     curr_blocktype, i, j: Integer;
   begin
@@ -308,7 +309,8 @@ implementation
       case tokens[0] of
         'if': begin 
           ArrPushInt(AScript.codeblocks, BLOCKTYPE_IF);
-          AScript.falseif := not EvalIf(AScript);
+          AScript.falseif := not EvalIf(AScript, ifeval_res);
+          Eval := ifeval_res;
           exit; 
         end;
         'elif': begin
@@ -318,7 +320,8 @@ implementation
             Eval.message := 'Invalid keyword "elif" outside of an IF-Block';
             exit;
           end;
-          AScript.falseif := not EvalIf(AScript);
+          AScript.falseif := not EvalIf(AScript, ifeval_res);
+          Eval := ifeval_res;
           exit;
         end;
         'else': begin
@@ -362,8 +365,43 @@ implementation
     end;
   end;
 
-  function EvalIf(var AScript: TScript): Boolean;
+  function EvalIf(var AScript: TScript; var AResult: TEvalResult): Boolean;
+  var
+    i, skip, lefthandDT, righthandDT: Integer;
+    split: TStringDynArray;
   begin
     EvalIf := False;
+    AResult.success := True;
+
+    split := SplitString(AScript.cline, ' ');
+    skip := 0;
+    for i := 1 to Length(split)-1 do
+    begin
+      if skip > 0 then
+      begin
+        skip := skip - 1;
+        continue;
+      end;
+
+      debugwrite(split[i]+' ');
+      { Determine Datatype, throw error if mismatch }
+      if (i >= Length(split)) or (i + 2 >= Length(split)) then
+      begin
+        AResult.success := False;
+        AResult.message := 'malformed conditional: expected VALUE OPERATOR VALUE';
+        exit;
+      end;
+
+      lefthandDT := DetermineDatatype(split[i]);
+      righthandDT := DetermineDatatype(split[i+2]);
+      
+      if lefthandDT <> righthandDT then
+      begin
+        AResult.success := False;
+        AResult.message := 'mismatched datatypes for comparison';
+        exit;
+      end;
+    end;
+    debugwrite(sLineBreak);
   end;
 end.

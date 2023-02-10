@@ -10,7 +10,7 @@ interface
   const
     VERSION = '0.0.0';
     VERSION_TYPE = 'alpha-dev';
-    DEV_INFO = 'Felix Eckert';
+    DEV_INFO = 'Marie """Felix""" Eckert';
     BLOCKTYPE_NONE   = 0;
     BLOCKTYPE_PROC   = 1;
     BLOCKTYPE_ALIAS  = 2;
@@ -23,5 +23,9 @@ interface
     INVOKETYPE_BINARY    = 2;
     INVOKETYPE_PROC      = 3;
     INVOKETYPE_INTERNAL  = 4;
+    DATATYPE_VARIABLE = 0;
+    DATATYPE_INTEGER  = 1;
+    DATATYPE_STRING   = 2;
+    DATATYPE_BOOLEAN  = 3;
 implementation
 end.
