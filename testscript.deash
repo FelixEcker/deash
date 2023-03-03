@@ -24,6 +24,10 @@ proc wisdom; export; preffered;
   echo Jeder sollte mal einen alten Stremellachs probiert haben.
 end
 
+if $HOME = '/home/felix' then
+  # test
+end
+
 # Coole start commands
 pasfetch
 pasmotd cyan bold underline

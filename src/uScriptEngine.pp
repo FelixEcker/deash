@@ -7,7 +7,7 @@ unit uScriptEngine;
 {$H+}{$R+}
 
 interface
-  uses SysUtils, StrUtils, Types, uXDebug, uDEASHConsts, uHelpers;
+  uses Dos, SysUtils, StrUtils, Types, uXDebug, uDEASHConsts, uHelpers;
 
   type
     { TODO: Put all these data structures into their own unit,
@@ -15,6 +15,7 @@ interface
 
     TVariable = record
       identifier, value: String;
+      datatype: Integer;
     end;
 
     TVariableDynArray = array of TVariable;
@@ -74,6 +75,7 @@ interface
   function FindPrefferedExpProc(const AName: String; var AProcRec: TProcedure): Boolean;
   function FindAlias(const AName: String; var AAliasRec: TAlias): Boolean;
   function IsInternalCmd(const ACmd: String): Boolean;
+  function ResolveVariable(const AName: String): TVariable;
 
   { Execution funcs }
   procedure DoScriptExec(const APath: String);
@@ -158,6 +160,19 @@ implementation
     end;
 
     IsInternalCmd := False;
+  end;
+
+  function ResolveVariable(const AName: String): TVariable;
+  begin
+    ResolveVariable.datatype := -1;
+
+    if AName[1] = '$' then // env variable
+    begin
+      ResolveVariable.identifier := Copy(AName, 2, Length(AName));
+      ResolveVariable.value := GetEnv(ResolveVariable.identifier);
+      ResolveVariable.datatype := DATATYPE_STRING;
+      exit;
+    end;
   end;
 
   { Execution funcs }
@@ -368,6 +383,7 @@ implementation
   function EvalIf(var AScript: TScript; var AResult: TEvalResult): Boolean;
   var
     i, skip, lefthandDT, righthandDT: Integer;
+    lefthandVal, righthandVal: TVariable;
     split: TStringDynArray;
   begin
     EvalIf := False;
@@ -387,6 +403,7 @@ implementation
       { Determine Datatype, throw error if mismatch }
       if (i >= Length(split)) or (i + 2 >= Length(split)) then
       begin
+        debugwriteln(sLineBreak + 'Conditional evaluation failed on word: '+split[i]);
         AResult.success := False;
         AResult.message := 'malformed conditional: expected VALUE OPERATOR VALUE';
         exit;
@@ -395,10 +412,22 @@ implementation
       lefthandDT := DetermineDatatype(split[i]);
       righthandDT := DetermineDatatype(split[i+2]);
       
+      if lefthandDT = DATATYPE_VARIABLE then
+      begin
+        lefthandVal := ResolveVariable(split[i]);
+        lefthandDT := lefthandVal.datatype;
+      end;
+
+      if righthandDT = DATATYPE_VARIABLE then
+      begin
+        righthandVal := ResolveVariable(split[i+2]);
+        righthandDT := righthandVal.datatype;
+      end;
+      
       if lefthandDT <> righthandDT then
       begin
         AResult.success := False;
-        AResult.message := 'mismatched datatypes for comparison';
+        AResult.message := Format('mismatched datatypes for comparison (%s and %s)', [DatatypeToStr(lefthandDT), DatatypeToStr(righthandDT)]);
         exit;
       end;
     end;

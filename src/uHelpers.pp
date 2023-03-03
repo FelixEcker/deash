@@ -7,13 +7,14 @@ unit uHelpers;
 {$H+}{$R+}
 
 interface
-  uses SysUtils, Types;
+  uses SysUtils, Types, uDEASHConsts;
 
   procedure DeashError(const AMsg: String);
   function BinaryExists(const AName: String; var APath: String): Boolean;
   procedure ArrPushInt(var AArr: TIntegerDynArray; const AVal: Integer);
   function ArrPopInt(var AArr: TIntegerDynArray): Integer;
   function DetermineDatatype(const AString: String): Integer;
+  function DatatypeToStr(const ADatatype: Integer): String;
 implementation
   procedure DeashError(const AMsg: String);
   begin
@@ -55,9 +56,26 @@ implementation
     SetLength(AArr, Length(AArr)-1);
   end;
 
-  function DetermineDatatype(const AString: string): Integer;
+  function DetermineDatatype(const AString: String): Integer;
   begin
-    Randomize;
-    DetermineDatatype := Random(3);
+    DetermineDatatype := DATATYPE_VARIABLE;
+
+    if (Byte(AString[1]) >= Byte('0')) and (Byte(AString[1]) <= Byte('9')) then
+      DetermineDatatype := DATATYPE_INTEGER;
   end;
+
+  function DatatypeToStr(const ADatatype: Integer): String;
+  begin
+    DatatypeToStr := 'unknown';
+
+    case ADatatype of
+      DATATYPE_VARIABLE: DatatypeToStr := 'Variable';
+      DATATYPE_INTEGER: DatatypeToStr := 'Integer';
+      DATATYPE_BOOLEAN: DatatypeToStr := 'Boolean';
+      DATATYPE_STRING: DatatypeToStr := 'String';
+    end;
+  end;
+
+initialization
+  Randomize;
 end.
