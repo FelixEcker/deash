@@ -35,6 +35,10 @@ begin
 end;
 
 begin
+  SetShellEnv('SH_VERSION', VERSION + '-' + VERSION_TYPE);
+  SetShellEnv('SH_AUTHOR', DEV_INFO);
+  SetShellEnv('SH_BINLOC', ParamStr(0));
+
   if (ParamCount = 0) then
   begin
     SetShellEnv('SH_MODE', 'INTERACTIVE');

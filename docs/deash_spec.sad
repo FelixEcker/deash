@@ -7,7 +7,7 @@
 {$head} Contents
   1. Parsing Commands
   2. Script Syntax
-  3. Builtin Commands & Procedures
+  3. Builtin Commands, Procedures and Variables
 {$end-section}
 
 {$begin-section} parsing
@@ -251,9 +251,9 @@ the binary search paths as well as aliases are ignored! {$reset-all}
 {$end-section}
 
 {$begin-section} builtin-cmds
-{$head} Built-In Commands and Procedures
+{$head} Built-In Commands, Procedures and Variables
 
-This section details all Builtin commands/procedures, their parameters and what they do.
+This section details all Builtin variables, commands/procedures, their parameters and what they do.
 
 {$begin-sectoin} builtin-cmds-cmds
 {$sub-head} Commands
@@ -294,5 +294,29 @@ parameters an empty string will be returned.
 
 {$style bold} Procedure Definition {$reset-all} {$style fraktur}
   procedure ParamStr(ParamIndex: Integer); export; {$reset-all}
+{$end-section}
+
+{$begin-section} builtin-cmds-vars
+{$sub-head} Variables
+
+deash has internal standard variables reffered to as ShellEnv. These variables are read-only
+and prefixed with {$style italic} SH_ {$reset-all} .
+Below is a list of all these variables.
+
+{$style bold} SH_MODE {$reset-all}
+The current shell mode. Values may be {$style italic} INTERACTIVE {$reset-all} or {$style italic}
+SCRIPT_EXEC {$reset-all} .
+
+{$style bold} SH_VERSION {$reset-all}
+The current shell version.
+
+{$style bold} SH_AUTHOR {$reset-all}
+The author.
+
+{$style bold} SH_WORKDIR {$reset-all}
+The current working directory of the shell. This variable may be changed when using the cd command.
+
+{$style bold} SH_BINLOC {$reset-all}
+The location of the shells binary.
 {$end-section}
 {$end-section}

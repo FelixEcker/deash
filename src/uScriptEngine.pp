@@ -490,6 +490,7 @@ implementation
         righthandDT := DetermineDatatype(split[i+2]);
         operand := split[i+1];
 
+        { Get actual variable datatype if its a variable, if its a string clean it up }
         if lefthandDT = DATATYPE_VARIABLE then
         begin
           lefthandVal := ResolveVariable(split[i]);
@@ -512,6 +513,7 @@ implementation
             righthandVal.value := Copy(righthandVal.value, 2, Length(righthandVal.value)-2)
         end;
         
+        { Check if the two values can be compared }
         if lefthandDT <> righthandDT then
         begin
           AResult.success := False;
@@ -521,7 +523,9 @@ implementation
         skip := 2;
       end;
 
+      { Stash the current result incase we do a bitwise }
       res_stash := EvalIf;
+      
       { Do an actual comparison of the values }
       case operand of
         '=': EvalIf := righthandVal.value = lefthandVal.value;
