@@ -1,12 +1,10 @@
 #!/usr/bin/deash
 
 # Leave if this is not an interactive session
-if SH_MODE <> SH_INTERACTIVE then 
+if SH_MODE <> 'INTERACTIVE' or SH_MODE = 'SCRIPT_EXEC' then 
   exit
-elif
-  # something
-else
-  # something something
+elif 123 > 1234
+  exit
 end
 
 alias
@@ -24,7 +22,11 @@ proc wisdom; export; preffered;
   echo Jeder sollte mal einen alten Stremellachs probiert haben.
 end
 
-if $HOME = '/home/felix' then
+if false and true then
+  exit
+end
+
+if $HOME <> '/home/felix' then
   # test
 end
 
