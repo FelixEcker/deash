@@ -2,7 +2,7 @@
 unit uScriptEngine;
 
 { uScriptEngine.pp ; deash Script Execution Engine }
-{ Author: Felix Eckert                             }
+{ Author: Marie Eckert                             }
 
 {$H+}{$R+}
 
@@ -391,7 +391,7 @@ implementation
 
     split := SplitString(AScript.cline, ' ');
     skip := 0;
-    for i := 1 to Length(split)-1 do
+    for i := 1 to Length(split)-2 do
     begin
       if skip > 0 then
       begin
@@ -430,7 +430,10 @@ implementation
         AResult.message := Format('mismatched datatypes for comparison (%s and %s)', [DatatypeToStr(lefthandDT), DatatypeToStr(righthandDT)]);
         exit;
       end;
+      
+      skip := 2;
     end;
+
     debugwrite(sLineBreak);
   end;
 end.
