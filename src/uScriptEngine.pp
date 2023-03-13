@@ -444,47 +444,71 @@ implementation
         continue;
       end;
 
-      debugwrite(split[i]+' ');
       { Determine Datatype, throw error if mismatch }
       if (i >= Length(split)) or (i + 2 >= Length(split)) then
       begin
-        debugwriteln(sLineBreak + 'Conditional evaluation failed on word: '+split[i]);
-        AResult.success := False;
-        AResult.message := 'malformed conditional: expected VALUE OPERATOR VALUE';
-        exit;
-      end;
+        { Do this to allow for checking if a boolean is true without a comparison }
+        if (i < Length(split)) then 
+        begin
+          lefthandDT := DetermineDatatype(split[i]);
+          if lefthandDT = DATATYPE_VARIABLE then
+          begin
+            lefthandVal := ResolveVariable(split[i]);
+            lefthandDT := lefthandVal.datatype;
+          end;
+          
+          if lefthandDT <> DATATYPE_BOOLEAN then
+          begin
+            AResult.success := False;
+            AResult.message := 'malformed conditional: expected VALUE OPERATOR VALUE. This syntax is only allowed if the Variable/Value is of type Boolean!';
+            exit;
+          end;
 
-      lefthandDT := DetermineDatatype(split[i]);
-      righthandDT := DetermineDatatype(split[i+2]);
-      operand := split[i+1];
-      
-      if lefthandDT = DATATYPE_VARIABLE then
-      begin
-        lefthandVal := ResolveVariable(split[i]);
-        lefthandDT := lefthandVal.datatype;
+          righthandDT := DATATYPE_BOOLEAN;
+          operand := '=';
+          lefthandVal.value := split[i];
+          righthandVal.value := 'true';
+        end else 
+        begin
+          debugwriteln(sLineBreak + 'Conditional evaluation failed on word: '+split[i]);
+          AResult.success := False;
+          AResult.message := 'malformed conditional: expected VALUE OPERATOR VALUE';
+          exit;
+        end;
       end else
       begin
-        lefthandVal.value := split[i];
-        if lefthandDT = DATATYPE_STRING then
-          lefthandVal.value := Copy(lefthandVal.value, 2, Length(lefthandVal.value)-1)
-      end;
+        lefthandDT := DetermineDatatype(split[i]);
+        righthandDT := DetermineDatatype(split[i+2]);
+        operand := split[i+1];
 
-      if righthandDT = DATATYPE_VARIABLE then
-      begin
-        righthandVal := ResolveVariable(split[i+2]);
-        righthandDT := righthandVal.datatype;
-      end else
-      begin
-        righthandVal.value := split[i+2];
-        if righthandDT = DATATYPE_STRING then
-          righthandVal.value := Copy(righthandVal.value, 2, Length(righthandVal.value)-2)
-      end;
-      
-      if lefthandDT <> righthandDT then
-      begin
-        AResult.success := False;
-        AResult.message := Format('mismatched datatypes for comparison (%s and %s)', [DatatypeToStr(lefthandDT), DatatypeToStr(righthandDT)]);
-        exit;
+        if lefthandDT = DATATYPE_VARIABLE then
+        begin
+          lefthandVal := ResolveVariable(split[i]);
+          lefthandDT := lefthandVal.datatype;
+        end else
+        begin
+          lefthandVal.value := split[i];
+          if lefthandDT = DATATYPE_STRING then
+            lefthandVal.value := Copy(lefthandVal.value, 2, Length(lefthandVal.value)-1)
+        end;
+
+        if righthandDT = DATATYPE_VARIABLE then
+        begin
+          righthandVal := ResolveVariable(split[i+2]);
+          righthandDT := righthandVal.datatype;
+        end else
+        begin
+          righthandVal.value := split[i+2];
+          if righthandDT = DATATYPE_STRING then
+            righthandVal.value := Copy(righthandVal.value, 2, Length(righthandVal.value)-2)
+        end;
+        
+        if lefthandDT <> righthandDT then
+        begin
+          AResult.success := False;
+          AResult.message := Format('mismatched datatypes for comparison (%s and %s)', [DatatypeToStr(lefthandDT), DatatypeToStr(righthandDT)]);
+          exit;
+        end;
       end;
 
       { Do an actual comparison of the values }
@@ -496,7 +520,6 @@ implementation
           begin
             AResult.success := False;
             AResult.message := Format('greater/lesser comparison only applicable for integers (got %s and %s)!', [DatatypeToStr(lefthandDT), DatatypeToStr(righthandDT)]);
-
             exit;
           end;
 
@@ -507,7 +530,5 @@ implementation
 
       skip := 2;
     end;
-
-    debugwrite(sLineBreak);
   end;
 end.
