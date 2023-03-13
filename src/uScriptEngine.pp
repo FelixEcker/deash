@@ -428,12 +428,15 @@ implementation
   var
     i, skip, lefthandDT, righthandDT: Integer;
     lefthandVal, righthandVal: TVariable;
-    operand: String;
+    operand, perform_bitwise: String;
+    res_stash: Boolean;
     split: TStringDynArray;
   begin
     EvalIf := False;
+    res_stash := False;
     AResult.success := True;
 
+    perform_bitwise := '';
     split := SplitString(AScript.cline, ' ');
     skip := 0;
     for i := 1 to Length(split)-2 do
@@ -444,8 +447,14 @@ implementation
         continue;
       end;
 
+      case split[i] of
+      'and': begin perform_bitwise := 'and'; continue; end;
+      'or': begin perform_bitwise := 'or'; continue; end;
+      end;
+
       { Determine Datatype, throw error if mismatch }
-      if (i >= Length(split)) or (i + 2 >= Length(split)) then
+      if (i >= Length(split)) or (i + 2 >= Length(split))
+      or (split[i+1] = 'and') or (split[i+1] = 'or') then
       begin
         { Do this to allow for checking if a boolean is true without a comparison }
         if (i < Length(split)) then 
@@ -509,8 +518,10 @@ implementation
           AResult.message := Format('mismatched datatypes for comparison (%s and %s)', [DatatypeToStr(lefthandDT), DatatypeToStr(righthandDT)]);
           exit;
         end;
+        skip := 2;
       end;
 
+      res_stash := EvalIf;
       { Do an actual comparison of the values }
       case operand of
         '=': EvalIf := righthandVal.value = lefthandVal.value;
@@ -528,7 +539,10 @@ implementation
         end;
       end;
 
-      skip := 2;
+      case perform_bitwise of
+      'and': begin EvalIf := EvalIf and res_stash; perform_bitwise := ''; end;
+      'or': begin EvalIf := EvalIf or res_stash; perform_bitwise := ''; end;
+      end;
     end;
   end;
 end.
