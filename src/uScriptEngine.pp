@@ -7,7 +7,7 @@ unit uScriptEngine;
 {$H+}{$R+}
 
 interface
-  uses Dos, SysUtils, StrUtils, Types, uXDebug, uDEASHConsts, uHelpers;
+  uses Dos, SysUtils, StrUtils, Types, uXDebug, uDEASHConsts, uExecutor, uHelpers;
 
   type
     { TODO: Put all these data structures into their own unit,
@@ -33,16 +33,6 @@ interface
 
     TEvalResult = record
       success: Boolean;
-      message: String;
-    end;
-
-    TInvoke = record
-      invoketype : Integer;
-      location   : String;
-    end;
-
-    TInvokeResult = record
-      code: Integer;
       message: String;
     end;
 
@@ -306,6 +296,10 @@ implementation
   begin
     DoInvoke.code := 0;
     DoInvoke.message := '';
+
+    case AInvoke.invoketype of
+    INVOKETYPE_BINARY: DoInvoke := ExecBin(AInvoke.location, AInvoke.parameters);
+    end;
   end;
 
   { Evaluates the cline of the given TScript record }
@@ -413,6 +407,7 @@ implementation
           Eval.message := 'Unrecognized identifier: '+tokens[0];
           exit;
         end;
+        invoke.parameters := Copy(tokens, 1, Length(tokens) - 1);
         debugwriteln('INVOKE LOCATION: '+invoke.location+' ; INVOKE TYPE: '+IntToStr(invoke.invoketype));
         inv_result := DoInvoke(invoke);
         if inv_result.code <> 0 then
