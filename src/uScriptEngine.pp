@@ -75,6 +75,8 @@ interface
   function FindPrefferedExpProc(const AName: String; var AProcRec: TProcedure): Boolean;
   function FindAlias(const AName: String; var AAliasRec: TAlias): Boolean;
   function IsInternalCmd(const ACmd: String): Boolean;
+  procedure SetShellEnv(const AName, AVal: String);
+  function GetShellEnv(const AName: String): String;
   function ResolveVariable(const AName: String): TVariable;
 
   { Execution funcs }
@@ -85,6 +87,7 @@ interface
   function EvalIf(var AScript: TScript; var AResult: TEvalResult): Boolean;
 
   var
+    shell_env                : TVariableDynArray;
     preffered_exported_procs : TProcedureDynArray;
     exported_procs           : TProcedureDynArray;
     aliases                  : TAliasDynArray;
@@ -162,6 +165,40 @@ implementation
     IsInternalCmd := False;
   end;
 
+  procedure SetShellEnv(const AName, AVal: String);
+  var
+    i: Integer;
+  begin
+    for i := 0 to Length(shell_env)-1 do
+    begin
+      if shell_env[i].identifier = AName then
+      begin
+        shell_env[i].value := AVal;
+        exit;
+      end;
+    end;
+
+    SetLength(shell_env, Length(shell_env)+1);
+    shell_env[HIGH(shell_env)].identifier := AName;
+    shell_env[HIGH(shell_env)].value := AVal;
+  end;
+
+  function GetShellEnv(const AName: String): String;
+  var
+    sh_env: TVariable;
+  begin
+    GetShellEnv := '';
+
+    for sh_env in shell_env do
+    begin
+      if sh_env.identifier = AName then
+      begin
+        GetShellEnv := sh_env.value;
+        exit;
+      end;
+    end;
+  end;
+
   function ResolveVariable(const AName: String): TVariable;
   begin
     ResolveVariable.datatype := -1;
@@ -172,6 +209,13 @@ implementation
       ResolveVariable.value := GetEnv(ResolveVariable.identifier);
       ResolveVariable.datatype := DATATYPE_STRING;
       exit;
+    end;
+
+    if pos('SH_', AName) = 1 then
+    begin
+      ResolveVariable.identifier := AName;
+      ResolveVariable.value := GetShellEnv(AName);
+      ResolveVariable.datatype := DATATYPE_STRING;
     end;
   end;
 
@@ -384,6 +428,7 @@ implementation
   var
     i, skip, lefthandDT, righthandDT: Integer;
     lefthandVal, righthandVal: TVariable;
+    operand: String;
     split: TStringDynArray;
   begin
     EvalIf := False;
@@ -411,17 +456,28 @@ implementation
 
       lefthandDT := DetermineDatatype(split[i]);
       righthandDT := DetermineDatatype(split[i+2]);
+      operand := split[i+1];
       
       if lefthandDT = DATATYPE_VARIABLE then
       begin
         lefthandVal := ResolveVariable(split[i]);
         lefthandDT := lefthandVal.datatype;
+      end else
+      begin
+        lefthandVal.value := split[i];
+        if lefthandDT = DATATYPE_STRING then
+          lefthandVal.value := Copy(lefthandVal.value, 2, Length(lefthandVal.value)-1)
       end;
 
       if righthandDT = DATATYPE_VARIABLE then
       begin
         righthandVal := ResolveVariable(split[i+2]);
         righthandDT := righthandVal.datatype;
+      end else
+      begin
+        righthandVal.value := split[i+2];
+        if righthandDT = DATATYPE_STRING then
+          righthandVal.value := Copy(righthandVal.value, 2, Length(righthandVal.value)-2)
       end;
       
       if lefthandDT <> righthandDT then
@@ -430,7 +486,25 @@ implementation
         AResult.message := Format('mismatched datatypes for comparison (%s and %s)', [DatatypeToStr(lefthandDT), DatatypeToStr(righthandDT)]);
         exit;
       end;
-      
+
+      { Do an actual comparison of the values }
+      case operand of
+        '=': EvalIf := righthandVal.value = lefthandVal.value;
+        '<>': EvalIf := not (righthandVal.value = lefthandVal.value);
+        '<', '>': begin
+          if (righthandDT <> DATATYPE_INTEGER) or (lefthandDT <> DATATYPE_INTEGER) then
+          begin
+            AResult.success := False;
+            AResult.message := Format('greater/lesser comparison only applicable for integers (got %s and %s)!', [DatatypeToStr(lefthandDT), DatatypeToStr(righthandDT)]);
+
+            exit;
+          end;
+
+          EvalIf := StrToInt(lefthandVal.value) >  StrToInt(righthandVal.value);
+          if operand = '<' then EvalIf := not EvalIf;
+        end;
+      end;
+
       skip := 2;
     end;
 

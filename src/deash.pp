@@ -36,11 +36,16 @@ end;
 
 begin
   if (ParamCount = 0) then
-    LaunchShell
+  begin
+    SetShellEnv('SH_MODE', 'INTERACTIVE');
+    LaunchShell;
+  end
   else if (ParamStr(1) = '--info') then
     DeashInfo
   else if (ParamStr(1) = '--help') then
     DeashHelp
-  else
+  else begin
+    SetShellEnv('SH_MODE', 'SCRIPT_EXEC');
     DoScriptExec(ParamStr(1));
+  end;
 end.
