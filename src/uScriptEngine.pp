@@ -27,6 +27,7 @@ interface
       nline      : Integer;
       incomment  : Boolean;
       falseif    : Boolean;
+      exited     : Boolean;
       codeblocks : TIntegerDynArray;
       vars       : TVariableDynArray;
     end;
@@ -398,7 +399,7 @@ implementation
         'var': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_VAR); exit; end;
         'proc': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_PROC); exit; end;
         'return': begin ArrPopInt(AScript.codeblocks); exit; end;
-        'exit': begin SetLength(AScript.codeblocks, 0); exit; end;
+        'exit': begin SetLength(AScript.codeblocks, 0); AScript.exited := True; exit; end;
         '{': begin AScript.incomment := True; exit; end;
       else begin
         if not GetInvoke(tokens[0], invoke) then
