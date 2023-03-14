@@ -1,5 +1,4 @@
 TODO:
-  Check if invoke is a path
   Procedure Execution
   Env assignments
   Alias assignments

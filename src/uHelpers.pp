@@ -39,6 +39,23 @@ implementation
   begin
     BinaryExists := False;
 
+    { Check if binary is a path before checking dirs on PATH }
+
+    if pos(PathDelim, AName) <> 0 then
+    begin
+      if FileExists(AName) then
+      begin
+        APath := AName;
+        BinaryExists := True;
+        exit;
+      end;
+
+      BinaryExists := False;
+      exit;
+    end;
+
+    { Check dirs on PATH }
+
     {$IF defined(LINUX)}
     for location in SplitString(GetEnv('PATH'), ':') do
     {$ELSEIF defined(WINDOWS)}
