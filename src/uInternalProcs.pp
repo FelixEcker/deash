@@ -1,6 +1,9 @@
 {$mode fpc}
 unit uInternalProcs;
 
+{ uInternalProcs.pp ; Implementations for DEASH internal commands/procedures }
+{ Author: Marie Eckert                                                       }
+
 interface
   uses Dos, SysUtils, Types, uExecutor, uHelpers;  
 

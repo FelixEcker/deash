@@ -7,7 +7,7 @@ unit uInteractiveMode;
 {$H+}
 
 interface
-  uses SysUtils, StrUtils, Types, uDEASHConsts, uHelpers, uXDebug, uScriptEngine, uPathResolve;
+  uses Dos, SysUtils, StrUtils, Types, uDEASHConsts, uHelpers, uXDebug, uScriptEngine, uPathResolve;
 
   procedure LaunchShell;
 implementation
@@ -27,7 +27,7 @@ implementation
 
     while not script.exited do
     begin
-      write('deash> ');
+      write('deash ', GetCurrentDir(), '> ');
       readln(script.cline);
 
       eval_result := Eval(script);
