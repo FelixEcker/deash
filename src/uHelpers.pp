@@ -27,6 +27,12 @@ interface
   
   { Convert a internal Datatype code to its string name }
   function DatatypeToStr(const ADatatype: Integer): String;
+
+  { Get the duration of the current session as a unix timestamp }
+  function ProgramUptime: TDateTime;
+
+  var
+    program_start: TDateTime;
 implementation
   procedure DeashError(const AMsg: String);
   begin
@@ -112,6 +118,10 @@ implementation
     end;
   end;
 
+  function ProgramUptime: TDateTime;
+  begin
+    ProgramUptime := Time - program_start;
+  end;
 initialization
   Randomize;
 end.

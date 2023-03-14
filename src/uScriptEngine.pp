@@ -7,7 +7,7 @@ unit uScriptEngine;
 {$H+}{$R+}
 
 interface
-  uses Dos, SysUtils, StrUtils, Types, uXDebug, uDEASHConsts, uExecutor, uHelpers;
+  uses Dos, SysUtils, StrUtils, Types, uXDebug, uDEASHConsts, uExecutor, uHelpers, uInternalProcs;
 
   type
     { TODO: Put all these data structures into their own unit,
@@ -300,6 +300,7 @@ implementation
 
     case AInvoke.invoketype of
     INVOKETYPE_BINARY: DoInvoke := ExecBin(AInvoke.location, AInvoke.parameters);
+    INVOKETYPE_INTERNAL: DoInvoke := DoInternalCmd(AInvoke.location, AInvoke.parameters);
     end;
   end;
 

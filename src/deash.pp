@@ -6,7 +6,7 @@ program deash;
 
 {$H+}
 
-uses SysUtils, uXDebug, uDEASHConsts, uInteractiveMode, uScriptEngine;
+uses SysUtils, uXDebug, uDEASHConsts, uInteractiveMode, uScriptEngine, uHelpers;
 
 procedure GiveVersion;
 begin
@@ -39,6 +39,7 @@ begin
   SetShellEnv('SH_AUTHOR', DEV_INFO);
   SetShellEnv('SH_BINLOC', ParamStr(0));
 
+  program_start := Time;
   if (ParamCount = 0) then
   begin
     SetShellEnv('SH_MODE', 'INTERACTIVE');
