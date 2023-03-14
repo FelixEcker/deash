@@ -372,7 +372,7 @@ implementation
     if (Length(AScript.cline) = 0) then exit;
 
     AScript.cline := Trim(AScript.cline);
-    if (AScript.cline[1] = '#') then exit;
+    if (Length(AScript.cline) = 0) or (AScript.cline[1] = '#') then exit;
 
     tokens := SplitString(Trim(AScript.cline), ' ');
 

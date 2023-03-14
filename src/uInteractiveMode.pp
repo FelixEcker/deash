@@ -7,19 +7,71 @@ unit uInteractiveMode;
 {$H+}
 
 interface
-  uses Dos, SysUtils, StrUtils, Types, uDEASHConsts, uHelpers, uXDebug, uScriptEngine, uPathResolve;
+  uses Dos, BaseUnix, SysUtils, StrUtils, Types, uDEASHConsts, uHelpers, uXDebug, uScriptEngine, uPathResolve;
 
   procedure LaunchShell;
 
   var
-    history: TextFile;
+    history          : TextFile;
+    sig_int_handler  : PSigActionRec;
+    sig_quit_handler : PSigActionRec;
+    should_quit      : Boolean;
 implementation
+  procedure HandleSigInterrupt(sig: cint); cdecl;
+  begin
+  end;
+
+  procedure HandleSigQuit(sig: cint); cdecl;
+  begin
+    should_quit := True;
+  end;
+
+  procedure InstallSignals;
+  begin
+    debugwriteln('Installing SIGINT handler...');
+    new(sig_int_handler);
+    sig_int_handler^.sa_Handler := SigActionHandler(@HandleSigInterrupt);
+    fillchar(sig_int_handler^.Sa_Mask, sizeof(sig_int_handler^.sa_mask),#0);
+    sig_int_handler^.Sa_Flags := 0;
+    
+    {$IF defined(LINUX)}
+      sig_int_handler^.Sa_Restorer:=Nil;
+    {$ENDIF}
+    
+    if fpSigAction(SIGINT, sig_int_handler, nil) <> 0 then
+    begin
+      deasherror('Error while installing SIGINT handler: ' + IntToStr(fpgeterrno) + '.');
+      halt(1);
+    end;
+
+    debugwriteln('Installing SIGQUIT handler...');
+    new(sig_quit_handler);
+    sig_quit_handler^.sa_Handler := SigActionHandler(@HandleSigQuit);
+    fillchar(sig_quit_handler^.Sa_Mask, sizeof(sig_quit_handler^.sa_mask), #0);
+    sig_quit_handler^.Sa_Flags := 0;
+    
+    {$IF defined(LINUX)}
+      sig_quit_handler^.Sa_Restorer:=Nil;
+    {$ENDIF}
+    
+    if fpSigAction(SIGQUIT, sig_quit_handler, nil) <> 0 then
+    begin
+      deasherror('Error while installing SIGQUIT handler: ' + IntToStr(fpgeterrno) + '.');
+      halt(1);
+    end;
+  end;
+
   procedure LaunchShell;
   var
     eval_result: TEvalResult;
     script: TScript;
+    inbuff: String;
+    rchar: Char;
   begin
+    should_quit := False;
+
     debugwriteln('Launching shell');
+    InstallSignals;
     DoScriptExec(ResolveEnvsInPath('$HOME/.deashrc'));
 
     script.scriptpath := ResolveEnvsInPath('$HOME/.deash_history');
@@ -35,10 +87,18 @@ implementation
     else
       Append(history);
 
-    while not script.exited do
+    while not script.exited and not should_quit do
     begin
       write('deash ', GetCurrentDir(), '> ');
-      readln(script.cline);
+      
+      inbuff := '';
+      repeat
+        read(rchar);
+        inbuff := inbuff + rchar;
+      until (rchar = #10) or should_quit;
+      if should_quit then break;
+
+      script.cline := inbuff;
       writeln(history, script.cline);
 
       eval_result := Eval(script);
