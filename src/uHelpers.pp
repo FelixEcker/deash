@@ -7,14 +7,14 @@ unit uHelpers;
 {$H+}{$R+}
 
 interface
-  uses SysUtils, Types, uDEASHConsts;
+  uses Dos, StrUtils, SysUtils, Types, uDEASHConsts;
 
   { Print a shell error }
   procedure DeashError(const AMsg: String);
   
   { Check if a binary with the name set in AName exists. If the result is True,
     its full path will be written to APath. }
-  function BinaryExists(const AName: String; var APath: String): Boolean;
+  function BinaryExists(AName: String; var APath: String): Boolean;
   
   { Add an int to given array }
   procedure ArrPushInt(var AArr: TIntegerDynArray; const AVal: Integer);
@@ -33,23 +33,24 @@ implementation
     writeln(StdErr, 'deash <ERROR>:: ', AMsg);
   end;
 
-  function BinaryExists(const AName: String; var APath: String): Boolean;
-  const
-    {$IF defined(LINUX)}
-    LOCATIONS : array of String = ('/bin', '/usr/bin', '/usr/local/bin');
-    {$ELSEIF defined(WINDOWS)}
-    LOCATIONS : array of String = ('"C:\Program Files\"', '"C:\Program Files (x86)\"');
-    {$ENDIF}
+  function BinaryExists(AName: String; var APath: String): Boolean;
   var
     location: String;
   begin
     BinaryExists := False;
 
-    for location in LOCATIONS do
+    {$IF defined(LINUX)}
+    for locaion in SplitString(GetEnv('PATH'), ':') do
+    {$ELSEIF defined(WINDOWS)}
+    if pos('.exe', AName) <> Length(AName)-3 then
+      AName := AName+'.exe';
+
+    for location in SplitString(GetEnv('PATH'), ';') do
+    {$ENDIF}
     begin
-      if FileExists(location+'/'+AName) then
+      if FileExists(location+PathDelim+AName) then
       begin
-        APath := location+'/'+AName;
+        APath := location+PathDelim+AName;
         BinaryExists := True;
         exit;
       end;

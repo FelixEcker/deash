@@ -40,14 +40,12 @@ implementation
     for parameter in AParameters do
       process.parameters.add(parameter);
 
-    process.options := [poUsePipes];
+    process.options := [poPassInput];
     process.execute;
 
-    repeat
-      bytes_read := process.output.read(buffer, BUF_SIZE);
-      for i := 1 to bytes_read do
-        write(Char(buffer[i]));
-    until bytes_read = 0;
+    while process.running do
+    begin
+    end;
 
     process.free;
   end;
