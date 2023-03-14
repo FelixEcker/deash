@@ -30,10 +30,11 @@ interface
     INVOKETYPE_INTERNAL  = 4;
 
     { Internal codes for Datatypes }
-    DATATYPE_VARIABLE = 0;
-    DATATYPE_INTEGER  = 1;
-    DATATYPE_STRING   = 2;
-    DATATYPE_BOOLEAN  = 3;
+    DATATYPE_VARIABLE  = 0;
+    DATATYPE_INTEGER   = 1;
+    DATATYPE_STRING    = 2;
+    DATATYPE_BOOLEAN   = 3;
+    DATATYPE_RETURNVAL = 4;
 
     { String representations for Boolean values }
     BOOLEAN_STR_TRUE  = 'true';

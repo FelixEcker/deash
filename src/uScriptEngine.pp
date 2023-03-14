@@ -47,11 +47,17 @@ interface
 
     TProcedure = record
       name       : String;
+      internal   : Boolean;
       parameters : TParameterDynArray;
       lines      : String;
     end;
 
     TProcedureDynArray = array of TProcedure;
+
+    TProcedureResult = record
+      success      : Boolean;
+      return_value : String;
+    end;
 
     TAlias = record
       name : String;
@@ -64,11 +70,12 @@ interface
   function ExtractProcName(const ASrc: String): String;
   function FindExpProc(const AName: String; var AProcRec: TProcedure): Boolean;
   function FindPrefferedExpProc(const AName: String; var AProcRec: TProcedure): Boolean;
+  function ExecProc(const AName: String; const AParameters: TStringDynArray): TProcedureResult;
   function FindAlias(const AName: String; var AAliasRec: TAlias): Boolean;
   function IsInternalCmd(const ACmd: String): Boolean;
   procedure SetShellEnv(const AName, AVal: String);
   function GetShellEnv(const AName: String): String;
-  function ResolveVariable(const AName: String): TVariable;
+  function ResolveVariable(var AScript: TScript; const AName: String): TVariable;
 
   { Execution funcs }
   procedure DoScriptExec(const APath: String);
@@ -126,6 +133,51 @@ implementation
         exit;
        end;
     end;
+  end;
+
+  function ExecProc(const AProcedure: TProcedure; const AParameters: TStringDynArray): TProcedureResult;
+  var
+    invoke_result: TInvokeResult;
+    script: TScript;
+    evalres: TEvalResult;
+    i: Integer;
+  begin
+    if AProcedure.internal then
+    begin
+      invoke_result := DoInternalCmd(AProcedure.name, AParameters);
+      ExecProc.success := invoke_result.code = 0;
+      ExecProc.return_value := invoke_result.message;
+      exit;
+    end;
+
+    script.incomment := False;
+    script.scriptpath := 'procedure:'+AProcedure.name;
+
+    SetLength(script.codeblocks, 1);
+    script.codeblocks[0] := BLOCKTYPE_NONE;
+
+    SetLength(script.vars, 1);
+    script.vars[0].datatype := DATATYPE_STRING;
+    script.vars[0].identifier := 'result';
+
+    script.nline := 0;
+    for i := 0 to Length(AProcedure.lines)-1 do
+    begin
+      debugwriteln(AProcedure.name+' = '+script.cline);
+      script.nline := script.nline + 1;
+      script.cline := AProcedure.lines[i];
+      evalres := Eval(script);
+      if not evalres.success then
+      begin
+        ExecProc.success := False;
+        ExecProc.return_value := Format('eval for procedure %s failed at line %d:%s:: %s', 
+              [AProcedure.name, script.nline, sLineBreak, evalres.message]);
+        break;
+      end;
+    end;
+
+    ExecProc.success := True;
+    ExecProc.return_value := ResolveVariable(script, 'result').value;
   end;
 
   function FindAlias(const AName: String; var AAliasRec: TAlias): Boolean;
@@ -190,7 +242,7 @@ implementation
     end;
   end;
 
-  function ResolveVariable(const AName: String): TVariable;
+  function ResolveVariable(var AScript: TScript; const AName: String): TVariable;
   begin
     ResolveVariable.datatype := -1;
 
@@ -459,8 +511,10 @@ implementation
           lefthandDT := DetermineDatatype(split[i]);
           if lefthandDT = DATATYPE_VARIABLE then
           begin
-            lefthandVal := ResolveVariable(split[i]);
+            lefthandVal := ResolveVariable(AScript, split[i]);
             lefthandDT := lefthandVal.datatype;
+          end else if lefthandDT = DATATYPE_RETURNVAL then
+          begin
           end;
           
           if lefthandDT <> DATATYPE_BOOLEAN then
@@ -490,7 +544,7 @@ implementation
         { Get actual variable datatype if its a variable, if its a string clean it up }
         if lefthandDT = DATATYPE_VARIABLE then
         begin
-          lefthandVal := ResolveVariable(split[i]);
+          lefthandVal := ResolveVariable(AScript, split[i]);
           lefthandDT := lefthandVal.datatype;
         end else
         begin
@@ -501,7 +555,7 @@ implementation
 
         if righthandDT = DATATYPE_VARIABLE then
         begin
-          righthandVal := ResolveVariable(split[i+2]);
+          righthandVal := ResolveVariable(AScript, split[i+2]);
           righthandDT := righthandVal.datatype;
         end else
         begin
