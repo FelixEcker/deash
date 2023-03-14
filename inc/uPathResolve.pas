@@ -67,6 +67,8 @@ implementation
     result := '';
     escaping := False;
 
+    buildingVarName := False;
+    varname := '';
     for i := 1 to Length(APath) do
     begin
       c := APath[i];

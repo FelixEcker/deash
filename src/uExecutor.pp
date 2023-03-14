@@ -28,9 +28,6 @@ implementation
   var
     process: TProcess;
     parameter: String;
-    bytes_read : Longint;
-    buffer : array[1..BUF_SIZE] of Byte;
-    i: Integer;
   begin
     ExecBin.code := 0;
     ExecBin.message := '';
