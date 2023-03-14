@@ -77,7 +77,7 @@ implementation
     for proc in exported_procs do
       write(sLineBreak, '   ', proc.name);
     writeln;
-end;
+  end;
 
   function DoInternalCmd(const AName: String; const AParams: TStringDynArray): TInvokeResult;
   begin
