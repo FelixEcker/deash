@@ -1,0 +1,9 @@
+TODO:
+  Check if invoke is a path
+  Procedure Execution
+  Env assignments
+  Alias assignments
+  Variable assignments
+  Piping, process reowning and process splitting
+  Handle Signals
+  AUTOCOMPLETE PATHS <<<<<<

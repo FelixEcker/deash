@@ -40,7 +40,7 @@ implementation
     BinaryExists := False;
 
     {$IF defined(LINUX)}
-    for locaion in SplitString(GetEnv('PATH'), ':') do
+    for location in SplitString(GetEnv('PATH'), ':') do
     {$ELSEIF defined(WINDOWS)}
     if pos('.exe', AName) <> Length(AName)-3 then
       AName := AName+'.exe';
