@@ -49,21 +49,44 @@ implementation
   procedure Purr;
   const
     CAT = 'ᓚᘏᗢ';
+  var
+    proc: TProcedure;
+    alias: TAlias;
   begin
     writeln(CAT, ' deash version: ', GetShellEnv('SH_VERSION'));
     writeln(CAT, ' active for: ', TimeToStr(ProgramUptime()));
     writeln(CAT, ' user: ', GetEnv('USERNAME'));
-    writeln(CAT, ' preffered exported procedures: ');
-    writeln('    wip');
-    writeln(CAT, ' Aliases:');
-    writeln(CAT, ' exported procedures: ');
-  end;
+    
+    write(CAT, ' preffered exported procedures: ');
+    if Length(preffered_exported_procs) = 0 then
+      write('[NONE]');
+    for proc in preffered_exported_procs do
+      write(sLineBreak, '   ', proc.name);
+    writeln;
+    
+    write(CAT, ' Aliases: ');
+    if Length(aliases) = 0 then
+      write('[NONE]');
+    for alias in aliases do
+      write(sLineBreak, '   ', alias.name);
+    writeln;
+
+    write(CAT, ' exported procedures: ');
+    if Length(exported_procs) = 0 then
+      write('[NONE]');
+    for proc in exported_procs do
+      write(sLineBreak, '   ', proc.name);
+    writeln;
+end;
 
   function DoInternalCmd(const AName: String; const AParams: TStringDynArray): TInvokeResult;
   begin
+    DoInternalCmd.code := 0;
+
     case AName of
     'cd': DoInternalCmd := Cd(AParams);
     'purr': Purr;
+    'exec': exit; { << IMPLEMENT SOON }
     else
       DoInternalCmd.code := -1;
       DoInternalCmd.message := 'No such internal cmd';

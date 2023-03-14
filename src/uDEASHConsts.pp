@@ -9,7 +9,7 @@ unit uDEASHConsts;
 interface
   const
     { Shell information }
-    VERSION = '0.0.0';
+    VERSION = '0.1.0';
     VERSION_TYPE = 'alpha-dev';
     DEV_INFO = 'Marie Eckert';
 
