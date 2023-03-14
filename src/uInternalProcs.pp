@@ -7,7 +7,7 @@ unit uInternalProcs;
 { Author: Marie Eckert                                                       }
 
 interface
-  uses Dos, SysUtils, Types, uExecutor, uHelpers;  
+  uses Dos, SysUtils, Types, uExecutor, uHelpers, uPathResolve;  
 
   function DoInternalCmd(const AName: String; const AParams: TStringDynArray): TInvokeResult;
 implementation
@@ -24,9 +24,8 @@ implementation
       exit;
     end;
 
-    if AParams[0][1] = PathDelim then
-      dir := AParams[0]
-    else
+    dir := ResolveEnvsInPath(AParams[0]);
+    if dir[1] <> PathDelim then
       dir := ExpandFileName(GetCurrentDir()+PathDelim+AParams[0]);
 
     if not DirectoryExists(dir) then

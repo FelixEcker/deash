@@ -33,7 +33,7 @@ unit uPathResolve;
 (* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE  *)
 (* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.           *)
 
-{$H+}
+{$H+}{$R+}
 
 interface
   uses Dos, SysUtils;//, Types;  
@@ -89,6 +89,11 @@ implementation
 
         escaping := True;
         continue;
+      end else if (c = '~') and not escaping
+      and not buildingVarName then
+      begin
+        result := result + GetEnv('HOME');
+        continue;
       end;
 
       if buildingVarName then
@@ -106,6 +111,8 @@ implementation
       escaping := False;
     end;
 
+    if buildingVarName then
+      result := result + GetEnv(varname);
     ResolveEnvsInPath := result;
   end;
 end.
