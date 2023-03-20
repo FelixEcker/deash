@@ -103,7 +103,9 @@ implementation
       DetermineDatatype := DATATYPE_INTEGER;
 
     if AString[1] = '''' then
-      DetermineDatatype := DATATYPE_STRING;
+      DetermineDatatype := DATATYPE_STRING
+    else if pos('(', AString) > 0 then
+      DetermineDatatype := DATATYPE_RETURNVAL;
   end;
 
   function DatatypeToStr(const ADatatype: Integer): String;
@@ -115,6 +117,7 @@ implementation
       DATATYPE_INTEGER: DatatypeToStr := 'Integer';
       DATATYPE_BOOLEAN: DatatypeToStr := 'Boolean';
       DATATYPE_STRING: DatatypeToStr := 'String';
+      DATATYPE_RETURNVAL: DatatypeToStr := 'Procedure Return Value (String)';
     end;
   end;
 
