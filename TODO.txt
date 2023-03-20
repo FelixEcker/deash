@@ -4,6 +4,5 @@ TODO:
   Alias assignments
   Variable assignments
   Piping, process reowning and process splitting
-  Handle Signals
   AUTOCOMPLETE PATHS
   custom prompts
