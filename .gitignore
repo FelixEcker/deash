@@ -1,3 +1,12 @@
 out/
 deash_spec.sad.html
 *.swp
+
+# Qt files
+deash.cflags
+deash.creator
+deash.cxxflags
+deash.includes
+deash.config
+deash.creator.user
+deash.files
