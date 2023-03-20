@@ -110,7 +110,7 @@ implementation
       if should_quit then break;
 
       script.cline := inbuff;
-      writeln(history, script.cline);
+      write(history, script.cline);
 
       eval_result := Eval(script);
       if not eval_result.success then
