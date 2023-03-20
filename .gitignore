@@ -10,3 +10,4 @@ deash.includes
 deash.config
 deash.creator.user
 deash.files
+.qtc_clangd/
