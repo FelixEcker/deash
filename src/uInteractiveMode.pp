@@ -99,12 +99,13 @@ implementation
       
       inbuff := '';
       repeat
-        read(rchar);
-        if Byte(rchar) = 26 then
+        if eof() then
         begin
           should_quit := True;
           break;
         end;
+
+        read(rchar);
         inbuff := inbuff + rchar;
       until (rchar = #10) or should_quit;
       if should_quit then break;
