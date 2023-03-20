@@ -7,13 +7,15 @@ unit uInternalProcs;
 { Author: Marie Eckert                                                       }
 
 interface
-  uses Dos, SysUtils, Types, uExecutor, uHelpers, uPathResolve;  
+  uses Dos, SysUtils, Types, uExecutor, uHelpers, uPathResolve, uXDebug;  
 
   function DoInternalCmd(const AName: String; const AParams: TStringDynArray): TInvokeResult;
 implementation
   uses uScriptEngine;
 
   function Cd(const AParams: TStringDynArray): TInvokeResult;
+  const
+    ROOTDIR = {$IF defined(LINUX)} '/' {$ELSEIF defined(WINDOWS)} 'C:\' {$ENDIF} ;
   var
     dir: String;
   begin
@@ -25,7 +27,8 @@ implementation
     end;
 
     dir := ResolveEnvsInPath(AParams[0]);
-    if dir[1] <> PathDelim then
+    debugwriteln('Resolved Envs in Path = '+dir);
+    if pos(ROOTDIR, dir) <> 1 then
       dir := ExpandFileName(GetCurrentDir()+PathDelim+AParams[0]);
 
     if not DirectoryExists(dir) then

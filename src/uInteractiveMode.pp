@@ -7,16 +7,19 @@ unit uInteractiveMode;
 {$H+}
 
 interface
-  uses Dos, BaseUnix, SysUtils, StrUtils, Types, uDEASHConsts, uHelpers, uXDebug, uScriptEngine, uPathResolve;
+  uses Dos, {$IF defined(LINUX)} BaseUnix, {$ENDIF} SysUtils, StrUtils, Types, uDEASHConsts, uHelpers, uXDebug, uScriptEngine, uPathResolve;
 
   procedure LaunchShell;
 
   var
     history          : TextFile;
-    sig_int_handler  : PSigActionRec;
-    sig_quit_handler : PSigActionRec;
+    {$IF defined(LINUX)}
+      sig_int_handler  : PSigActionRec;
+      sig_quit_handler : PSigActionRec;
+    {$ENDIF}
     should_quit      : Boolean;
 implementation
+  {$IF defined(LINUX)}
   procedure HandleSigInterrupt(sig: cint); cdecl;
   begin
   end;
@@ -60,6 +63,7 @@ implementation
       halt(1);
     end;
   end;
+  {$ENDIF}
 
   procedure LaunchShell;
   var
@@ -71,7 +75,9 @@ implementation
     should_quit := False;
 
     debugwriteln('Launching shell');
-    InstallSignals;
+    {$IF defined(LINUX)}
+      InstallSignals;
+    {$ENDIF}
     DoScriptExec(ResolveEnvsInPath('$HOME/.deashrc'));
 
     script.scriptpath := ResolveEnvsInPath('$HOME/.deash_history');
