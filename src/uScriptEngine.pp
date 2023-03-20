@@ -70,7 +70,7 @@ interface
   function ExtractProcName(const ASrc: String): String;
   function FindExpProc(const AName: String; var AProcRec: TProcedure): Boolean;
   function FindPrefferedExpProc(const AName: String; var AProcRec: TProcedure): Boolean;
-  function ExecProc(const AName: String; const AParameters: TStringDynArray): TProcedureResult;
+  function ExecProc(const AProcedure: TProcedure; const AParameters: TStringDynArray): TProcedureResult;
   function FindAlias(const AName: String; var AAliasRec: TAlias): Boolean;
   function IsInternalCmd(const ACmd: String): Boolean;
   procedure SetShellEnv(const AName, AVal: String);
@@ -372,7 +372,7 @@ implementation
     if (Length(AScript.cline) = 0) then exit;
 
     AScript.cline := Trim(AScript.cline);
-    if (AScript.cline[1] = '#') then exit;
+    if (Length(AScript.cline) = 0) or (AScript.cline[1] = '#') then exit;
 
     tokens := SplitString(Trim(AScript.cline), ' ');
 

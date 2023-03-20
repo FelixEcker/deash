@@ -245,6 +245,10 @@ A shell like call is structured as follows: {$style fraktur}
 Whereas a pascal-like call is structured like this: {$style fraktur}
   < procedure-name >(< paramters, comma seperated >) {$reset-all}
 
+A procedure always has the local field {$style italic} result {$reset-all} of the String type,
+its contents are used as a procedures return-value. If result is never set in the procedure, it
+will just be an empty string.
+
 {$style bold} NOTE: {$reset-all} {$style italic} When using the pascal-like calling convention,
 the binary search paths as well as aliases are ignored! {$reset-all}
 {$end-section}
