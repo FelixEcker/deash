@@ -6,7 +6,7 @@ program deash;
 
 {$H+}
 
-uses SysUtils, Dos, uXDebug, uDEASHConsts, uInteractiveMode, uScriptEngine, uHelpers;
+uses SysUtils, uXDebug, uDEASHConsts, uInteractiveMode, uScriptEngine, uHelpers;
 
 procedure GiveVersion;
 begin
