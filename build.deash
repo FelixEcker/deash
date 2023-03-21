@@ -2,7 +2,16 @@
 # I need this for testing, build.sh is gonna remain the primary
 # build script.
 
-if ParamStr(1) = 'Debug' then
+if ParamStr(1) = 'docs' then
+  cd docs
+  mkdir -p html
+  rm -f html/*
+  for file in Files('*.sad') do
+    sadv %file -x
+    mv >Concat(file, '.html') html/>Concat(file, '.html')
+  end
+  cd ..
+elif ParamStr(1) = 'debug' then
   fpc src/deash.pp -FE"out/" -Fu"inc/" -g -dDEBUG
 else
   fpc src/deash.pp -FE"out/" -Fu"inc/" -O4 -XX -Xs

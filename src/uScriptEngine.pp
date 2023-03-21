@@ -453,7 +453,6 @@ implementation
         'alias': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ALIAS); exit; end;
         'var': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_VAR); exit; end;
         'proc': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_PROC); exit; end;
-        'return': begin ArrPopInt(AScript.codeblocks); exit; end;
         'exit': begin SetLength(AScript.codeblocks, 0); AScript.exited := True; exit; end;
         '{': begin AScript.incomment := True; exit; end;
       else begin

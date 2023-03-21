@@ -99,9 +99,6 @@ used for.
 {$style bold} Boolean {$reset-all}
   Used to set a Variables type to Boolean
 
-{$style bold} begin (will be removed (?)) {$reset-all}
-  Used to start a code-block
-
 {$style bold} end {$reset-all}
   Used to terminate a code-block
 {$end-section}
