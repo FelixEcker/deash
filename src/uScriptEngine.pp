@@ -472,12 +472,34 @@ implementation
       end; end;
     end;
   end;
+  
+  { Internal function to resolve the operand of a if-condition to a Variable record }
+  function ResolveOperand(var AScript: TScript; const AOperand: String): TVariable;
+  var
+    datatype: Integer;
+  begin
+    ResolveOperand.identifier := '';
+    datatype := DetermineDatatype(AOperand);
+    
+    if datatype = DATATYPE_VARIABLE then
+    begin
+      ResolveOperand := ResolveVariable(AScript, AOperand);
+    end else if datatype = DATATYPE_RETURNVAL then
+    begin
+    end else
+    begin
+      ResolveOperand.datatype := datatype;
+      ResolveOperand.value := AOperand;
+      if datatype = DATATYPE_STRING then
+        ResolveOperand.value := Copy(ResolveOperand.value, 2, Length(ResolveOperand.value)-1)
+    end;
+  end;
 
   function EvalIf(var AScript: TScript; var AResult: TEvalResult): Boolean;
   var
     i, skip, lefthandDT, righthandDT: Integer;
     lefthandVal, righthandVal: TVariable;
-    operand, perform_bitwise: String;
+    _operator, perform_bitwise: String;
     res_stash: Boolean;
     split: TStringDynArray;
   begin
@@ -501,32 +523,24 @@ implementation
       'or': begin perform_bitwise := 'or'; continue; end;
       end;
 
-      { Determine Datatype, throw error if mismatch }
+      { Resolve Operands, throw error if datatypes mismatch }
       if (i >= Length(split)) or (i + 2 >= Length(split))
       or (split[i+1] = 'and') or (split[i+1] = 'or') then
       begin
         { Do this to allow for checking if a boolean is true without a comparison }
         if (i < Length(split)) then 
         begin
-          lefthandDT := DetermineDatatype(split[i]);
-          if lefthandDT = DATATYPE_VARIABLE then
-          begin
-            lefthandVal := ResolveVariable(AScript, split[i]);
-            lefthandDT := lefthandVal.datatype;
-          end else if lefthandDT = DATATYPE_RETURNVAL then
-          begin
-          end;
-          
-          if lefthandDT <> DATATYPE_BOOLEAN then
+          lefthandVal := ResolveOperand(AScript, split[i]);
+        
+          if lefthandVal.datatype <> DATATYPE_BOOLEAN then
           begin
             AResult.success := False;
-            AResult.message := 'malformed conditional: expected VALUE OPERATOR VALUE. This syntax is only allowed if the Variable/Value is of type Boolean!';
+            AResult.message := 'malformed conditional: expected VALUE OPERATOR VALUE, got VALUE. This syntax is only allowed if the Variable/Value is of type Boolean!';
             exit;
           end;
 
-          righthandDT := DATATYPE_BOOLEAN;
-          operand := '=';
-          lefthandVal.value := split[i];
+          _operator := '=';
+          righthandVal.datatype := DATATYPE_BOOLEAN;
           righthandVal.value := 'true';
         end else 
         begin
@@ -537,35 +551,11 @@ implementation
         end;
       end else
       begin
-        lefthandDT := DetermineDatatype(split[i]);
-        righthandDT := DetermineDatatype(split[i+2]);
-        operand := split[i+1];
-
-        { Get actual variable datatype if its a variable, if its a string clean it up }
-        if lefthandDT = DATATYPE_VARIABLE then
-        begin
-          lefthandVal := ResolveVariable(AScript, split[i]);
-          lefthandDT := lefthandVal.datatype;
-        end else
-        begin
-          lefthandVal.value := split[i];
-          if lefthandDT = DATATYPE_STRING then
-            lefthandVal.value := Copy(lefthandVal.value, 2, Length(lefthandVal.value)-1)
-        end;
-
-        if righthandDT = DATATYPE_VARIABLE then
-        begin
-          righthandVal := ResolveVariable(AScript, split[i+2]);
-          righthandDT := righthandVal.datatype;
-        end else
-        begin
-          righthandVal.value := split[i+2];
-          if righthandDT = DATATYPE_STRING then
-            righthandVal.value := Copy(righthandVal.value, 2, Length(righthandVal.value)-2)
-        end;
+        lefthandVal := ResolveOperand(AScript, split[i]);
+        righthandVal := ResolveOperand(AScript, split[i+2]);
         
         { Check if the two values can be compared }
-        if lefthandDT <> righthandDT then
+        if lefthandVal.datatype <> righthandVal.datatype then
         begin
           AResult.success := False;
           AResult.message := Format('mismatched datatypes for comparison (%s and %s)', [DatatypeToStr(lefthandDT), DatatypeToStr(righthandDT)]);
@@ -578,19 +568,19 @@ implementation
       res_stash := EvalIf;
       
       { Do an actual comparison of the values }
-      case operand of
+      case _operator of
         '=': EvalIf := righthandVal.value = lefthandVal.value;
         '<>': EvalIf := not (righthandVal.value = lefthandVal.value);
         '<', '>': begin
-          if (righthandDT <> DATATYPE_INTEGER) or (lefthandDT <> DATATYPE_INTEGER) then
+          if (righthandVal.datatype <> DATATYPE_INTEGER) or (lefthandVal.datatype <> DATATYPE_INTEGER) then
           begin
             AResult.success := False;
-            AResult.message := Format('greater/lesser comparison only applicable for integers (got %s and %s)!', [DatatypeToStr(lefthandDT), DatatypeToStr(righthandDT)]);
+            AResult.message := Format('greater/lesser comparison only applicable for integers (got %s and %s)!', [DatatypeToStr(lefthandVal.datatype), DatatypeToStr(righthandVal.datatype)]);
             exit;
           end;
 
           EvalIf := StrToInt(lefthandVal.value) >  StrToInt(righthandVal.value);
-          if operand = '<' then EvalIf := not EvalIf;
+          if _operator = '<' then EvalIf := not EvalIf;
         end;
       end;
 
