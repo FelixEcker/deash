@@ -30,6 +30,7 @@ interface
     INVOKETYPE_INTERNAL  = 4;
 
     { Internal codes for Datatypes }
+    DATATYPE_UNREAL    = -1;
     DATATYPE_VARIABLE  = 0;
     DATATYPE_INTEGER   = 1;
     DATATYPE_STRING    = 2;

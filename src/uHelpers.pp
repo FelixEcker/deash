@@ -88,6 +88,8 @@ implementation
 
   function ArrPopInt(var AArr: TIntegerDynArray): Integer;
   begin
+    ArrPopInt := 0;
+    if Length(AArr) = 0 then exit;
     ArrPopInt := AArr[Length(AArr)-1];
     SetLength(AArr, Length(AArr)-1);
   end;

@@ -418,7 +418,6 @@ implementation
           ArrPushInt(AScript.codeblocks, BLOCKTYPE_IF);
           AScript.falseif := not EvalIf(AScript, ifeval_res);
           Eval := ifeval_res;
-          exit; 
         end;
         'elif': begin
           if (curr_blocktype <> BLOCKTYPE_IF) then
@@ -429,7 +428,6 @@ implementation
           end;
           AScript.falseif := not EvalIf(AScript, ifeval_res);
           Eval := ifeval_res;
-          exit;
         end;
         'else': begin
           if (curr_blocktype <> BLOCKTYPE_IF) then
@@ -439,10 +437,14 @@ implementation
             exit;
           end;
           AScript.falseif := not AScript.falseif;
-          exit;
         end;
       end;
       
+      if not Eval.success then
+      begin
+        if AScript.codeblocks[HIGH(Ascript.codeblocks)] = BLOCKTYPE_IF then ArrPopInt(AScript.codeblocks);
+        exit;
+      end;
       if (curr_blocktype = BLOCKTYPE_IF) and AScript.falseif then exit;
 
       case tokens[0] of
@@ -474,24 +476,36 @@ implementation
   end;
   
   { Internal function to resolve the operand of a if-condition to a Variable record }
-  function ResolveOperand(var AScript: TScript; const AOperand: String): TVariable;
+  function ResolveOperand(var AScript: TScript; const AOperand: String; var ADestination: TVariable): TEvalResult;
   var
     datatype: Integer;
   begin
-    ResolveOperand.identifier := '';
+    ADestination.identifier := '';
     datatype := DetermineDatatype(AOperand);
+    
+    ResolveOperand.success := True;
+    ResolveOperand.message := '';
     
     if datatype = DATATYPE_VARIABLE then
     begin
-      ResolveOperand := ResolveVariable(AScript, AOperand);
+      ADestination := ResolveVariable(AScript, AOperand);
+      if ADestination.datatype = DATATYPE_UNREAL then
+      begin
+        ResolveOperand.success := False;
+        ResolveOperand.message := 'No such variable: '+AOperand;
+      end;
+      exit;
     end else if datatype = DATATYPE_RETURNVAL then
     begin
+      exit;
     end else
     begin
-      ResolveOperand.datatype := datatype;
-      ResolveOperand.value := AOperand;
+      ADestination.datatype := datatype;
+      ADestination.value := AOperand;
       if datatype = DATATYPE_STRING then
-        ResolveOperand.value := Copy(ResolveOperand.value, 2, Length(ResolveOperand.value)-1)
+        ADestination.value := Copy(ADestination.value, 2, Length(ADestination.value)-1);
+      
+      exit;
     end;
   end;
 
@@ -501,6 +515,7 @@ implementation
     lefthandVal, righthandVal: TVariable;
     _operator, perform_bitwise: String;
     res_stash: Boolean;
+    resolveres: TEvalResult;
     split: TStringDynArray;
   begin
     EvalIf := False;
@@ -531,7 +546,8 @@ implementation
         { Do this to allow for checking if a boolean is true without a comparison }
         if (i < Length(split)) then 
         begin
-          lefthandVal := ResolveOperand(AScript, split[i]);
+          AResult := ResolveOperand(AScript, split[i], lefthandVal);
+          if not AResult.success then exit;
         
           if lefthandVal.datatype <> DATATYPE_BOOLEAN then
           begin
@@ -552,8 +568,10 @@ implementation
         end;
       end else
       begin
-        lefthandVal := ResolveOperand(AScript, split[i]);
-        righthandVal := ResolveOperand(AScript, split[i+2]);
+        AResult := ResolveOperand(AScript, split[i], lefthandVal);
+        if not AResult.success then exit;
+        AResult := ResolveOperand(AScript, split[i+2], righthandVal);
+        if not AResult.success then exit;
         
         { Check if the two values can be compared }
         if lefthandVal.datatype <> righthandVal.datatype then
