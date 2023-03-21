@@ -1,5 +1,5 @@
 {$meta date} 10-01-2023
-{$meta author} FelixEckert
+{$meta author} MarieEckert
 {$start}
 
 {$title} deash - purr
@@ -9,15 +9,14 @@
 purr (Print User's Resource Record) is a built in deash command
 to print out all non-sensitive data currently saved in the shell.
 This command was originally used for debugging and the name was
-chosen so that the cat-kaomoji could be used, thus the acronym is
-abit non-sensical.
+chosen so that the cat-kaomoji could be used, thus the (b)ac(k)ronym is
+a bit non-sensical.
 
 Output-Contents
   1. Shell-Uptime
   2. User-Data
   3. Preffered Exp-Procs
   4. Aliases
-  5. Binary Searchpaths
   6. Exp-Procs
 {$end-section}
 
@@ -32,9 +31,5 @@ Output-Contents
     wavtoflac
 ᓚᘏᗢ Exported Procedures: [NONE]
 ᓚᘏᗢ Aliases:
-    ls = exa --color=auto
-ᓚᘏᗢ Binary Searcpaths:
-    /bin
-    /usr/bin
-    /usr/local/bin {$reset-all}
+    ls = exa --color=auto {$reset-all}
 {$end-section}

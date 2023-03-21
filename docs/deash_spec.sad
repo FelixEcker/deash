@@ -1,37 +1,32 @@
-{$meta author} FelixEckert
+{$meta author} MarieEckert
 {$meta date} 05-01-2022
 {$start}
 {$title} deash Specification
 
 {$begin-section} contents
 {$head} Contents
+  0. Foreword
   1. Parsing Commands
   2. Script Syntax
   3. Builtin Commands, Procedures and Variables
+{$end-section}
+
+{$begin-section} foreword
+{$head} Foreword
+
+A quick note before the actual specification starts: This document will likely never be
+complete and experience changes in likely all sections. So really this is more of a documentation
+and overview of how the shell functions and the current point than a solid specification.
 {$end-section}
 
 {$begin-section} parsing
 {$head} Parsing Commands
 
 This section specifies how Commands should be parsed, this includes:
-  1. Invoke-Search-Order
-  2. Piping and chaining Commands
+  1. Piping and chaining Commands
   3. C-Style String-Escaping
   4. Reserved Characters & Keywords
 
-{$begin-section} invoke-search-order
-{$sub-head} Invoke-Search-Order
-
-The Invoke-Search-Order specifies which places are searched in what order
-for the specific Invoke. An Invoke means a binary, alias or exported procedures.
-
-By Default deash searches the following places in this order:
-  1. Preffered Exported Procedures
-  2. Aliases
-  3. /bin
-  4. /usr/bin
-  5. Exported Procedures
-{$end-section}
 {$begin-section} pipes-chains
 {$sub-head} Piping and chaining Commands
 
