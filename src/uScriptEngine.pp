@@ -363,7 +363,7 @@ implementation
     invoke: TInvoke;
     inv_result: TInvokeResult;
     ifeval_res: TEvalResult;
-    escaping: Boolean;
+    escaping, stash: Boolean;
     curr_blocktype, i, j: Integer;
   begin
     Eval.success := True;
@@ -413,6 +413,7 @@ implementation
     if (curr_blocktype < BLOCKTYPE_PROC)
     or (curr_blocktype > BLOCKTYPE_VAR) then
     begin 
+      stash := AScript.falseif;
       case tokens[0] of
         'if': begin 
           ArrPushInt(AScript.codeblocks, BLOCKTYPE_IF);
@@ -443,9 +444,13 @@ implementation
       if not Eval.success then
       begin
         if AScript.codeblocks[HIGH(Ascript.codeblocks)] = BLOCKTYPE_IF then ArrPopInt(AScript.codeblocks);
+        AScript.falseif := stash;
         exit;
       end;
-      if (curr_blocktype = BLOCKTYPE_IF) and AScript.falseif then exit;
+
+      if (curr_blocktype = BLOCKTYPE_IF) and AScript.falseif
+      or (AScript.codeblocks[HIGH(Ascript.codeblocks)] = BLOCKTYPE_IF) and Eval.success then 
+        exit;
 
       case tokens[0] of
         {'begin': exit; DEPRECATED LANG FEATURE }
