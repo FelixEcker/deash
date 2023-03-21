@@ -497,7 +497,7 @@ implementation
 
   function EvalIf(var AScript: TScript; var AResult: TEvalResult): Boolean;
   var
-    i, skip, lefthandDT, righthandDT: Integer;
+    i, skip: Integer;
     lefthandVal, righthandVal: TVariable;
     _operator, perform_bitwise: String;
     res_stash: Boolean;
@@ -507,6 +507,7 @@ implementation
     res_stash := False;
     AResult.success := True;
 
+    _operator := '';
     perform_bitwise := '';
     split := SplitString(AScript.cline, ' ');
     skip := 0;
@@ -558,7 +559,7 @@ implementation
         if lefthandVal.datatype <> righthandVal.datatype then
         begin
           AResult.success := False;
-          AResult.message := Format('mismatched datatypes for comparison (%s and %s)', [DatatypeToStr(lefthandDT), DatatypeToStr(righthandDT)]);
+          AResult.message := Format('mismatched datatypes for comparison (%s and %s)', [DatatypeToStr(lefthandVal.datatype), DatatypeToStr(righthandVal.datatype)]);
           exit;
         end;
         skip := 2;
