@@ -10,4 +10,5 @@ debug messages simply supply the script with the `debug` parameter.
 
 ## Documents
 See the `docs` directory for various documents such as the deash specification (`deash_spec.sad`).
-Documents in the `sad` format can be viewed and converted to HTML using [sadv](https://github.com/FelixEcker/sadv).
+Documents in the `sad` format can be converted to html using the the `build.sh` script with the `docs`
+parameter. This requires [sadv](https://github.com/FelixEcker/sadv) to be installed.
