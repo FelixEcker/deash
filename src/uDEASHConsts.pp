@@ -42,10 +42,10 @@ interface
     BOOLEAN_STR_FALSE = 'false';
 
     { Error Messages }
-    ERR_EVAL_IF_MALOFRMED_VALUE = 'malformed conditional: expected VALUE OPERATOR VALUE, got VALUE. This syntax is only allowed if the Variable/Value is of type Boolean!';
+    ERR_EVAL_IF_MALOFRMED_VALUE    = 'malformed conditional: expected VALUE OPERATOR VALUE, got VALUE. This syntax is only allowed if the Variable/Value is of type Boolean!';
     ERR_EVAL_IF_MALFORMED_VALOPVAL = 'malformed conditional: expected VALUE OPERATOR VALUE';
-    ERR_EVAL_IF_MISMATCHED_TYPES = 'mismatched datatypes for comparison (%s and %s)';
-    ERR_EVAL_IF_GREATER_NINT = 'greater/lesser comparison only applicable for integers (got %s and %s)!';
+    ERR_EVAL_IF_MISMATCHED_TYPES   = 'mismatched datatypes for comparison (%s and %s)';
+    ERR_EVAL_IF_GREATER_NINT       = 'greater/lesser comparison only applicable for integers (got %s and %s)!';
 
 implementation
 end.

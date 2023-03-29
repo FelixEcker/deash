@@ -115,6 +115,7 @@ implementation
     DatatypeToStr := 'unknown';
 
     case ADatatype of
+      DATATYPE_UNREAL: DatatypeToStr := 'Unreal (unknown)';
       DATATYPE_VARIABLE: DatatypeToStr := 'Variable';
       DATATYPE_INTEGER: DatatypeToStr := 'Integer';
       DATATYPE_BOOLEAN: DatatypeToStr := 'Boolean';
@@ -127,6 +128,4 @@ implementation
   begin
     ProgramUptime := Time - program_start;
   end;
-initialization
-  Randomize;
 end.

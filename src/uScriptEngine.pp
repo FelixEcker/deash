@@ -453,7 +453,6 @@ implementation
         exit;
 
       case tokens[0] of
-        {'begin': exit; DEPRECATED LANG FEATURE }
         'env': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ENV); exit; end;
         'alias': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ALIAS); exit; end;
         'var': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_VAR); exit; end;
