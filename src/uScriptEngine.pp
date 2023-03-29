@@ -556,7 +556,7 @@ implementation
           if lefthandVal.datatype <> DATATYPE_BOOLEAN then
           begin
             AResult.success := False;
-            AResult.message := 'malformed conditional: expected VALUE OPERATOR VALUE, got VALUE. This syntax is only allowed if the Variable/Value is of type Boolean!';
+            AResult.message := ERR_EVAL_IF_MALOFRMED_VALUE; 
             exit;
           end;
 
@@ -567,7 +567,7 @@ implementation
         begin
           debugwriteln(sLineBreak + 'Conditional evaluation failed on word: '+split[i]);
           AResult.success := False;
-          AResult.message := 'malformed conditional: expected VALUE OPERATOR VALUE';
+          AResult.message := ERR_EVAL_IF_MALFORMED_VALOPVAL;
           exit;
         end;
       end else
@@ -581,7 +581,7 @@ implementation
         if lefthandVal.datatype <> righthandVal.datatype then
         begin
           AResult.success := False;
-          AResult.message := Format('mismatched datatypes for comparison (%s and %s)', [DatatypeToStr(lefthandVal.datatype), DatatypeToStr(righthandVal.datatype)]);
+          AResult.message := Format(ERR_EVAL_IF_MISMATCHED_TYPES, [DatatypeToStr(lefthandVal.datatype), DatatypeToStr(righthandVal.datatype)]);
           exit;
         end;
         skip := 2;
@@ -598,7 +598,7 @@ implementation
           if (righthandVal.datatype <> DATATYPE_INTEGER) or (lefthandVal.datatype <> DATATYPE_INTEGER) then
           begin
             AResult.success := False;
-            AResult.message := Format('greater/lesser comparison only applicable for integers (got %s and %s)!', [DatatypeToStr(lefthandVal.datatype), DatatypeToStr(righthandVal.datatype)]);
+            AResult.message := Format(ERR_EVAL_IF_GREATER_NINT, [DatatypeToStr(lefthandVal.datatype), DatatypeToStr(righthandVal.datatype)]);
             exit;
           end;
 
