@@ -448,8 +448,24 @@ implementation
         exit;
       end;
 
-      if (curr_blocktype = BLOCKTYPE_IF) and AScript.falseif
-      or (AScript.codeblocks[HIGH(Ascript.codeblocks)] = BLOCKTYPE_IF) and Eval.success then 
+      if (curr_blocktype = BLOCKTYPE_IF) and AScript.falseif then
+      begin
+        { Still push on other code blocks to allow nesting even though its disgusting,
+          and yes this could be handled smarter by always pushing the blocktype and then
+          just handling it after this and the next if condition but im in class right now
+          so i can't be bothered. }
+        case tokens[0] of
+          'env': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ENV); exit; end;
+          'alias': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ALIAS); exit; end;
+          'var': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_VAR); exit; end;
+          'proc': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_PROC); exit; end;
+          'for': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_LOOP_FOR); exit; end;
+          'while': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_LOOP_WHILE); exit; end;
+        end;
+        exit;
+      end;
+
+      if (AScript.codeblocks[HIGH(Ascript.codeblocks)] = BLOCKTYPE_IF) and Eval.success then 
         exit;
 
       case tokens[0] of
@@ -457,6 +473,8 @@ implementation
         'alias': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ALIAS); exit; end;
         'var': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_VAR); exit; end;
         'proc': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_PROC); exit; end;
+        'for': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_LOOP_FOR); exit; end;
+        'while': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_LOOP_WHILE); exit; end;
         'exit': begin SetLength(AScript.codeblocks, 0); AScript.exited := True; exit; end;
         '{': begin AScript.incomment := True; exit; end;
       else begin
@@ -500,6 +518,7 @@ implementation
       exit;
     end else if datatype = DATATYPE_RETURNVAL then
     begin
+      ADestination.datatype := DATATYPE_STRING;
       exit;
     end else
     begin

@@ -14,13 +14,15 @@ interface
     DEV_INFO = 'Marie Eckert';
 
     { Interal codes for different types of Code-Blocks }
-    BLOCKTYPE_NONE   = 0;
-    BLOCKTYPE_PROC   = 1;
-    BLOCKTYPE_ALIAS  = 2;
-    BLOCKTYPE_ENV    = 3;
-    BLOCKTYPE_VAR    = 4;
-    BLOCKTYPE_IF     = 5;
-    BLOCKTYPE_IGNORE = 6;
+    BLOCKTYPE_NONE       = 0;
+    BLOCKTYPE_PROC       = 1;
+    BLOCKTYPE_ALIAS      = 2;
+    BLOCKTYPE_ENV        = 3;
+    BLOCKTYPE_VAR        = 4;
+    BLOCKTYPE_IF         = 5;
+    BLOCKTYPE_IGNORE     = 6;
+    BLOCKTYPE_LOOP_FOR   = 7;
+    BLOCKTYPE_LOOP_WHILE = 8;
 
     { Internal codes for Invoke types}
     INVOKETYPE_PREF_PROC = 0;
