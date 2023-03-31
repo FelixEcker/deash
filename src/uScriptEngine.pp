@@ -363,7 +363,7 @@ implementation
     invoke: TInvoke;
     inv_result: TInvokeResult;
     ifeval_res: TEvalResult;
-    escaping, stash: Boolean;
+    escaping, stash, evalled_if: Boolean;
     curr_blocktype, i, j: Integer;
   begin
     Eval.success := True;
@@ -380,6 +380,7 @@ implementation
 
     i := 0;
     escaping := False;
+    evalled_if := False;
     while AScript.incomment and (i < Length(tokens)) do
     begin
       for j := 1 to Length(tokens[i]) do
@@ -419,6 +420,7 @@ implementation
           ArrPushInt(AScript.codeblocks, BLOCKTYPE_IF);
           AScript.falseif := not EvalIf(AScript, ifeval_res);
           Eval := ifeval_res;
+          evalled_if := True;
         end;
         'elif': begin
           if (curr_blocktype <> BLOCKTYPE_IF) then
@@ -429,6 +431,7 @@ implementation
           end;
           AScript.falseif := not EvalIf(AScript, ifeval_res);
           Eval := ifeval_res;
+          evalled_if := True;
         end;
         'else': begin
           if (curr_blocktype <> BLOCKTYPE_IF) then
@@ -438,34 +441,33 @@ implementation
             exit;
           end;
           AScript.falseif := not AScript.falseif;
+          evalled_if := True;
         end;
       end;
       
       if not Eval.success then
       begin
-        if AScript.codeblocks[HIGH(Ascript.codeblocks)] = BLOCKTYPE_IF then ArrPopInt(AScript.codeblocks);
+        if evalled_if then ArrPopInt(AScript.codeblocks);
         AScript.falseif := stash;
         exit;
       end;
 
       if (curr_blocktype = BLOCKTYPE_IF) and AScript.falseif then
       begin
-        { Still push on other code blocks to allow nesting even though its disgusting,
-          and yes this could be handled smarter by always pushing the blocktype and then
-          just handling it after this and the next if condition but im in class right now
-          so i can't be bothered. }
         case tokens[0] of
-          'env': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ENV); exit; end;
-          'alias': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ALIAS); exit; end;
-          'var': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_VAR); exit; end;
-          'proc': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_PROC); exit; end;
-          'for': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_LOOP_FOR); exit; end;
-          'loop': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_LOOP_LOOP); exit; end;
+          'env',
+          'alias',
+          'var',
+          'proc',
+          'for',
+          'loop': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_IGNORE); exit; end;
         end;
+
         exit;
       end;
 
-      if (AScript.codeblocks[HIGH(Ascript.codeblocks)] = BLOCKTYPE_IF) and Eval.success then 
+      if (evalled_if and Eval.success) 
+      or (AScript.codeblocks[HIGH(AScript.codeblocks)] = BLOCKTYPE_IGNORE) then 
         exit;
 
       case tokens[0] of

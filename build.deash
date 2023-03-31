@@ -12,7 +12,7 @@ if ParamStr(1) = 'docs' then
   end
   cd ..
 elif ParamStr(1) = 'debug' then
-  fpc src/deash.pp -FE"out/" -Fu"inc/" -g -dDEBUG
+  fpc src/deash.pp -FEout/ -Fuinc/ -g -dDEBUG
 else
-  fpc src/deash.pp -FE"out/" -Fu"inc/" -O4 -XX -Xs
+  fpc src/deash.pp -FEout/ -Fuinc/ -O4 -XX -Xs
 end
