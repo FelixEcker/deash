@@ -460,7 +460,7 @@ implementation
           'var': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_VAR); exit; end;
           'proc': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_PROC); exit; end;
           'for': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_LOOP_FOR); exit; end;
-          'while': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_LOOP_WHILE); exit; end;
+          'loop': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_LOOP_LOOP); exit; end;
         end;
         exit;
       end;
@@ -474,7 +474,7 @@ implementation
         'var': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_VAR); exit; end;
         'proc': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_PROC); exit; end;
         'for': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_LOOP_FOR); exit; end;
-        'while': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_LOOP_WHILE); exit; end;
+        'loop': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_LOOP_LOOP); exit; end;
         'exit': begin SetLength(AScript.codeblocks, 0); AScript.exited := True; exit; end;
         '{': begin AScript.incomment := True; exit; end;
       else begin
