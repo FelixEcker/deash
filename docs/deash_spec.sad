@@ -14,7 +14,7 @@
 {$begin-section} foreword
 {$head} Foreword
 
-A quick note before the actual specification starts: This document will likely never be
+A quick note before the actual specification starts: This document will probably never be
 complete and experience changes in likely all sections. So really this is more of a documentation
 and overview of how the shell functions and the current point than a solid specification.
 {$end-section}
@@ -24,8 +24,8 @@ and overview of how the shell functions and the current point than a solid speci
 
 This section specifies how Commands should be parsed, this includes:
   1. Piping and chaining Commands
-  3. C-Style String-Escaping
-  4. Reserved Characters & Keywords
+  2. C-Style String-Escaping
+  3. Reserved Characters & Keywords
 
 {$begin-section} pipes-chains
 {$sub-head} Piping and chaining Commands
@@ -78,6 +78,15 @@ used for.
 {$style bold} proc {$reset-all}
   Used to declare a procedure
 
+{$style bold} for {$reset-all}
+  Used to declare a for-loop
+
+{$style bold} loop {$reset-all}
+  Used to declare a loop-loop
+
+{$style bold} break {$reset-all}
+  Used to "break out" of a loop
+
 {$style bold} alias {$reset-all}
   Used to start the alias-declaration section.
 
@@ -115,6 +124,7 @@ deash syntax follows the style of Pascal/ALGOL.
 2. Variables
 3. Conditionals
 4. Procedures
+5. Loops
 
 {$begin-section} comments
 {$sub-head} Comments
@@ -244,6 +254,44 @@ will just be an empty string.
 {$style bold} NOTE: {$reset-all} {$style italic} When using the pascal-like calling convention,
 the binary search paths as well as aliases are ignored! {$reset-all}
 {$end-section}
+{$begin-section} loops
+{$sub-head} Loops
+
+deash also supports looping code using the {$style italic} for {$reset-all} and {$style italic} loop {$reset-all} keywords.
+This section will detail the syntax of these loops.
+
+{$begin-section} loop-for
+{$sub-head} For-Loops
+
+for loops work by creating a temporary iterator variable which is assigned to an array/set that must
+also be created within the loops declaration. The basic syntax looks like this: {$style fraktur}
+  for ITERATOR in ARRAY do
+    # looped code
+  end {$reset-all}
+
+The iterators name may be any variable name which is not already in use, the iterator is discarded
+after the for loop ends.
+The array/set which is to be iterated over may be an array of Integers or Characters, although future
+support for arrays of all datatypes is planned. Integer arrays may also be reffered to as ranges,
+these are declared like this: {$style fraktur}
+  < Integer Literal or Variable >..< Integer Literal or Variable > {$reset-all}
+
+To iterate over characters you must either provide a String literal or variable, this will be
+automatically sliced into an array of characters.
+
+A for-loop will stop if either the iterator hits the end of the array/set or  the script exits, 
+the {$style italic} break {$reset-all} keyword is hit  or the (if its placed in a procedure) procedure its located in is returned from.
+
+{$style bold} NOTE: {$reset-all} I am well aware that this for loop is very limiting but I currently
+don't have the time or energy to think of a good way to implement arrays.
+{$end-section}
+{$begin-section} loop-while
+{$sub-head} Loop-Loops
+
+"loop" loops whill repeat indefinetly unless the script exits, the {$style italic} break {$reset-all} keyword is hit 
+or the (if its placed in a procedure) procedure its located in is returned from.
+{$end-section}
+{$end-section}
 {$end-section}
 
 {$begin-section} builtin-cmds
@@ -251,7 +299,7 @@ the binary search paths as well as aliases are ignored! {$reset-all}
 
 This section details all Builtin variables, commands/procedures, their parameters and what they do.
 
-{$begin-sectoin} builtin-cmds-cmds
+{$begin-section} builtin-cmds-cmds
 {$sub-head} Commands
 {$begin-section} purr
 {$sub-head} purr
