@@ -2,7 +2,7 @@
 program deash;
 
 { deash.pp ; Entry Point for deash }
-{ author: Felix Eckert             }
+{ author: Marie Eckert             }
 
 {$H+}
 
