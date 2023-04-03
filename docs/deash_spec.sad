@@ -300,7 +300,9 @@ or the (if its placed in a procedure) procedure its located in is returned from.
 This section details all Builtin variables, commands/procedures, their parameters and what they do.
 
 {$begin-section} builtin-cmds-cmds
+{$style underline}
 {$sub-head} Commands
+{$reset-all}
 {$begin-section} purr
 {$sub-head} purr
 
@@ -326,7 +328,9 @@ Terminates the current shell-session.
 {$end-section}
 
 {$begin-section} builtin-cmds-procs
+{$style underline}
 {$sub-head} Procedures
+{$reset-all}
 {$begin-section} paramstr
 {$sub-head} ParamStr
 
@@ -341,7 +345,9 @@ parameters an empty string will be returned.
 {$end-section}
 
 {$begin-section} builtin-cmds-vars
+{$style underline}
 {$sub-head} Variables
+{$reset-all}
 
 deash has internal standard variables reffered to as ShellEnv. These variables are read-only
 and prefixed with {$style italic} SH_ {$reset-all} .

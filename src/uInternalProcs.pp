@@ -7,9 +7,9 @@ unit uInternalProcs;
 { Author: Marie Eckert                                                       }
 
 interface
-  uses Dos, SysUtils, Types, uExecutor, uHelpers, uPathResolve, uXDebug;  
+  uses Dos, SysUtils, Types, uExecutor, uHelpers, uTypes, uPathResolve, uXDebug;  
 
-  function DoInternalCmd(const AName: String; const AParams: TStringDynArray): TInvokeResult;
+  function DoInternalCmd(const AName: String; const AParams: TStringDynArray; var AScript: TScript): TInvokeResult;
 implementation
   uses uScriptEngine;
 
@@ -81,13 +81,23 @@ implementation
     writeln;
   end;
 
-  function DoInternalCmd(const AName: String; const AParams: TStringDynArray): TInvokeResult;
+  procedure DebugCbTrace(var AScript: TScript);
+  var
+    i: Integer;
+  begin
+    writeln('Debug Codeblock Trace', sLineBreak);
+    for i := HIGH(AScript.codeblocks) downto 0 do
+      writeln(':: ', BlocktypeToStr(AScript.codeblocks[i]));
+  end;
+
+  function DoInternalCmd(const AName: String; const AParams: TStringDynArray; var AScript: TScript): TInvokeResult;
   begin
     DoInternalCmd.code := 0;
 
     case AName of
     'cd': DoInternalCmd := Cd(AParams);
     'purr': Purr;
+    'debug_cbtrace': DebugCbTrace(AScript);
     'exec': exit; { << IMPLEMENT SOON }
     else
       DoInternalCmd.code := -1;

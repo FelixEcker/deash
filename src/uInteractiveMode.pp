@@ -7,7 +7,8 @@ unit uInteractiveMode;
 {$H+}
 
 interface
-  uses Dos, {$IF defined(LINUX)} BaseUnix, {$ENDIF} SysUtils, StrUtils, Types, uDEASHConsts, uHelpers, uXDebug, uScriptEngine, uPathResolve;
+  uses Dos, {$IF defined(LINUX)} BaseUnix, {$ENDIF} SysUtils, StrUtils, Types, uDEASHConsts, uHelpers, uXDebug, 
+       uScriptEngine, uPathResolve, uTypes;
 
   procedure LaunchShell;
 

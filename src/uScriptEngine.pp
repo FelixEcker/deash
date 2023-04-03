@@ -7,31 +7,9 @@ unit uScriptEngine;
 {$H+}{$R+}
 
 interface
-  uses Dos, SysUtils, StrUtils, Types, uXDebug, uDEASHConsts, uExecutor, uHelpers, uInternalProcs;
+  uses Dos, SysUtils, StrUtils, Types, uXDebug, uDEASHConsts, uExecutor, uHelpers, uInternalProcs, uTypes;
 
   type
-    { TODO: Put all these data structures into their own unit,
-            this is getting too long... }
-
-    TVariable = record
-      identifier, value: String;
-      datatype: Integer;
-    end;
-
-    TVariableDynArray = array of TVariable;
-
-    TScript = record
-      scriptfile : TextFile;
-      scriptpath : String;
-      cline      : String;
-      nline      : Integer;
-      incomment  : Boolean;
-      falseif    : Boolean;
-      exited     : Boolean;
-      codeblocks : TIntegerDynArray;
-      vars       : TVariableDynArray;
-    end;
-
     TEvalResult = record
       success: Boolean;
       message: String;
@@ -67,21 +45,53 @@ interface
     TAliasDynArray = array of TAlias;
 
   { Helper funcs }
+
+  (* Extract a Procedure Name out of ASrc *)
   function ExtractProcName(const ASrc: String): String;
+
+  (* Find an Exported Procedure with name AName and put its record into AProcRec.
+     Returns True when an Exported Procedure of given name was found, False if not. *)
   function FindExpProc(const AName: String; var AProcRec: TProcedure): Boolean;
-  function FindPrefferedExpProc(const AName: String; var AProcRec: TProcedure): Boolean;
-  function ExecProc(const AProcedure: TProcedure; const AParameters: TStringDynArray): TProcedureResult;
+
+  (* Find an Preffered Exported Procedure with name AName and put its record into AProcRec.
+     Returns True when an Preffered Exported Procedure of given name was found, False if not. *)
+  function FindPrefferedExpProc(const AName: String; var AProcRec: TProcedure): Boolean;  
+
+  (* Find an Alias with name AName and put its record into AAliasRec.
+     Returns True when an Alias of given name was found, False if not. *)
   function FindAlias(const AName: String; var AAliasRec: TAlias): Boolean;
+
+  (* Returns True if the command name in ACmd is an integrated command, False if not *)
   function IsInternalCmd(const ACmd: String): Boolean;
+
+  (* Set a Shell Environment Variable, see deash_spec.sad#builtin-cmds-vars *)
   procedure SetShellEnv(const AName, AVal: String);
+
+  (* Get the value of a Shell Environment Variable *)
   function GetShellEnv(const AName: String): String;
+
+  (* Resolve the variable name AName to a Variable Record (function result) in script AScript *)
   function ResolveVariable(var AScript: TScript; const AName: String): TVariable;
 
   { Execution funcs }
+
+  (* Execute a deash script file at APath *)
   procedure DoScriptExec(const APath: String);
+
+  (* Execute the procedure AProcedure with the parameters AParameters *)
+  function ExecProc(const AProcedure: TProcedure; const AParameters: TStringDynArray; var AScript: TScript): TProcedureResult;
+
+  (* Get an Invoke with name AName and store it into ATargetRec.
+     Returns True if the invoke exists, False if not. *)
   function GetInvoke(const AName: String; var ATargetRec: TInvoke): Boolean;
-  function DoInvoke(const AInvoke: TInvoke): TInvokeResult;
+
+  (* Execute the Invoke in AInvoke and return its InvokeResult. *)
+  function DoInvoke(const AInvoke: TInvoke; var AScript: TScript): TInvokeResult;
+
+  (* Evaluate the current line of the script AScript *)
   function Eval(var AScript: TScript): TEvalResult;
+
+  (* Evaluate the current line of the script AScript as an If-Conditional *)
   function EvalIf(var AScript: TScript; var AResult: TEvalResult): Boolean;
 
   var
@@ -135,51 +145,6 @@ implementation
     end;
   end;
 
-  function ExecProc(const AProcedure: TProcedure; const AParameters: TStringDynArray): TProcedureResult;
-  var
-    invoke_result: TInvokeResult;
-    script: TScript;
-    evalres: TEvalResult;
-    i: Integer;
-  begin
-    if AProcedure.internal then
-    begin
-      invoke_result := DoInternalCmd(AProcedure.name, AParameters);
-      ExecProc.success := invoke_result.code = 0;
-      ExecProc.return_value := invoke_result.message;
-      exit;
-    end;
-
-    script.incomment := False;
-    script.scriptpath := 'procedure:'+AProcedure.name;
-
-    SetLength(script.codeblocks, 1);
-    script.codeblocks[0] := BLOCKTYPE_NONE;
-
-    SetLength(script.vars, 1);
-    script.vars[0].datatype := DATATYPE_STRING;
-    script.vars[0].identifier := 'result';
-
-    script.nline := 0;
-    for i := 0 to Length(AProcedure.lines)-1 do
-    begin
-      debugwriteln(AProcedure.name+' = '+script.cline);
-      script.nline := script.nline + 1;
-      script.cline := AProcedure.lines[i];
-      evalres := Eval(script);
-      if not evalres.success then
-      begin
-        ExecProc.success := False;
-        ExecProc.return_value := Format('eval for procedure %s failed at line %d:%s:: %s', 
-              [AProcedure.name, script.nline, sLineBreak, evalres.message]);
-        break;
-      end;
-    end;
-
-    ExecProc.success := True;
-    ExecProc.return_value := ResolveVariable(script, 'result').value;
-  end;
-
   function FindAlias(const AName: String; var AAliasRec: TAlias): Boolean;
   var
     i: Integer;
@@ -203,6 +168,7 @@ implementation
     case ACmd of
       'cd': exit;
       'purr': exit;
+      'debug_cbtrace': exit;
     end;
 
     IsInternalCmd := False;
@@ -263,6 +229,51 @@ implementation
   end;
 
   { Execution funcs }
+  
+  function ExecProc(const AProcedure: TProcedure; const AParameters: TStringDynArray; var AScript: TScript): TProcedureResult;
+  var
+    invoke_result: TInvokeResult;
+    script: TScript;
+    evalres: TEvalResult;
+    i: Integer;
+  begin
+    if AProcedure.internal then
+    begin
+      invoke_result := DoInternalCmd(AProcedure.name, AParameters, AScript);
+      ExecProc.success := invoke_result.code = 0;
+      ExecProc.return_value := invoke_result.message;
+      exit;
+    end;
+
+    script.incomment := False;
+    script.scriptpath := 'procedure:'+AProcedure.name;
+
+    SetLength(script.codeblocks, 1);
+    script.codeblocks[0] := BLOCKTYPE_NONE;
+
+    SetLength(script.vars, 1);
+    script.vars[0].datatype := DATATYPE_STRING;
+    script.vars[0].identifier := 'result';
+
+    script.nline := 0;
+    for i := 0 to Length(AProcedure.lines)-1 do
+    begin
+      debugwriteln(AProcedure.name+' = '+script.cline);
+      script.nline := script.nline + 1;
+      script.cline := AProcedure.lines[i];
+      evalres := Eval(script);
+      if not evalres.success then
+      begin
+        ExecProc.success := False;
+        ExecProc.return_value := Format(ERR_PROC_EVAL_FAIL_LINE, 
+              [AProcedure.name, script.nline, sLineBreak, evalres.message]);
+        break;
+      end;
+    end;
+
+    ExecProc.success := True;
+    ExecProc.return_value := ResolveVariable(script, 'result').value;
+  end;
 
   procedure DoScriptExec(const APath: String);
   var
@@ -294,7 +305,7 @@ implementation
       evalres := Eval(script);
       if not evalres.success then
       begin
-        DeashError(Format('eval for script %s failed at line %d:%s:: %s', 
+        DeashError(Format(ERR_SCRIPT_EVAL_FAIL_LINE,
               [script.scriptpath, script.nline, sLineBreak, evalres.message]));
         break;
       end;
@@ -345,14 +356,14 @@ implementation
     GetInvoke := False;
   end;
 
-  function DoInvoke(const AInvoke: TInvoke): TInvokeResult;
+  function DoInvoke(const AInvoke: TInvoke; var AScript: TScript): TInvokeResult;
   begin
     DoInvoke.code := 0;
     DoInvoke.message := '';
 
     case AInvoke.invoketype of
     INVOKETYPE_BINARY: DoInvoke := ExecBin(AInvoke.location, AInvoke.parameters);
-    INVOKETYPE_INTERNAL: DoInvoke := DoInternalCmd(AInvoke.location, AInvoke.parameters);
+    INVOKETYPE_INTERNAL: DoInvoke := DoInternalCmd(AInvoke.location, AInvoke.parameters, AScript);
     end;
   end;
 
@@ -411,94 +422,98 @@ implementation
     { Only execute line if we are not in any declaration block }
 
     curr_blocktype := AScript.codeblocks[HIGH(AScript.codeblocks)];
-    if (curr_blocktype < BLOCKTYPE_PROC)
-    or (curr_blocktype > BLOCKTYPE_VAR) then
-    begin 
-      stash := AScript.falseif;
-      case tokens[0] of
-        'if': begin 
-          ArrPushInt(AScript.codeblocks, BLOCKTYPE_IF);
-          AScript.falseif := not EvalIf(AScript, ifeval_res);
-          Eval := ifeval_res;
-          evalled_if := True;
-        end;
-        'elif': begin
-          if (curr_blocktype <> BLOCKTYPE_IF) then
-          begin
-            Eval.success := False;
-            Eval.message := 'Invalid keyword "elif" outside of an IF-Block';
-            exit;
-          end;
-          AScript.falseif := not EvalIf(AScript, ifeval_res);
-          Eval := ifeval_res;
-          evalled_if := True;
-        end;
-        'else': begin
-          if (curr_blocktype <> BLOCKTYPE_IF) then
-          begin
-            Eval.success := False;
-            Eval.message := 'Invalid keyword "else" outside of an IF-Block';
-            exit;
-          end;
-          AScript.falseif := not AScript.falseif;
-          evalled_if := True;
-        end;
+
+    if  (curr_blocktype > BLOCKTYPE_PROC)
+    or  (curr_blocktype < BLOCKTYPE_VAR)  and 
+    not (curr_blocktype = BLOCKTYPE_NONE) then
+    begin
+      exit;
+    end;
+
+    stash := AScript.falseif;
+    case tokens[0] of
+      'if': begin 
+        ArrPushInt(AScript.codeblocks, BLOCKTYPE_IF);
+        AScript.falseif := not EvalIf(AScript, ifeval_res);
+        Eval := ifeval_res;
+        evalled_if := True;
       end;
-      
-      if not Eval.success then
-      begin
-        if evalled_if then ArrPopInt(AScript.codeblocks);
-        AScript.falseif := stash;
-        exit;
-      end;
-
-      if (curr_blocktype = BLOCKTYPE_IF) and AScript.falseif then
-      begin
-        case tokens[0] of
-          'env',
-          'alias',
-          'var',
-          'proc',
-          'for',
-          'loop': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_IGNORE); exit; end;
-        end;
-
-        exit;
-      end;
-
-      if (evalled_if and Eval.success) 
-      or (AScript.codeblocks[HIGH(AScript.codeblocks)] = BLOCKTYPE_IGNORE) then 
-        exit;
-
-      case tokens[0] of
-        'env': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ENV); exit; end;
-        'alias': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ALIAS); exit; end;
-        'var': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_VAR); exit; end;
-        'proc': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_PROC); exit; end;
-        'for': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_LOOP_FOR); exit; end;
-        'loop': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_LOOP_LOOP); exit; end;
-        'exit': begin SetLength(AScript.codeblocks, 0); AScript.exited := True; exit; end;
-        '{': begin AScript.incomment := True; exit; end;
-      else begin
-        if not GetInvoke(tokens[0], invoke) then
+      'elif': begin
+        if (curr_blocktype <> BLOCKTYPE_IF) then
         begin
           Eval.success := False;
-          Eval.message := 'Unrecognized identifier: '+tokens[0];
+          Eval.message := 'Invalid keyword "elif" outside of an IF-Block';
           exit;
         end;
-        invoke.parameters := Copy(tokens, 1, Length(tokens) - 1);
-        debugwriteln('INVOKE LOCATION: '+invoke.location+' ; INVOKE TYPE: '+IntToStr(invoke.invoketype));
-        inv_result := DoInvoke(invoke);
-        if inv_result.code <> 0 then
+        AScript.falseif := not EvalIf(AScript, ifeval_res);
+        Eval := ifeval_res;
+        evalled_if := True;
+      end;
+      'else': begin
+        if (curr_blocktype <> BLOCKTYPE_IF) then
         begin
-          DeashError('Invoke finished with code '+IntToStr(inv_result.code));
-          DeashError('Message: '+inv_result.message);
+          Eval.success := False;
+          Eval.message := 'Invalid keyword "else" outside of an IF-Block';
+          exit;
         end;
-      end; end;
+        AScript.falseif := not AScript.falseif;
+        evalled_if := True;
+      end;
     end;
+    
+    if not Eval.success then
+    begin
+      if evalled_if then ArrPopInt(AScript.codeblocks);
+      AScript.falseif := stash;
+      exit;
+    end;
+
+    if (curr_blocktype = BLOCKTYPE_IF) and AScript.falseif then
+    begin
+      case tokens[0] of
+      'env',
+      'alias',
+      'var',
+      'proc',
+      'for',
+      'loop': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_IGNORE); exit; end;
+      end;
+
+      exit;
+    end;
+
+    if (evalled_if and Eval.success) 
+    or (AScript.codeblocks[HIGH(AScript.codeblocks)] = BLOCKTYPE_IGNORE) then 
+      exit;
+
+    case tokens[0] of
+    'env': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ENV); exit; end;
+    'alias': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ALIAS); exit; end;
+    'var': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_VAR); exit; end;
+    'proc': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_PROC); exit; end;
+    'for': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_LOOP_FOR); exit; end;
+    'loop': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_LOOP_LOOP); exit; end;
+    'exit': begin SetLength(AScript.codeblocks, 0); AScript.exited := True; exit; end;
+    '{': begin AScript.incomment := True; exit; end;
+    else begin
+      if not GetInvoke(tokens[0], invoke) then
+      begin
+        Eval.success := False;
+        Eval.message := 'Unrecognized identifier: '+tokens[0];
+        exit;
+      end;
+      invoke.parameters := Copy(tokens, 1, Length(tokens) - 1);
+      debugwriteln('INVOKE LOCATION: '+invoke.location+' ; INVOKE TYPE: '+IntToStr(invoke.invoketype));
+      inv_result := DoInvoke(invoke, AScript);
+      if inv_result.code <> 0 then
+      begin
+        DeashError('Invoke finished with code '+IntToStr(inv_result.code));
+        DeashError('Message: '+inv_result.message);
+      end;
+    end; { end else} end; { end case }
   end;
   
-  { Internal function to resolve the operand of a if-condition to a Variable record }
+  (* Internal function to resolve the operand of a if-condition to a Variable record *)
   function ResolveOperand(var AScript: TScript; const AOperand: String; var ADestination: TVariable): TEvalResult;
   var
     datatype: Integer;
@@ -539,7 +554,6 @@ implementation
     lefthandVal, righthandVal: TVariable;
     _operator, perform_bitwise: String;
     res_stash: Boolean;
-    resolveres: TEvalResult;
     split: TStringDynArray;
   begin
     EvalIf := False;

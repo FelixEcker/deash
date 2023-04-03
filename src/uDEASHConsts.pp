@@ -48,6 +48,8 @@ interface
     ERR_EVAL_IF_MALFORMED_VALOPVAL = 'malformed conditional: expected VALUE OPERATOR VALUE';
     ERR_EVAL_IF_MISMATCHED_TYPES   = 'mismatched datatypes for comparison (%s and %s)';
     ERR_EVAL_IF_GREATER_NINT       = 'greater/lesser comparison only applicable for integers (got %s and %s)!';
+    ERR_PROC_EVAL_FAIL_LINE        = 'eval for procedure %s failed at line %d:%s:: %s';
+    ERR_SCRIPT_EVAL_FAIL_LINE      = 'eval for script %s failed at line %d:%s:: %s';
 
 implementation
 end.

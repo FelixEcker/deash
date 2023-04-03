@@ -9,26 +9,29 @@ unit uHelpers;
 interface
   uses Dos, StrUtils, SysUtils, Types, uDEASHConsts;
 
-  { Print a shell error }
+  (* Print a shell error *)
   procedure DeashError(const AMsg: String);
-  
-  { Check if a binary with the name set in AName exists. If the result is True,
-    its full path will be written to APath. }
+
+  (* Check if a binary with the name set in AName exists. If the result is True,
+    its full path will be written to APath. *)
   function BinaryExists(AName: String; var APath: String): Boolean;
   
-  { Add an int to given array }
+  (* Add an int to given array *)
   procedure ArrPushInt(var AArr: TIntegerDynArray; const AVal: Integer);
   
-  { Get and remove the last index of given array }
+  (* Get and remove the last index of given array *)
   function ArrPopInt(var AArr: TIntegerDynArray): Integer;
   
-  { Determine the datatype of a script statement / identifier }
+  (* Determine the datatype of a script statement / identifier *)
   function DetermineDatatype(const AString: String): Integer;
   
-  { Convert a internal Datatype code to its string name }
+  (* Convert a internal Datatype code to its string name *)
   function DatatypeToStr(const ADatatype: Integer): String;
 
-  { Get the duration of the current session as a unix timestamp }
+  (* Convert an internal Blocktype code to its string name *)
+  function BlocktypeToStr(const ABlocktype: Integer): String;
+
+  (* Get the duration of the current session as a unix timestamp *)
   function ProgramUptime: TDateTime;
 
   var
@@ -115,12 +118,29 @@ implementation
     DatatypeToStr := 'unknown';
 
     case ADatatype of
-      DATATYPE_UNREAL: DatatypeToStr := 'Unreal (unknown)';
-      DATATYPE_VARIABLE: DatatypeToStr := 'Variable';
-      DATATYPE_INTEGER: DatatypeToStr := 'Integer';
-      DATATYPE_BOOLEAN: DatatypeToStr := 'Boolean';
-      DATATYPE_STRING: DatatypeToStr := 'String';
-      DATATYPE_RETURNVAL: DatatypeToStr := 'Procedure Return Value (String)';
+    DATATYPE_UNREAL:    DatatypeToStr := 'Unreal (unknown)';
+    DATATYPE_VARIABLE:  DatatypeToStr := 'Variable';
+    DATATYPE_INTEGER:   DatatypeToStr := 'Integer';
+    DATATYPE_BOOLEAN:   DatatypeToStr := 'Boolean';
+    DATATYPE_STRING:    DatatypeToStr := 'String';
+    DATATYPE_RETURNVAL: DatatypeToStr := 'Procedure Return Value (String)';
+    end;
+  end;
+  
+  function BlocktypeToStr(const ABlocktype: Integer): String;
+  begin
+    BlocktypeToStr := 'unknown';
+
+    case ABlocktype of
+    BLOCKTYPE_NONE:      BlocktypeToStr := 'None';
+    BLOCKTYPE_PROC:      BlocktypeToStr := 'Procedure';
+    BLOCKTYPE_ALIAS:     BlocktypeToStr := 'Alias';
+    BLOCKTYPE_ENV:       BlocktypeToStr := 'Environment';
+    BLOCKTYPE_VAR:       BlocktypeToStr := 'Variable';
+    BLOCKTYPE_IF:        BlocktypeToStr := 'If';
+    BLOCKTYPE_IGNORE:    BlocktypeToStr := 'Ignore';
+    BLOCKTYPE_LOOP_FOR:  BlocktypeToStr := 'For-Loop';
+    BLOCKTYPE_LOOP_LOOP: BlocktypeToStr := 'Loop-Loop';
     end;
   end;
 
