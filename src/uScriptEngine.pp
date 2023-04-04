@@ -423,9 +423,8 @@ implementation
 
     curr_blocktype := AScript.codeblocks[HIGH(AScript.codeblocks)];
 
-    if  (curr_blocktype > BLOCKTYPE_PROC)
-    or  (curr_blocktype < BLOCKTYPE_VAR)  and 
-    not (curr_blocktype = BLOCKTYPE_NONE) then
+    if  (curr_blocktype >= BLOCKTYPE_PROC)
+    and (curr_blocktype <= BLOCKTYPE_VAR) then
     begin
       exit;
     end;
@@ -468,6 +467,10 @@ implementation
       exit;
     end;
 
+    if (evalled_if and Eval.success) 
+    or (AScript.codeblocks[HIGH(AScript.codeblocks)] = BLOCKTYPE_IGNORE) then 
+      exit;
+    
     if (curr_blocktype = BLOCKTYPE_IF) and AScript.falseif then
     begin
       case tokens[0] of
@@ -481,11 +484,7 @@ implementation
 
       exit;
     end;
-
-    if (evalled_if and Eval.success) 
-    or (AScript.codeblocks[HIGH(AScript.codeblocks)] = BLOCKTYPE_IGNORE) then 
-      exit;
-
+    
     case tokens[0] of
     'env': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ENV); exit; end;
     'alias': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ALIAS); exit; end;

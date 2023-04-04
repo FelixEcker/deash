@@ -7,6 +7,7 @@ if ParamStr(1) = 'docs' then
   mkdir -p html
   rm -f html/*
   for file in Files('*.sad') do
+    debug_cbtrace
     sadv %file -x
     mv >Concat(file, '.html') html/>Concat(file, '.html')
   end
