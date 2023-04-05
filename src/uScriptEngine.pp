@@ -235,6 +235,7 @@ implementation
     invoke_result: TInvokeResult;
     script: TScript;
     evalres: TEvalResult;
+    parameter: String;
     i: Integer;
   begin
     if AProcedure.internal then
@@ -254,6 +255,11 @@ implementation
     SetLength(script.vars, 1);
     script.vars[0].datatype := DATATYPE_STRING;
     script.vars[0].identifier := 'result';
+
+    for parameter in AParameters do
+    begin
+      writeln(parameter);
+    end;
 
     script.nline := 0;
     for i := 0 to Length(AProcedure.lines)-1 do
@@ -535,6 +541,9 @@ implementation
     end else if datatype = DATATYPE_RETURNVAL then
     begin
       ADestination.datatype := DATATYPE_STRING;
+      { TODO (IMPORTANT): Implement the ExtractProcParams function and also add a function to
+        get a procedure according to Preffered, Exported or Just There thingy magick }
+      ADestination.value := ExecProc(FindProcedure(ExtractProcName(AOperand)), ExtractProcParams(AOperand), AScript).returnval;
       exit;
     end else
     begin
