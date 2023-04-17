@@ -496,7 +496,7 @@ implementation
     or (AScript.codeblocks[HIGH(AScript.codeblocks)] = BLOCKTYPE_IGNORE) then 
       exit;
     
-    if (curr_blocktype = BLOCKTYPE_IF) and AScript.falseif then
+    if (curr_blocktype = BLOCKTYPE_IF) and not AScript.falseif then
     begin
       case tokens[0] of
       'env',
@@ -569,7 +569,7 @@ implementation
       ADestination.datatype := datatype;
       ADestination.value := AOperand;
       if datatype = DATATYPE_STRING then
-        ADestination.value := Copy(ADestination.value, 2, Length(ADestination.value)-1);
+        ADestination.value := Copy(ADestination.value, 2, Length(ADestination.value)-2);
       
       exit;
     end;
@@ -650,7 +650,8 @@ implementation
 
       { Stash the current result incase we do a bitwise }
       res_stash := EvalIf;
-      
+     
+      debugwritef('Comparison: %s %s'+sLineBreak, [lefthandVal.value, righthandVal.value]);
       { Do an actual comparison of the values }
       case _operator of
         '=': EvalIf := righthandVal.value = lefthandVal.value;
