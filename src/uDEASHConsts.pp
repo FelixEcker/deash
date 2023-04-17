@@ -50,6 +50,7 @@ interface
     ERR_EVAL_IF_GREATER_NINT       = 'greater/lesser comparison only applicable for integers (got %s and %s)!';
     ERR_PROC_EVAL_FAIL_LINE        = 'eval for procedure %s failed at line %d:%s:: %s';
     ERR_SCRIPT_EVAL_FAIL_LINE      = 'eval for script %s failed at line %d:%s:: %s';
+    ERR_INTERACTIVE_END_NOBLOCKS   = 'Can not leave last codeblock while shell is in interactive mode!';
 
 implementation
 end.

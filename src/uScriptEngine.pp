@@ -49,6 +49,12 @@ interface
   (* Extract a Procedure Name out of ASrc *)
   function ExtractProcName(const ASrc: String): String;
 
+  (* Find a Procedure using the normal Search order (Preffered, Exported, Local)  *)
+  function FindProcedure(const AName: String): TProcedure;
+
+  (* Extract the Parameters of a Procedure Invoke *)
+  function ExtractProcParams(const AInvoke: String): TStringDynArray;
+
   (* Find an Exported Procedure with name AName and put its record into AProcRec.
      Returns True when an Exported Procedure of given name was found, False if not. *)
   function FindExpProc(const AName: String; var AProcRec: TProcedure): Boolean;
@@ -111,6 +117,14 @@ implementation
         break
       else
         ExtractProcName := ExtractProcName + ASrc[i];   
+  end;
+
+  function FindProcedure(const AName: String): TProcedure;
+  begin
+  end;
+
+  function ExtractProcParams(const AInvoke: String): TStringDynArray;
+  begin
   end;
   
   function FindExpProc(const AName: String; var AProcRec: TProcedure): Boolean;
@@ -419,6 +433,11 @@ implementation
     if tokens[0] = '' then exit;
     if tokens[0] = 'end' then
     begin
+      if (Length(AScript.codeblocks) = 1) and (GetShellEnv('SH_MODE') = 'INTERACTIVE') then
+      begin
+        deasherror(ERR_INTERACTIVE_END_NOBLOCKS);
+        exit;
+      end;
       ArrPopInt(AScript.codeblocks);
       exit;
     end;
@@ -543,7 +562,7 @@ implementation
       ADestination.datatype := DATATYPE_STRING;
       { TODO (IMPORTANT): Implement the ExtractProcParams function and also add a function to
         get a procedure according to Preffered, Exported or Just There thingy magick }
-      ADestination.value := ExecProc(FindProcedure(ExtractProcName(AOperand)), ExtractProcParams(AOperand), AScript).returnval;
+      ADestination.value := ExecProc(FindProcedure(ExtractProcName(AOperand)), ExtractProcParams(AOperand), AScript).return_value;
       exit;
     end else
     begin

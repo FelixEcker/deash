@@ -7,8 +7,7 @@ unit uInteractiveMode;
 {$H+}
 
 interface
-  uses Dos, {$IF defined(LINUX)} BaseUnix, {$ENDIF} SysUtils, StrUtils, Types, uDEASHConsts, uHelpers, uXDebug, 
-       uScriptEngine, uPathResolve, uTypes;
+  uses Dos, {$IF defined(LINUX)} BaseUnix, {$ENDIF} SysUtils, StrUtils, Types, uDEASHConsts, uHelpers, uInternalProcs, uXDebug, uScriptEngine, uPathResolve, uTypes;
 
   procedure LaunchShell;
 
@@ -114,9 +113,14 @@ implementation
       script.cline := inbuff;
       write(history, script.cline);
 
-      eval_result := Eval(script);
-      if not eval_result.success then
-        DeashError(eval_result.message);
+      if script.cline = 'debug_cbtrace' then
+        DoInternalCmd(script.cline, [], script)
+      else
+      begin
+        eval_result := Eval(script);
+        if not eval_result.success then
+          DeashError(eval_result.message);
+      end;
 
       script.nline := script.nline + 1;
     end;
