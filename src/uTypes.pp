@@ -15,6 +15,28 @@ interface
 
     TVariableDynArray = array of TVariable;
 
+    TParameter = record
+      name    : String;
+      ptype   : String;
+      default : String;
+    end;
+
+    TParameterDynArray = array of TParameter;
+
+    TProcedure = record
+      name       : String;
+      internal   : Boolean;
+      parameters : TParameterDynArray;
+      lines      : String;
+    end;
+
+    TProcedureDynArray = array of TProcedure;
+
+    TProcedureResult = record
+      success      : Boolean;
+      return_value : String;
+    end;
+ 
     TScript = record
       scriptfile : TextFile;
       scriptpath : String;
@@ -25,6 +47,7 @@ interface
       exited     : Boolean;
       codeblocks : TIntegerDynArray;
       vars       : TVariableDynArray;
+      procedures : TProcedureDynArray;
     end;
 
 implementation

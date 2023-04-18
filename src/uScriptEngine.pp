@@ -15,28 +15,6 @@ interface
       message: String;
     end;
 
-    TParameter = record
-      name    : String;
-      ptype   : String;
-      default : String;
-    end;
-
-    TParameterDynArray = array of TParameter;
-
-    TProcedure = record
-      name       : String;
-      internal   : Boolean;
-      parameters : TParameterDynArray;
-      lines      : String;
-    end;
-
-    TProcedureDynArray = array of TProcedure;
-
-    TProcedureResult = record
-      success      : Boolean;
-      return_value : String;
-    end;
-
     TAlias = record
       name : String;
       cont : String;
@@ -50,7 +28,7 @@ interface
   function ExtractProcName(const ASrc: String): String;
 
   (* Find a Procedure using the normal Search order (Preffered, Exported, Local)  *)
-  function FindProcedure(const AName: String): TProcedure;
+  function FindProcedure(const AName: String; var AScript: TScript; var ATargetRec: TProcedure): Boolean;
 
   (* Extract the Parameters of a Procedure Invoke *)
   function ExtractProcParams(const AInvoke: String): TStringDynArray;
@@ -89,7 +67,7 @@ interface
 
   (* Get an Invoke with name AName and store it into ATargetRec.
      Returns True if the invoke exists, False if not. *)
-  function GetInvoke(const AName: String; var ATargetRec: TInvoke): Boolean;
+  function GetInvoke(const AName: String; var AScript: TScript; var ATargetRec: TInvoke): Boolean;
 
   (* Execute the Invoke in AInvoke and return its InvokeResult. *)
   function DoInvoke(const AInvoke: TInvoke; var AScript: TScript): TInvokeResult;
@@ -119,12 +97,62 @@ implementation
         ExtractProcName := ExtractProcName + ASrc[i];   
   end;
 
-  function FindProcedure(const AName: String): TProcedure;
+    function FindProcedure(const AName: String; var AScript: TScript; var ATargetRec: TProcedure): Boolean;
   begin
+    FindProcedure := True;
+
+    if FindPrefferedExpProc(AName, ATargetRec) then exit;
+    if FindExpProc(AName, ATargetRec) then exit;
+
+    for ATargetRec in AScript.procedures do
+      if ATargetRec.name = AName then
+        exit;
+
+    FindProcedure := False;
   end;
 
   function ExtractProcParams(const AInvoke: String): TStringDynArray;
+  var
+    open_pos, i: Integer;
+    in_string, escaping: Boolean;
+    param_string: String;
+    params: TStringDynArray;
   begin
+    open_pos := pos('(', AInvoke)+1;
+    param_string := Copy(AInvoke, open_pos, Length(AInvoke)-open_pos);
+
+    SetLength(params, 1);
+
+    in_string := False;
+    escaping := False;
+    for i := 1 to Length(param_string) do
+    begin
+      if (param_string[i] = '\') and not escaping then 
+      begin
+        escaping := True;
+        continue;
+      end;
+
+      if (param_string[i] = '''') and not escaping then
+      begin
+        in_string := not in_string;
+        continue;
+      end;
+
+      if (param_string[i] = ',') and not in_string then
+      begin
+        SetLength(params, Length(params)+1);
+        continue;
+      end;
+
+      params[HIGH(params)] := params[HIGH(params)] + param_string[i];
+      escaping := False;
+    end;
+
+    for i := 0 to Length(params) - 1 do
+      params[i] := trim(params[i]);
+    
+    ExtractProcParams := params;
   end;
   
   function FindExpProc(const AName: String; var AProcRec: TProcedure): Boolean;
@@ -332,7 +360,7 @@ implementation
     end;
   end;
 
-  function GetInvoke(const AName: String; var ATargetRec: TInvoke): Boolean;
+  function GetInvoke(const AName: String; var AScript: TScript; var ATargetRec: TInvoke): Boolean;
   var
     procrec: TProcedure;
     aliasrec: TAlias;
@@ -347,7 +375,7 @@ implementation
       exit;
     end;
 
-    if FindPrefferedExpProc(ExtractProcName(AName), procrec) then
+    if FindProcedure(ExtractProcName(AName), AScript, procrec) then
     begin
       ATargetRec.invoketype := INVOKETYPE_PREF_PROC;
       ATargetRec.location := AName;
@@ -367,12 +395,6 @@ implementation
       exit;
     end;
 
-    if FindExpProc(ExtractProcName(AName), procrec) then
-    begin
-      ATargetRec.invoketype := INVOKETYPE_PROC;
-      ATargetRec.location := AName;
-      exit;
-    end;
     GetInvoke := False;
   end;
 
@@ -520,7 +542,7 @@ implementation
     'exit': begin SetLength(AScript.codeblocks, 0); AScript.exited := True; exit; end;
     '{': begin AScript.incomment := True; exit; end;
     else begin
-      if not GetInvoke(tokens[0], invoke) then
+      if not GetInvoke(tokens[0], AScript, invoke) then
       begin
         Eval.success := False;
         Eval.message := 'Unrecognized identifier: '+tokens[0];
@@ -541,6 +563,7 @@ implementation
   function ResolveOperand(var AScript: TScript; const AOperand: String; var ADestination: TVariable): TEvalResult;
   var
     datatype: Integer;
+    proc: TProcedure;
   begin
     ADestination.identifier := '';
     datatype := DetermineDatatype(AOperand);
@@ -560,9 +583,12 @@ implementation
     end else if datatype = DATATYPE_RETURNVAL then
     begin
       ADestination.datatype := DATATYPE_STRING;
-      { TODO (IMPORTANT): Implement the ExtractProcParams function and also add a function to
-        get a procedure according to Preffered, Exported or Just There thingy magick }
-      ADestination.value := ExecProc(FindProcedure(ExtractProcName(AOperand)), ExtractProcParams(AOperand), AScript).return_value;
+      if not FindProcedure(ExtractProcName(AOperand), AScript, proc) then
+      begin
+        ResolveOperand.success := False;
+        ResolveOperand.message := 'No such procedure';
+      end;
+      ADestination.value := ExecProc(proc, ExtractProcParams(AOperand), AScript).return_value;
       exit;
     end else
     begin
