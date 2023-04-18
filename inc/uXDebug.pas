@@ -46,6 +46,7 @@ implementation
   procedure debugwritef(const ACont: String; const AFormats: array of const);
   begin
     {$IFDEF DEBUG}
+    write(Format('%s <DEBUG>:: ', [PROGNAME]));
     write(Format(ACont, AFormats));
     {$ENDIF}
   end;
