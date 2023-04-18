@@ -496,7 +496,7 @@ implementation
     or (AScript.codeblocks[HIGH(AScript.codeblocks)] = BLOCKTYPE_IGNORE) then 
       exit;
     
-    if (curr_blocktype = BLOCKTYPE_IF) and not AScript.falseif then
+    if (curr_blocktype = BLOCKTYPE_IF) and AScript.falseif then
     begin
       case tokens[0] of
       'env',
@@ -577,7 +577,7 @@ implementation
 
   function EvalIf(var AScript: TScript; var AResult: TEvalResult): Boolean;
   var
-    i, skip: Integer;
+    i, skip, lefthand_end: Integer;
     lefthandVal, righthandVal: TVariable;
     _operator, perform_bitwise: String;
     res_stash: Boolean;
@@ -635,7 +635,13 @@ implementation
       begin
         AResult := ResolveOperand(AScript, split[i], lefthandVal);
         if not AResult.success then exit;
-        AResult := ResolveOperand(AScript, split[i+2], righthandVal);
+
+        { TODO: Properly evaluate end of lefthand operand and parse strings
+                with spaces, IMPORTANT }
+        lefthand_end := i+1;
+        _operator := split[lefthand_end];
+
+        AResult := ResolveOperand(AScript, split[lefthand_end+1], righthandVal);
         if not AResult.success then exit;
         
         { Check if the two values can be compared }
@@ -651,7 +657,7 @@ implementation
       { Stash the current result incase we do a bitwise }
       res_stash := EvalIf;
      
-      debugwritef('Comparison: %s %s'+sLineBreak, [lefthandVal.value, righthandVal.value]);
+      debugwritef('Comparison: %s (%s) %s'+sLineBreak, [lefthandVal.value, _operator, righthandVal.value]);
       { Do an actual comparison of the values }
       case _operator of
         '=': EvalIf := righthandVal.value = lefthandVal.value;
@@ -669,10 +675,14 @@ implementation
         end;
       end;
 
+      debugwritef('Comparison Result: %s'+sLineBreak, [BoolToStr(EvalIf, True)]);
       case perform_bitwise of
       'and': begin EvalIf := EvalIf and res_stash; perform_bitwise := ''; end;
       'or': begin EvalIf := EvalIf or res_stash; perform_bitwise := ''; end;
       end;
+      debugwritef('Comparison Result after bitwise: %s'+sLineBreak, [BoolToStr(EvalIf, True)]);
     end;
+
+    debugwritef('Evaluation Result: %s'+sLineBreak, [BoolToStr(EvalIf, True)]);
   end;
 end.
