@@ -1,0 +1,60 @@
+{$meta author} Marie&nbsp;Eckert
+{$meta date} 18-04-2023
+{$start}
+{$title} Idea/Writeup for an error manual and error handling overhaul
+
+{$begin-section} concept
+{$head} Basic Concept
+
+A potential feature for deash would be an integrated manual containing explainations 
+and potential fixes for all errors which deash outputs. A manual page would be opened 
+by executing deash with the {$style italic} -e {$reset-all} or {$style italic} --error {$reset-all}
+parameters followed by the error code.
+
+Error codes would be formatted as follows: {$style fraktur}
+  Eyxxxx {$reset-all}
+
+The letter E will be displayed as is and is used to clarify that this is an error code,
+the letter y will be exchanged for the error category, these categories will be 
+explained in the next section, all xs will be replaced with the error number/id,
+these will always start at 1, the unused digits will be 0 to keep the error codes uniform.
+
+For a list of defined errors, another document will be created under the name {$style underline} deash_errors.sad {$reset-all}
+{$end-section}
+{$begin-section} categories
+{$head} Error-Categories
+
+This section details the different error categories which would exist.
+
+{$style bold} 0 {$reset-all}
+A general shell error. These errors can be caused by missing/malformed shell configs, 
+the shell being unable to locate files it needs or failing to start a process.
+{$style bold} 1 {$reset-all}
+An internal shell error. This is often caused by a bug or something going seriously wrong.
+{$style bold} 2 {$reset-all}
+A script error. These errors are always caused by a failed evaluation of a line of
+deash. For example, these errors can be: Syntax Errors, Type Errors, Parameter Errors.
+{$end-section}
+{$begin-section} example
+{$head} Example
+For a comparison of two different types, deash might output the following: {$style fraktur}
+  deash <ERROR>:: eval for script foo.deash failed at line 2:
+  deash <ERROR>:: mismatched datatypes for comparison (string and boolean)
+  deash <ERROR>:: Error code E20001; Run "deash -e <error" for information. {$reset-all}
+
+When the command given in the last line is run, deash will output the manual page and
+pipe it into the pager set in the {$style italic} PAGER {$reset-all} environment variable.
+The resulting output might look something like this: {$style fraktur}
+  Error Manual for error E20001
+
+  Category: Script Error
+  Message:
+  mismatched datatype for comparison (type and type)
+
+  Description:
+  This error is thrown when a comparison between two values is made, which do not match
+  their datatypes.
+
+  Fixes:
+  Convert either one of the values to the other ones type using the casting syntax
+  {$reset-all}
