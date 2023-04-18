@@ -58,3 +58,4 @@ The resulting output might look something like this: {$style fraktur}
   Fixes:
   Convert either one of the values to the other ones type using the casting syntax
   {$reset-all}
+{$end-section}
