@@ -7,7 +7,7 @@ unit uScriptEngine;
 {$H+}{$R+}
 
 interface
-  uses Dos, SysUtils, StrUtils, Types, uXDebug, uDEASHConsts, uExecutor, uHelpers, uInternalProcs, uTypes;
+  uses Dos, SysUtils, StrUtils, Types, uXDebug, uDEASHConsts, uExecutor, uHelpers, uInternalProcs, uTypes, uErrors;
 
   type
     TEvalResult = record
@@ -28,7 +28,7 @@ interface
   function ExtractProcName(const ASrc: String): String;
 
   (* Find a Procedure using the normal Search order (Preffered, Exported, Local)  *)
-  function FindProcedure(const AName: String; var AScript: TScript; var ATargetRec: TProcedure): Boolean;
+  function FindProcedure(const AName: String; var AScript: TScript; var ATargetRec: TProcedure): Integer;
 
   (* Extract the Parameters of a Procedure Invoke *)
   function ExtractProcParams(const AInvoke: String): TStringDynArray;
@@ -97,18 +97,21 @@ implementation
         ExtractProcName := ExtractProcName + ASrc[i];   
   end;
 
-    function FindProcedure(const AName: String; var AScript: TScript; var ATargetRec: TProcedure): Boolean;
+  function FindProcedure(const AName: String; var AScript: TScript; var ATargetRec: TProcedure): Integer;
   begin
-    FindProcedure := True;
+    FindProcedure := INVOKETYPE_PREF_PROC;
 
     if FindPrefferedExpProc(AName, ATargetRec) then exit;
+
+    FindProcedure := INVOKETYPE_EXP_PROC;
     if FindExpProc(AName, ATargetRec) then exit;
 
+    FindProcedure := INVOKETYPE_PROC;
     for ATargetRec in AScript.procedures do
       if ATargetRec.name = AName then
         exit;
 
-    FindProcedure := False;
+    FindProcedure := -1;
   end;
 
   function ExtractProcParams(const AInvoke: String): TStringDynArray;
@@ -332,7 +335,10 @@ implementation
 
     if not FileExists(APath) then
     begin
-      DeashError('File not Found: '+APath);
+      script.scriptpath := APath;
+      script.nline := -1;
+      ThrowError(ERR_GENERAL_FILE_NOT_FOUND, script, []);
+      {DeashError('File not Found: '+APath);}
       exit;
     end;
 
@@ -364,6 +370,7 @@ implementation
   var
     procrec: TProcedure;
     aliasrec: TAlias;
+    proc_type: Integer;
     path: String;
   begin
     GetInvoke := True;
@@ -375,9 +382,10 @@ implementation
       exit;
     end;
 
-    if FindProcedure(ExtractProcName(AName), AScript, procrec) then
+    proc_type := FindProcedure(ExtractProcName(AName), AScript, procrec);
+    if (proc_type >= 0) then
     begin
-      ATargetRec.invoketype := INVOKETYPE_PREF_PROC;
+      ATargetRec.invoketype := proc_type;
       ATargetRec.location := AName;
       exit;
     end;
@@ -536,7 +544,12 @@ implementation
     'env': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ENV); exit; end;
     'alias': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ALIAS); exit; end;
     'var': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_VAR); exit; end;
-    'proc': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_PROC); exit; end;
+    'proc': begin 
+      { TODO: Implement RegisterProc and think about how to handle it }
+      { RegisterProc(Copy(tokens, 0, Length(tokens)-2)); }
+      ArrPushInt(AScript.codeblocks, BLOCKTYPE_PROC); 
+      exit; 
+    end;
     'for': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_LOOP_FOR); exit; end;
     'loop': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_LOOP_LOOP); exit; end;
     'exit': begin SetLength(AScript.codeblocks, 0); AScript.exited := True; exit; end;
@@ -583,7 +596,7 @@ implementation
     end else if datatype = DATATYPE_RETURNVAL then
     begin
       ADestination.datatype := DATATYPE_STRING;
-      if not FindProcedure(ExtractProcName(AOperand), AScript, proc) then
+      if (FindProcedure(ExtractProcName(AOperand), AScript, proc) = -1) then
       begin
         ResolveOperand.success := False;
         ResolveOperand.message := 'No such procedure';

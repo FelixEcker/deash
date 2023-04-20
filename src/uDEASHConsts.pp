@@ -26,10 +26,11 @@ interface
 
     { Internal codes for Invoke types}
     INVOKETYPE_PREF_PROC = 0;
-    INVOKETYPE_ALIAS     = 1;
-    INVOKETYPE_BINARY    = 2;
-    INVOKETYPE_PROC      = 3;
-    INVOKETYPE_INTERNAL  = 4;
+    INVOKETYPE_EXP_PROC  = 1;
+    INVOKETYPE_ALIAS     = 2;
+    INVOKETYPE_BINARY    = 3;
+    INVOKETYPE_PROC      = 4;
+    INVOKETYPE_INTERNAL  = 5;
 
     { Internal codes for Datatypes }
     DATATYPE_UNREAL    = -1;
