@@ -12,7 +12,7 @@ by executing deash with the {$style italic} -e {$reset-all} or {$style italic} -
 parameters followed by the error code.
 
 Error codes would be formatted as follows: {$style fraktur}
-  Eyxxxx {$reset-all}
+  Eyxxx {$reset-all}
 
 The letter E will be displayed as is and is used to clarify that this is an error code,
 the letter y will be exchanged for the error category, these categories will be 
@@ -40,12 +40,12 @@ deash. For example, these errors can be: Syntax Errors, Type Errors, Parameter E
 For a comparison of two different types, deash might output the following: {$style fraktur}
   deash <ERROR>:: eval for script foo.deash failed at line 2:
   deash <ERROR>:: mismatched datatypes for comparison (string and boolean)
-  deash <ERROR>:: Error code E20001; Run "deash -e <error>" for information. {$reset-all}
+  deash <ERROR>:: Error code E2001; Run "deash -e <error>" for information. {$reset-all}
 
 When the command given in the last line is run, deash will output the manual page and
 pipe it into the pager set in the {$style italic} PAGER {$reset-all} environment variable.
 The resulting output might look something like this: {$style fraktur}
-  Error Manual for error E20001
+  Error Manual for error E2001
 
   Category: Script Error
   Message:

@@ -6,7 +6,7 @@ program deash;
 
 {$H+}
 
-uses SysUtils, uXDebug, uDEASHConsts, uInteractiveMode, uScriptEngine, uHelpers;
+uses SysUtils, uXDebug, uDEASHConsts, uInteractiveMode, uScriptEngine, uHelpers, uErrors;
 
 procedure GiveVersion;
 begin
@@ -28,10 +28,22 @@ begin
   writeln(':: Usage: deash [script file, empty for interactive] [options]');
   writeln('::');
   writeln(':: Options:');
+  writeln(':: -e --error     Display an error manual page');
   writeln(':: --info         Info text about deash');
   writeln(':: --help         This help-text');
   writeln(':: --no-fallback  Run without a fallback shell to escape into');
   writeln('::                incase deash crashes');
+end;
+
+procedure ErrorManual;
+begin
+  if ParamCount < 2 then
+  begin
+    writeln('Provide an error code to show its manual page! (e.g. E0001');
+    exit;
+  end;
+
+  PrintErrorInfo(StrToInt(Copy(ParamStr(2), 2, Length(ParamStr(2)))));
 end;
 
 begin
@@ -49,6 +61,8 @@ begin
     DeashInfo
   else if (ParamStr(1) = '--help') then
     DeashHelp
+  else if (ParamStr(1) = '-e') or (ParamStr(1) = '--error') then
+    ErrorManual
   else begin
     SetShellEnv('SH_MODE', 'SCRIPT_EXEC');
     DoScriptExec(ParamStr(1));

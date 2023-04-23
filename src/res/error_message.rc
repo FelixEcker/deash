@@ -1,14 +1,30 @@
 STRINGTABLE
 BEGIN
-00001 "File ""%s"" not found"
-00002 "No deash config present!"
-00003 "Deash config is malformed!"
+0001 "File ""%s"" not found"
+0002 "No deash config present!"
+0003 "Deash config is malformed!"
 
-10001 "An unknown internal error occured!"
+1001 "An unknown internal error occured!"
 
-20001 "Unrecognized identifier: %s"
-20002 "malformed conditional: expected VALUE OPERATOR VALUE, got VALUE. This syntax is only allowed if the Variable/Value is of type Boolean!"
-20003 "malformed conditional: expected VALUE OPERATOR VALUE"
-20004 "mismatched datatypes for comparison (%s and %s)"
-20005 "Invalid operator for comparison"
+2001 "Unrecognized identifier: %s"
+2002 "malformed conditional: expected VALUE OPERATOR VALUE, got VALUE. This syntax is only allowed if the Variable/Value is of type Boolean!"
+2003 "malformed conditional: expected VALUE OPERATOR VALUE"
+2004 "mismatched datatypes for comparison (%s and %s)"
+2005 "Invalid operator for comparison"
+
+// ERROR DESCRIPTIONS
+10001 "Deash attempted to open a file, which could not be found"
+10002 "Deash couldn't find its config in any standard location"
+10003 "There is a formatting error or missing fields within the deash config"
+
+11001 "Something broke internally, likely a bug."
+
+12001 "Deash tried to parse an identifier which could not be mapped to a keyword or command."
+12002 "A conditional must always be formatted like this: ""VALUE OPERATOR VALUE"", the only \
+exception to this syntax rule is the ""VALUE"" syntax, which only works if the value is a boolean."
+12003 "A conditional must always be formatted like this: ""VALUE OPERATOR VALUE"", the only \
+exception to this syntax rule is the ""VALUE"" syntax, which only works if the value is a boolean."
+12004 "Deash only supports comparisons between identical datatypes."
+12005 "A comparison was made where the provided operator is not applicable, e.g. \
+  'foo' > 'bar'."
 END
