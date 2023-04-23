@@ -55,7 +55,7 @@ implementation
   begin
     deasherror(Format('eval for script %s failed at line %d:', [AScript.scriptpath, AScript.nline]));
     deasherror(Format(GetResourceString(AError), AFormats));
-    deasherror(Format('Error code E%.5d; Run "deash -e <error code>" for more information', [AError]));
+    deasherror(Format('Error code E%.4d; Run "deash -e <error code>" for more information', [AError]));
   end;
 
   function GetErrorCategory(const AError: Integer): String;
@@ -69,7 +69,7 @@ implementation
 
   procedure PrintErrorInfo(const AError: Integer);
   begin
-    writeln('Error manual for error E%.5d');
+    writeln(Format('Error manual for error E%.4d', [AError]));
     writeln;
     writeln('Category: ', GetErrorCategory(AError));
     writeln('Message:');

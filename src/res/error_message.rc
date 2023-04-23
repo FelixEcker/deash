@@ -20,11 +20,11 @@ BEGIN
 11001 "Something broke internally, likely a bug."
 
 12001 "Deash tried to parse an identifier which could not be mapped to a keyword or command."
-12002 "A conditional must always be formatted like this: ""VALUE OPERATOR VALUE"", the only \
+12002 "A conditional must always be formatted like this: ""VALUE OPERATOR VALUE"", the only \n\
 exception to this syntax rule is the ""VALUE"" syntax, which only works if the value is a boolean."
-12003 "A conditional must always be formatted like this: ""VALUE OPERATOR VALUE"", the only \
+12003 "A conditional must always be formatted like this: ""VALUE OPERATOR VALUE"", the only \n\
 exception to this syntax rule is the ""VALUE"" syntax, which only works if the value is a boolean."
 12004 "Deash only supports comparisons between identical datatypes."
-12005 "A comparison was made where the provided operator is not applicable, e.g. \
+12005 "A comparison was made where the provided operator is not applicable, e.g. \n\
   'foo' > 'bar'."
 END
