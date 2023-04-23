@@ -118,8 +118,6 @@ implementation
       else
       begin
         eval_result := Eval(script);
-        if not eval_result.success then
-          DeashError(eval_result.message);
       end;
 
       script.nline := script.nline + 1;

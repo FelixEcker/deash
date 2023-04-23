@@ -28,34 +28,30 @@ interface
     ERR_SCRIPT_IF_MISMATCHED_TYPES   = 20004;
     ERR_SCRIPT_IF_INVALID_OPERATOR   = 20005;
 
-  function GetResourceString(const AId: String): String;
+  function GetResourceString(const AId: Integer): String;
   procedure ThrowError(const AError: Integer; var AScript: TScript; const AFormats: array of const);
   procedure PrintErrorInfo(const AError: Integer);
 implementation
-  function GetResourceString(const AId: String): String;
+  function GetResourceString(const AId: Integer): String;
   var
-    ress: TResources;
-    res: TAbstractResource;
-    res_reader: TElfResourceReader;
-    str_stream: TStringStream;
-    _str: String;
+    res: TResources;
+    stres: TStringTableResource;
   begin
-    result := '';
-
-    res_reader := TElfResourceReader.Create;
-    ress := TResources.Create;
-    ress.loadfromfile(ParamStr(0),res_reader);
-    res_reader.Free;
-    res := ress.find(RT_STRING, 1);
-    ress.Free;
-
-      writeln(TStringTableResource(res).strings[0]);
+    result:= '';
+    res:= TResources.Create;
+    try
+      res.loadfromfile(ParamStr(0));
+      stres:= res.find(RT_STRING, succ(AId shr 4)) as TStringTableResource;
+      result:= stres.strings[AId];
+    finally
+      res.Free
+    end;
   end;
 
   procedure ThrowError(const AError: Integer; var AScript: TScript; const AFormats: array of const);
   begin
     deasherror(Format('eval for script %s failed at line %d:', [AScript.scriptpath, AScript.nline]));
-    deasherror('message');
+    deasherror(Format(GetResourceString(AError), AFormats));
     deasherror(Format('Error code E%.5d; Run "deash -e <error code>" for more information', [AError]));
   end;
 

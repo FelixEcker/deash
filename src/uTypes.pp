@@ -50,5 +50,12 @@ interface
       procedures : TProcedureDynArray;
     end;
 
+    TDeashError = record
+      code        : Integer;
+      message     : String;
+      description : String;
+      fixes       : String;
+    end;
+
 implementation
 end.

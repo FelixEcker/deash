@@ -337,8 +337,7 @@ implementation
     begin
       script.scriptpath := APath;
       script.nline := -1;
-      ThrowError(ERR_GENERAL_FILE_NOT_FOUND, script, []);
-      {DeashError('File not Found: '+APath);}
+      ThrowError(ERR_GENERAL_FILE_NOT_FOUND, script, [APath]);
       exit;
     end;
 
@@ -358,11 +357,7 @@ implementation
       script.nline := script.nline + 1;
       evalres := Eval(script);
       if not evalres.success then
-      begin
-        DeashError(Format(ERR_SCRIPT_EVAL_FAIL_LINE,
-              [script.scriptpath, script.nline, sLineBreak, evalres.message]));
         break;
-      end;
     end;
   end;
 
@@ -557,8 +552,8 @@ implementation
     else begin
       if not GetInvoke(tokens[0], AScript, invoke) then
       begin
+        ThrowError(ERR_SCRIPT_UNKNOWN_IDENTIFIER, AScript, [tokens[0]]);
         Eval.success := False;
-        Eval.message := 'Unrecognized identifier: '+tokens[0];
         exit;
       end;
       invoke.parameters := Copy(tokens, 1, Length(tokens) - 1);
@@ -655,8 +650,8 @@ implementation
         
           if lefthandVal.datatype <> DATATYPE_BOOLEAN then
           begin
+            ThrowError(ERR_SCRIPT_IF_MALFORMED_VALUE, AScript, []);
             AResult.success := False;
-            AResult.message := ERR_EVAL_IF_MALOFRMED_VALUE; 
             exit;
           end;
 
@@ -666,8 +661,8 @@ implementation
         end else 
         begin
           debugwriteln(sLineBreak + 'Conditional evaluation failed on word: '+split[i]);
+          ThrowError(ERR_SCRIPT_IF_MALFORMED_VALOPVAL, AScript, []);
           AResult.success := False;
-          AResult.message := ERR_EVAL_IF_MALFORMED_VALOPVAL;
           exit;
         end;
       end else
@@ -686,8 +681,8 @@ implementation
         { Check if the two values can be compared }
         if lefthandVal.datatype <> righthandVal.datatype then
         begin
+          ThrowError(ERR_SCRIPT_IF_MISMATCHED_TYPES, AScript, [DatatypeToStr(lefthandVal.datatype), DatatypeToStr(righthandVal.datatype)]);
           AResult.success := False;
-          AResult.message := Format(ERR_EVAL_IF_MISMATCHED_TYPES, [DatatypeToStr(lefthandVal.datatype), DatatypeToStr(righthandVal.datatype)]);
           exit;
         end;
         skip := 2;
@@ -704,8 +699,8 @@ implementation
         '<', '>': begin
           if (righthandVal.datatype <> DATATYPE_INTEGER) or (lefthandVal.datatype <> DATATYPE_INTEGER) then
           begin
+            ThrowError(ERR_SCRIPT_IF_INVALID_OPERATOR, AScript, []);
             AResult.success := False;
-            AResult.message := Format(ERR_EVAL_IF_GREATER_NINT, [DatatypeToStr(lefthandVal.datatype), DatatypeToStr(righthandVal.datatype)]);
             exit;
           end;
 

@@ -1,8 +1,14 @@
-#define IDS_HELLO    1
-#define IDS_GOODBYE  2
-
 STRINGTABLE
-{
-    IDS_HELLO,   "Hello"
-    IDS_GOODBYE, "Goodbye"
-} 
+BEGIN
+00001 "File ""%s"" not found"
+00002 "No deash config present!"
+00003 "Deash config is malformed!"
+
+10001 "An unknown internal error occured!"
+
+20001 "Unrecognized identifier: %s"
+20002 "malformed conditional: expected VALUE OPERATOR VALUE, got VALUE. This syntax is only allowed if the Variable/Value is of type Boolean!"
+20003 "malformed conditional: expected VALUE OPERATOR VALUE"
+20004 "mismatched datatypes for comparison (%s and %s)"
+20005 "Invalid operator for comparison"
+END
