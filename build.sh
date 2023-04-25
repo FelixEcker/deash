@@ -7,17 +7,11 @@ function clean_out {
 
 if [[ $1 == debug ]]; then
   clean_out
-  fpc src/deash.pp -FE"out/" -Fu"inc/" -g -dDEBUG
-elif [[ $1 == docs ]]; then
-  cd docs
-  mkdir -p html
-  rm -f html/*
-  for file in *.sad; do
-    sadv "$file" -x
-    mv "$file".html html/"$file".html
-  done
-  cd ..
-else  
+  if [[ uname == Linux ]]; then
+    fpc src/deash.pp -FE"out/" -Fu"inc/" -g -dDEBUG -n @fpc_linux.cfg
+  else
+    fpc src/deash.pp -FE"out/" -Fu"inc/" -g -dDEBUG
+  fielse  
   clean_out
 
   if [[ uname == Linux ]]; then
