@@ -1,0 +1,19 @@
+{$start}
+{$title} deash bugs
+
+{$begin-section} compilation
+{$head} Compilation related bugs
+
+{$begin-section} macos
+{$sub-head} MacOS
+- windres missing, for a fix see https://wiki.freepascal.org/Lazarus_Resources#Using_binutils_source
+{$end-section}
+{$end-section}
+{$begin-section} execution
+{$head} Bugs during execution
+
+{$begin-section} macos
+{$sub-head} MacOS
+- Crashes when a Resource is attempted to be loaded with exception: EResourceReaderWrongFormatException
+{$end-section}
+{$end-section}
