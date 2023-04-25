@@ -8,11 +8,6 @@ unit uDEASHConsts;
 
 interface
   const
-    { Shell information }
-    VERSION = '0.1.0';
-    VERSION_TYPE = 'alpha-dev';
-    DEV_INFO = 'Marie Eckert';
-
     { Interal codes for different types of Code-Blocks }
     BLOCKTYPE_NONE      = 0;
     BLOCKTYPE_PROC      = 1;

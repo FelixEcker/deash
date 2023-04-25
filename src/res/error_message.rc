@@ -1,16 +1,19 @@
+// ERROR STRINGTABLE FOR DEASH
+
 STRINGTABLE
 BEGIN
-0001 "File ""%s"" not found"
-0002 "No deash config present!"
-0003 "Deash config is malformed!"
+// ERROR MESSAGES
+1001 "File ""%s"" not found"
+1002 "No deash config present!"
+1003 "Deash config is malformed!"
 
-1001 "An unknown internal error occured!"
+2001 "An unknown internal error occured!"
 
-2001 "Unrecognized identifier: %s"
-2002 "malformed conditional: expected VALUE OPERATOR VALUE, got VALUE. This syntax is only allowed if the Variable/Value is of type Boolean!"
-2003 "malformed conditional: expected VALUE OPERATOR VALUE"
-2004 "mismatched datatypes for comparison (%s and %s)"
-2005 "Invalid operator for comparison"
+3001 "Unrecognized identifier: %s"
+3002 "malformed conditional: expected VALUE OPERATOR VALUE, got VALUE. This syntax is only allowed if the Variable/Value is of type Boolean!"
+3003 "malformed conditional: expected VALUE OPERATOR VALUE"
+3004 "mismatched datatypes for comparison (%s and %s)"
+3005 "Invalid operator for comparison"
 
 // ERROR DESCRIPTIONS
 10001 "Deash attempted to open a file, which could not be found"
@@ -27,4 +30,6 @@ exception to this syntax rule is the ""VALUE"" syntax, which only works if the v
 12004 "Deash only supports comparisons between identical datatypes."
 12005 "A comparison was made where the provided operator is not applicable, e.g. \n\
   'foo' > 'bar'."
+
+// ERROR FIXES
 END

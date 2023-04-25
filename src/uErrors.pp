@@ -7,9 +7,7 @@ unit uErrors;
 {$R res/error_message.rc}
 
 interface
-  uses SysUtils, Resource, stringtableresource, 
-       {$IF defined(UNIX)} ElfReader, {$ELSE} Windows, {$ENDIF}
-       Classes, uTypes, uXDebug, uHelpers;
+  uses SysUtils, uTypes, uXDebug, uHelpers;
 
   const
     { Error Types }
@@ -19,8 +17,8 @@ interface
 
     { Error Codes }
     ERR_GENERAL_FILE_NOT_FOUND   = 0001;
-    ERR_GENERAL_NO_CONFIG        = 00002;
-    ERR_GENERAL_MALFORMED_CONFIG = 00003;
+    ERR_GENERAL_NO_CONFIG        = 0002;
+    ERR_GENERAL_MALFORMED_CONFIG = 0003;
 
     ERR_INTERNAL_UNKNOWN = 1001;
 
@@ -30,39 +28,13 @@ interface
     ERR_SCRIPT_IF_MISMATCHED_TYPES   = 2004;
     ERR_SCRIPT_IF_INVALID_OPERATOR   = 2005;
 
+    MESSAGE_PREFIX     = 1000;
     DESCRIPTION_PREFIX = 10000;
     FIXES_PREFIX       = 20000;
 
-  function GetResourceString(const AId: Integer): String;
   procedure ThrowError(const AError: Integer; var AScript: TScript; const AFormats: array of const);
   procedure PrintErrorInfo(const AError: Integer);
 implementation
-  function GetResourceString(const AId: Integer): String;
-  var
-    res: TResources;
-    stres: TStringTableResource;
-  begin
-    result := '';
-
-    {$IF defined(UNIX)}
-    res := TResources.Create;
-    try
-      res.loadfromfile(ParamStr(0));
-      stres := res.find(RT_STRING, succ(AId shr 4)) as TStringTableResource;
-      result := stres.strings[AId];
-    finally
-      res.Free
-    end;
-    {$ELSE}
-      SetLength(result, LoadString(FindResource(0, nil, RT_STRING),
-                                   AId,
-                                   @result[1],
-                                   SizeOf(result)
-                        )
-      );
-    {$ENDIF}
-  end;
-
   procedure ThrowError(const AError: Integer; var AScript: TScript; const AFormats: array of const);
   begin
     deasherror(Format('eval for script %s failed at line %d:', [AScript.scriptpath, AScript.nline]));
@@ -85,7 +57,7 @@ implementation
     writeln;
     writeln('Category: ', GetErrorCategory(AError));
     writeln('Message:');
-    writeln(GetResourceString(AError));
+    writeln(GetResourceString(AError+MESSAGE_PREFIX));
     writeln;
     writeln('Description:');
     writeln(GetResourceString(AError+DESCRIPTION_PREFIX));

@@ -1,13 +1,16 @@
 {$mode objfpc}
 unit uHelpers;
 
-{ uHelpers.pp ; Helper functions for deash }
-{ Author: Marie Eckert                     }
+{ uHelpers.pp ; Helper functions for deash     }
+{ Author: Marie Eckert                         }
 
-{$H+}{$R+}
+{$R+}{$H+}
 
 interface
-  uses Dos, StrUtils, SysUtils, Types, uDEASHConsts;
+  uses Dos, StrUtils, SysUtils, Types, uDEASHConsts,
+       Resource, stringtableresource, 
+       {$IF defined(UNIX)} ElfReader, {$ELSE} Windows, {$ENDIF}
+       Classes;
 
   (* Print a shell error *)
   procedure DeashError(const AMsg: String);
@@ -33,6 +36,9 @@ interface
 
   (* Get the duration of the current session as a unix timestamp *)
   function ProgramUptime: TDateTime;
+
+  (* Get a Resource String from the binary *)
+  function GetResourceString(const AId: Integer): String;
 
   var
     program_start: TDateTime;
@@ -147,5 +153,39 @@ implementation
   function ProgramUptime: TDateTime;
   begin
     ProgramUptime := Time - program_start;
+  end;
+
+  procedure SetClearString(var AStr: String; const ASize: Integer);
+  var
+    i: Integer;
+  begin
+    AStr := '';
+    for i := 1 to ASize do
+      AStr := AStr + ' ';
+  end;
+
+  function GetResourceString(const AId: Integer): String;
+  {$IF defined(UNIX)}
+  var
+    res: TResources;
+    stres: TStringTableResource;
+  {$ENDIF}
+  begin
+    result := '';
+
+    {$IF defined(UNIX)}
+      res := TResources.Create;
+      try
+        res.loadfromfile(ParamStr(0));
+        stres := res.find(RT_STRING, succ(AId shr 4)) as TStringTableResource;
+        result := stres.strings[AId];
+      finally
+        res.Free
+      end;
+    {$ELSE}
+      SetClearString(result, 8192);
+      LoadString(FindResource(0, nil, RT_STRING), AId, @result[1], 8192);
+      result := Trim(result);
+    {$ENDIF}
   end;
 end.

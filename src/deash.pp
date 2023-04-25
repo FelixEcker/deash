@@ -5,20 +5,36 @@ program deash;
 { author: Marie Eckert             }
 
 {$H+}
+{$R res/info.rc}
 
-uses SysUtils, uXDebug, uDEASHConsts, uInteractiveMode, uScriptEngine, uHelpers, uErrors;
+uses SysUtils, StrUtils, Types, uXDebug, uDEASHConsts, uInteractiveMode, uScriptEngine, uHelpers, uErrors;
+
+const
+  RSTRING_LICENSE = 1;
+  RSTRING_VERSION = 2;
+  RSTRING_AUTHOR  = 3;
 
 procedure GiveVersion;
 begin
-  writeln(':: deash version ', VERSION, '-', VERSION_TYPE);
+  writeln(':: deash version ', GetResourceString(RSTRING_VERSION));
 end;
 
 procedure DeashInfo;
 begin
   GiveVersion;
-  writeln(':: by ', DEV_INFO);
+  writeln(':: by ', GetResourceString(RSTRING_AUTHOR));
   writeln(':: git repository: https://github.com/FelixEcker/deash.git ');
   writeln(':: licensed under the bsd 3-clause license');
+end;
+
+procedure DeashLicense;
+var
+  lstrsplit: TStringDynArray;
+  str: String;
+begin
+  lstrsplit := SplitString(GetResourceString(RSTRING_LICENSE), Char($0A));
+  for str in lstrsplit do
+    writeln(':: ', str);
 end;
 
 procedure DeashHelp;
@@ -30,6 +46,7 @@ begin
   writeln(':: Options:');
   writeln(':: -e --error     Display an error manual page');
   writeln(':: --info         Info text about deash');
+  writeln(':: --license      deash''s license text');
   writeln(':: --help         This help-text');
   writeln(':: --no-fallback  Run without a fallback shell to escape into');
   writeln('::                incase deash crashes');
@@ -47,8 +64,8 @@ begin
 end;
 
 begin
-  SetShellEnv('SH_VERSION', VERSION + '-' + VERSION_TYPE);
-  SetShellEnv('SH_AUTHOR', DEV_INFO);
+  SetShellEnv('SH_VERSION', GetResourceString(RSTRING_VERSION));
+  SetShellEnv('SH_AUTHOR', GetResourceString(RSTRING_AUTHOR));
   SetShellEnv('SH_BINLOC', ParamStr(0));
 
   program_start := Time;
@@ -56,15 +73,16 @@ begin
   begin
     SetShellEnv('SH_MODE', 'INTERACTIVE');
     LaunchShell;
-  end
-  else if (ParamStr(1) = '--info') then
-    DeashInfo
-  else if (ParamStr(1) = '--help') then
-    DeashHelp
-  else if (ParamStr(1) = '-e') or (ParamStr(1) = '--error') then
-    ErrorManual
+    halt;
+  end;
+  
+  case ParamStr(1) of
+  '--info': DeashInfo;
+  '--help': DeashHelp;
+  '--license': DeashLicense;
+  '-e', '--error': ErrorManual;
   else begin
     SetShellEnv('SH_MODE', 'SCRIPT_EXEC');
     DoScriptExec(ParamStr(1));
-  end;
+  end; end;
 end.
