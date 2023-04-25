@@ -19,5 +19,10 @@ elif [[ $1 == docs ]]; then
   cd ..
 else  
   clean_out
-  fpc src/deash.pp -FE"out/" -Fu"inc/" -O4 -Xs -XX
+
+  if [[ uname == Linux ]]; then
+    fpc src/deash.pp -FE"out/" -Fu"inc/" -O4 -Xs -XX -n @fpc_linux.cfg
+  else
+    fpc src/deash.pp -FE"out/" -Fu"inc/" -O4 -Xs -XX
+  fi
 fi
