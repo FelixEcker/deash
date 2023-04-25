@@ -2,6 +2,8 @@
 # I need this for testing, build.sh is gonna remain the primary
 # build script.
 
+# This is already solved with saddocs, but it will remain for
+# testing loops
 if ParamStr(1) = 'docs' then
   cd docs
   mkdir -p html
