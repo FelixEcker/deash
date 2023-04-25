@@ -30,6 +30,9 @@ interface
   
   (* Convert a internal Datatype code to its string name *)
   function DatatypeToStr(const ADatatype: Integer): String;
+  
+  (* Convert the string name of a Datatype to its internal code *)
+  function StrToDatatype(const AStr: String): Integer;
 
   (* Convert an internal Blocktype code to its string name *)
   function BlocktypeToStr(const ABlocktype: Integer): String;
@@ -55,7 +58,6 @@ implementation
     BinaryExists := False;
 
     { Check if binary is a path before checking dirs on PATH }
-
     if pos(PathDelim, AName) <> 0 then
     begin
       if FileExists(AName) then
@@ -130,6 +132,17 @@ implementation
     DATATYPE_BOOLEAN:   DatatypeToStr := 'Boolean';
     DATATYPE_STRING:    DatatypeToStr := 'String';
     DATATYPE_RETURNVAL: DatatypeToStr := 'Procedure Return Value (String)';
+    end;
+  end;
+  
+  function StrToDatatype(const AStr: String): Integer;
+  begin
+    StrToDatatype := DATATYPE_UNREAL;
+    
+    case AStr of
+    'Integer': StrToDatatype := DATATYPE_INTEGER;
+    'Boolean': StrToDatatype := DATATYPE_BOOLEAN;
+    'String':  StrToDatatype := DATATYPE_STRING;
     end;
   end;
   

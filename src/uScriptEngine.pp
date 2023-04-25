@@ -62,6 +62,9 @@ interface
   (* Execute a deash script file at APath *)
   procedure DoScriptExec(const APath: String);
 
+  (* Register a procedure in the script and start its loading *)
+  procedure RegisterProc(const ADeclaration: String; var AScript: TScript);
+
   (* Execute the procedure AProcedure with the parameters AParameters *)
   function ExecProc(const AProcedure: TProcedure; const AParameters: TStringDynArray; var AScript: TScript): TProcedureResult;
 
@@ -257,7 +260,7 @@ implementation
   begin
     ResolveVariable.datatype := -1;
 
-    if AName[1] = '$' then // env variable
+    if pos('$', AName) = 1 then // env variable
     begin
       ResolveVariable.identifier := Copy(AName, 2, Length(AName));
       ResolveVariable.value := GetEnv(ResolveVariable.identifier);
@@ -274,6 +277,94 @@ implementation
   end;
 
   { Execution funcs }
+  procedure RegisterProc(const ADeclaration: String; var AScript: TScript);
+  var
+    split: TStringDynArray;
+    i, stopped, ptype, proc_type, id: Integer;
+    tmp: String;
+    proc: TProcedure;
+    has_params, skip_next, stop: Boolean;
+  begin
+    split := SplitString(ADeclaration, ' ');
+    split := Copy(split, 1, Length(split)-1);
+
+    has_params := pos('(', split[0]) <> 0;
+
+    { Extract name }
+    if has_params then
+    begin
+      proc.name := Copy(split[0], 1, pos('(', split[0])-1);
+      split[0] := Copy(split[0], pos('(', split[0])+1, Length(split[0]));
+    end else
+      proc.name := Copy(split[0], 1, pos(';', split[0])-1);
+
+    { Extract Parameters }
+    if has_params then
+    begin
+      skip_next := False;
+      for i := 0 to Length(split)-1 do
+      begin
+        if skip_next then
+        begin
+          skip_next := False;
+          continue;
+        end;
+
+        SetLength(proc.parameters, Length(proc.parameters)+1);
+        proc.parameters[HIGH(proc.parameters)].name := Copy(split[i], 1, Length(split[i])-1);
+
+        tmp := Copy(split[i+1], 1, Length(split[i+1])-1);
+        if (pos(')', tmp) <> 0) then 
+        begin 
+          tmp := Copy(tmp, 1, pos(')', tmp)-1);
+          stop := True;
+        end;
+
+        ptype := StrToDatatype(tmp);
+        if ptype = DATATYPE_UNREAL then
+        begin
+          ThrowError(ERR_SCRIPT_INVALID_DATATYPE, AScript, [Copy(split[i+1], 1, Length(split[i+1])-1)]);
+          exit;
+        end;
+
+        proc.parameters[HIGH(proc.parameters)].ptype := ptype;
+
+        if stop then begin stopped := i; break; end;
+        skip_next := True;
+      end;
+    end;
+
+    proc_type := PROCTYPE_PROC;
+    if stopped+1 < Length(split) then
+    begin
+      for i := stopped + 1 to Length(split) - 1 do
+      begin
+        if pos('export', split[i]) <> 0 then proc_type := PROCTYPE_EXP;
+        if pos('preffered', split[i]) <> 0 then proc_type := PROCTYPE_PREF;
+      end;
+    end;
+
+    case proc_type of
+    PROCTYPE_PROC: begin
+      SetLength(AScript.procedures, Length(AScript.procedures)+1);
+      AScript.procedures[HIGH(AScript.procedures)] := proc;
+      id := HIGH(AScript.procedures); 
+    end;
+    PROCTYPE_EXP: begin
+      SetLength(exported_procs, Length(exported_procs)+1);
+      AScript.procedures[HIGH(exported_procs)] := proc;
+      id := HIGH(exported_procs); 
+    end;
+    PROCTYPE_PREF: begin
+      SetLength(preffered_exported_procs, Length(preffered_exported_procs)+1);
+      AScript.procedures[HIGH(preffered_exported_procs)] := proc;
+      id := HIGH(preffered_exported_procs); 
+    end;
+    end;
+    
+    AScript.registering_proc := id;
+    AScript.registering_proc_type := proc_type;
+  end;
   
   function ExecProc(const AProcedure: TProcedure; const AParameters: TStringDynArray; var AScript: TScript): TProcedureResult;
   var
@@ -348,6 +439,7 @@ implementation
 
     SetLength(script.codeblocks, 1);
     script.codeblocks[0] := BLOCKTYPE_NONE;
+    script.registering_proc := -1;
 
     script.nline := 0;
     while not eof(script.scriptfile) and (Length(script.codeblocks) > 0) do
@@ -455,6 +547,7 @@ implementation
       i := i + 1;
     end;
     if AScript.incomment then exit;
+    if Length(tokens) = 0 then exit;
     if tokens[0] = '' then exit;
     if tokens[0] = 'end' then
     begin
@@ -463,6 +556,11 @@ implementation
         deasherror(ERR_INTERACTIVE_END_NOBLOCKS);
         exit;
       end;
+      if (AScript.registering_proc <> -1) then
+        if (AScript.codeblocks[HIGH(AScript.codeblocks)] <> BLOCKTYPE_PROC) then
+          writeln('TODO: ADD PROCEDURE LINE "', AScript.cline, '"')
+        else
+          AScript.registering_proc := -1;
       ArrPopInt(AScript.codeblocks);
       exit;
     end;
@@ -472,6 +570,33 @@ implementation
     { Only execute line if we are not in any declaration block }
 
     curr_blocktype := AScript.codeblocks[HIGH(AScript.codeblocks)];
+
+    if ((curr_blocktype = BLOCKTYPE_IF) and AScript.falseif)
+    or (curr_blocktype = BLOCKTYPE_PROC) then
+    begin
+      case tokens[0] of
+      'env',
+      'alias',
+      'var',
+      'proc',
+      'for',
+      'if',
+      'loop': ArrPushInt(AScript.codeblocks, BLOCKTYPE_IGNORE);
+      end;
+
+      if (curr_blocktype = BLOCKTYPE_PROC) and (AScript.registering_proc <> -1) then
+      begin
+        writeln('TODO: ADD PROCEDURE LINE "', AScript.cline, '"');
+      end;
+
+      exit;
+    end;
+    
+    if (curr_blocktype = BLOCKTYPE_IGNORE) and (AScript.registering_proc <> -1) then
+    begin
+      writeln('TODO: ADD PROCEDURE LINE "', AScript.cline, '"');
+      exit;
+    end;
 
     if  (curr_blocktype >= BLOCKTYPE_PROC)
     and (curr_blocktype <= BLOCKTYPE_VAR) then
@@ -521,27 +646,12 @@ implementation
     or (AScript.codeblocks[HIGH(AScript.codeblocks)] = BLOCKTYPE_IGNORE) then 
       exit;
     
-    if (curr_blocktype = BLOCKTYPE_IF) and AScript.falseif then
-    begin
-      case tokens[0] of
-      'env',
-      'alias',
-      'var',
-      'proc',
-      'for',
-      'loop': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_IGNORE); exit; end;
-      end;
-
-      exit;
-    end;
-    
     case tokens[0] of
     'env': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ENV); exit; end;
     'alias': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ALIAS); exit; end;
     'var': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_VAR); exit; end;
     'proc': begin 
-      { TODO: Implement RegisterProc and think about how to handle it }
-      { RegisterProc(Copy(tokens, 0, Length(tokens)-2)); }
+      RegisterProc(AScript.cline, AScript);
       ArrPushInt(AScript.codeblocks, BLOCKTYPE_PROC); 
       exit; 
     end;
@@ -564,7 +674,7 @@ implementation
         DeashError('Invoke finished with code '+IntToStr(inv_result.code));
         DeashError('Message: '+inv_result.message);
       end;
-    end; { end else} end; { end case }
+    end; { end else } end; { end case }
   end;
   
   (* Internal function to resolve the operand of a if-condition to a Variable record *)

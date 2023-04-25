@@ -86,6 +86,7 @@ implementation
     script.incomment := False;
     SetLength(script.codeblocks, 1);
     script.codeblocks[0] := BLOCKTYPE_NONE;
+    script.registering_proc := -1;
 
     Assign(history, script.scriptpath);
     if not FileExists(script.scriptpath) then

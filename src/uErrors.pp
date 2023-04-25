@@ -27,6 +27,7 @@ interface
     ERR_SCRIPT_IF_MALFORMED_VALOPVAL = 2003;
     ERR_SCRIPT_IF_MISMATCHED_TYPES   = 2004;
     ERR_SCRIPT_IF_INVALID_OPERATOR   = 2005;
+    ERR_SCRIPT_INVALID_DATATYPE      = 2006;
 
     MESSAGE_PREFIX     = 1000;
     DESCRIPTION_PREFIX = 10000;
@@ -38,7 +39,7 @@ implementation
   procedure ThrowError(const AError: Integer; var AScript: TScript; const AFormats: array of const);
   begin
     deasherror(Format('eval for script %s failed at line %d:', [AScript.scriptpath, AScript.nline]));
-    deasherror(Format(GetResourceString(AError), AFormats));
+    deasherror(Format(GetResourceString(AError+MESSAGE_PREFIX), AFormats));
     deasherror(Format('Error code E%.4d; Run "deash -e <error code>" for more information', [AError]));
   end;
 

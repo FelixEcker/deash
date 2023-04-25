@@ -1,14 +1,12 @@
 # deash
-A shell with ALGOL-Style syntax for scripting and a name of which I do not remember
-the meaning of.
+A shell with ALGOL-Style syntax for scripting and a name of which I do not remember the meaning of.
 
 ## Building
 deash requires the freepascal compiler (fpc) >= 3.2.2 and windres for compilation.
 
-To build it simply run the `build.sh` script from this repo, if you wish to have
-debug messages simply supply the script with the `debug` parameter.
+To build it simply run the `build.sh` script from this repo, if you wish to have debug messages simply supply the script with the `debug` parameter.
 
-## Documents
+## Documentation
 See the `docs` directory for various documents such as the deash specification (`deash_spec.sad`).
-Documents in the `sad` format can be converted to html using the the `build.sh` script with the `docs`
-parameter. This requires [sadv](https://github.com/FelixEcker/sadv) to be installed.
+Documents in the `sad` format can be converted to html using [sadv](https://github.com/FelixEcker/sadv) with the command `sadv file.sad -x`.
+

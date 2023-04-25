@@ -17,7 +17,7 @@ env
 end
 
 { Simply exists for testing deash
-  - Felix }
+  - Marie }
 proc wisdom; export; preffered;
   echo Jeder sollte mal einen alten Stremellachs probiert haben.
 end

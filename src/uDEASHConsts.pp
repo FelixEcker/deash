@@ -35,6 +35,11 @@ interface
     DATATYPE_BOOLEAN   = 3;
     DATATYPE_RETURNVAL = 4;
 
+    { Internal code for Procedure Types }
+    PROCTYPE_PROC = 0;
+    PROCTYPE_EXP  = 1;
+    PROCTYPE_PREF = 2;
+
     { String representations for Boolean values }
     BOOLEAN_STR_TRUE  = 'true';
     BOOLEAN_STR_FALSE = 'false';

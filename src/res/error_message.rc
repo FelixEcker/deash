@@ -14,6 +14,7 @@ BEGIN
 3003 "malformed conditional: expected VALUE OPERATOR VALUE"
 3004 "mismatched datatypes for comparison (%s and %s)"
 3005 "Invalid operator for comparison"
+3006 "Invalid datatype ""%s"""
 
 // ERROR DESCRIPTIONS
 10001 "Deash attempted to open a file, which could not be found"
@@ -30,6 +31,7 @@ exception to this syntax rule is the ""VALUE"" syntax, which only works if the v
 12004 "Deash only supports comparisons between identical datatypes."
 12005 "A comparison was made where the provided operator is not applicable, e.g. \n\
   'foo' > 'bar'."
+12006 "The given datatype is not known by deash."
 
 // ERROR FIXES
 END
