@@ -11,7 +11,8 @@ if [[ $1 == debug ]]; then
     fpc src/deash.pp -FE"out/" -Fu"inc/" -g -dDEBUG -n @fpc_linux.cfg
   else
     fpc src/deash.pp -FE"out/" -Fu"inc/" -g -dDEBUG
-  fielse  
+  fi
+else  
   clean_out
 
   if [[ uname == Linux ]]; then
