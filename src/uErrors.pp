@@ -7,7 +7,9 @@ unit uErrors;
 {$R res/error_message.rc}
 
 interface
-  uses SysUtils, Resource, stringtableresource, ElfReader, Classes, uTypes, uXDebug, uHelpers;
+  uses SysUtils, Resource, stringtableresource, 
+       {$IF defined(UNIX)} ElfReader, {$ELSE} Windows, {$ENDIF}
+       Classes, uTypes, uXDebug, uHelpers;
 
   const
     { Error Types }
@@ -41,6 +43,8 @@ implementation
     stres: TStringTableResource;
   begin
     result := '';
+
+    {$IF defined(UNIX)}
     res := TResources.Create;
     try
       res.loadfromfile(ParamStr(0));
@@ -49,6 +53,14 @@ implementation
     finally
       res.Free
     end;
+    {$ELSE}
+      SetLength(result, LoadString(FindResource(0, nil, RT_STRING),
+                                   AId,
+                                   @result[1],
+                                   SizeOf(result)
+                        )
+      );
+    {$ENDIF}
   end;
 
   procedure ThrowError(const AError: Integer; var AScript: TScript; const AFormats: array of const);
