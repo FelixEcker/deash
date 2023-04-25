@@ -15,7 +15,7 @@ implementation
 
   function Cd(const AParams: TStringDynArray): TInvokeResult;
   const
-    ROOTDIR = {$IF defined(LINUX)} '/' {$ELSEIF defined(WINDOWS)} 'C:\' {$ENDIF} ;
+    ROOTDIR = {$IF defined(UNIX)} '/' {$ELSEIF defined(WINDOWS)} 'C:\' {$ENDIF} ;
   var
     dir: String;
   begin

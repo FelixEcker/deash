@@ -285,6 +285,9 @@ implementation
     proc: TProcedure;
     has_params, skip_next, stop: Boolean;
   begin
+    stopped := 0;
+    stop := False;
+
     split := SplitString(ADeclaration, ' ');
     split := Copy(split, 1, Length(split)-1);
 
@@ -344,6 +347,7 @@ implementation
       end;
     end;
 
+    id := 0;
     case proc_type of
     PROCTYPE_PROC: begin
       SetLength(AScript.procedures, Length(AScript.procedures)+1);

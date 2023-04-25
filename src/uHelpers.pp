@@ -73,14 +73,14 @@ implementation
 
     { Check dirs on PATH }
 
-    {$IF defined(LINUX)}
+  {$IF defined(UNIX)}
     for location in SplitString(GetEnv('PATH'), ':') do
-    {$ELSEIF defined(WINDOWS)}
+  {$ELSEIF defined(WINDOWS)}
     if pos('.exe', AName) <> Length(AName)-3 then
       AName := AName+'.exe';
 
     for location in SplitString(GetEnv('PATH'), ';') do
-    {$ENDIF}
+  {$ENDIF}
     begin
       if FileExists(location+PathDelim+AName) then
       begin
@@ -189,9 +189,18 @@ implementation
     {$IF defined(UNIX)}
       res := TResources.Create;
       try
-        res.loadfromfile(ParamStr(0));
-        stres := res.find(RT_STRING, succ(AId shr 4)) as TStringTableResource;
-        result := stres.strings[AId];
+        try
+          res.loadfromfile(ParamStr(0));
+          stres := res.find(RT_STRING, succ(AId shr 4)) as TStringTableResource;
+          result := stres.strings[AId];
+        except
+          on e: EResourceReaderWrongFormatException do
+          begin
+            deasherror('An error occured when trying to load a resource: Wrong Format Exception');
+            deasherror('Message: '+e.message);
+            exit;
+          end;
+        end;
       finally
         res.Free
       end;
