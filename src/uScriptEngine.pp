@@ -214,9 +214,9 @@ implementation
     IsInternalCmd := True;
 
     case ACmd of
-      'cd': exit;
-      'purr': exit;
-      'debug_cbtrace': exit;
+    'cd': exit;
+    'purr': exit;
+    'debug_cbtrace': exit;
     end;
 
     IsInternalCmd := False;
@@ -273,6 +273,7 @@ implementation
       ResolveVariable.identifier := AName;
       ResolveVariable.value := GetShellEnv(AName);
       ResolveVariable.datatype := DATATYPE_STRING;
+      exit;
     end;
   end;
 
@@ -313,9 +314,6 @@ implementation
           continue;
         end;
 
-        SetLength(proc.parameters, Length(proc.parameters)+1);
-        proc.parameters[HIGH(proc.parameters)].name := Copy(split[i], 1, Length(split[i])-1);
-
         tmp := Copy(split[i+1], 1, Length(split[i+1])-1);
         if (pos(')', tmp) <> 0) then 
         begin 
@@ -330,6 +328,8 @@ implementation
           exit;
         end;
 
+        SetLength(proc.parameters, Length(proc.parameters)+1);
+        proc.parameters[HIGH(proc.parameters)].name := Copy(split[i], 1, Length(split[i])-1);
         proc.parameters[HIGH(proc.parameters)].ptype := ptype;
 
         if stop then begin stopped := i; break; end;
@@ -343,7 +343,15 @@ implementation
       for i := stopped + 1 to Length(split) - 1 do
       begin
         if pos('export', split[i]) <> 0 then proc_type := PROCTYPE_EXP;
-        if pos('preffered', split[i]) <> 0 then proc_type := PROCTYPE_PREF;
+        if pos('preffered', split[i]) <> 0 then 
+        begin
+          if proc_type = PROCTYPE_EXP then
+            proc_type := PROCTYPE_PREF
+          else begin
+            ThrowError(ERR_SCRIPT_PREFFERED_UNEXPORTED_PROC, AScript, []);
+            exit;
+          end;
+        end;
       end;
     end;
 
@@ -363,8 +371,8 @@ implementation
       SetLength(preffered_exported_procs, Length(preffered_exported_procs)+1);
       preffered_exported_procs[HIGH(preffered_exported_procs)] := proc;
       id := HIGH(preffered_exported_procs); 
-    end;
-    end;
+    end; { end PROCTYPE_PREF }
+    end; { end case }
     
     AScript.registering_proc := id;
     AScript.registering_proc_type := proc_type;

@@ -15,6 +15,7 @@ BEGIN
 3004 "mismatched datatypes for comparison (%s and %s)"
 3005 "Invalid operator for comparison"
 3006 "Invalid datatype ""%s"""
+3007 "Non-Exported procedures cannot be preffered!"
 
 // ERROR DESCRIPTIONS
 10001 "Deash attempted to open a file, which could not be found"
@@ -32,6 +33,12 @@ exception to this syntax rule is the ""VALUE"" syntax, which only works if the v
 12005 "A comparison was made where the provided operator is not applicable, e.g. \n\
   'foo' > 'bar'."
 12006 "The given datatype is not known by deash."
+12007 "Only procedures which have been previously marked with the ""export"" keyword can be preffered."
 
 // ERROR FIXES
+22007 "When this error occurs your procedure declaration may look like this:\n\
+  proc MyProc; preffered; \n\n\
+This error can be solved by inserting the ""export"" keyword before the preffered keyword like this:\n\
+  proc MyProc; export; preffered;\n\
+               ^~~~~~~"
 END
