@@ -17,9 +17,19 @@ env
 end
 
 { Simply exists for testing deash
-  - Marie }
+  - Felix 
+}
 proc wisdom; export; preffered;
   echo Jeder sollte mal einen alten Stremellachs probiert haben.
+end
+
+# Procedure for testing
+proc TestProc(param1: String; param2: Integer; param3: Boolean); export; preffered;
+  echo param1
+  echo Str(param2)
+  if param3 then
+    echo ja
+  end
 end
 
 if false and true then
