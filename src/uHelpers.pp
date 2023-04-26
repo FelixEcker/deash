@@ -178,36 +178,36 @@ implementation
   end;
 
   function GetResourceString(const AId: Integer): String;
-  {$IF defined(UNIX)}
+{$IF defined(UNIX)}
   var
     res: TResources;
     stres: TStringTableResource;
-  {$ENDIF}
+{$ENDIF}
   begin
     result := '';
 
-    {$IF defined(UNIX)}
-      res := TResources.Create;
+  {$IF defined(UNIX)}
+    res := TResources.Create;
+    try
       try
-        try
-          res.loadfromfile(ParamStr(0));
-          stres := res.find(RT_STRING, succ(AId shr 4)) as TStringTableResource;
-          result := stres.strings[AId];
-        except
-          on e: EResourceReaderWrongFormatException do
-          begin
-            deasherror('An error occured when trying to load a resource: Wrong Format Exception');
-            deasherror('Message: '+e.message);
-            exit;
-          end;
+        res.loadfromfile(ParamStr(0));
+        stres := res.find(RT_STRING, succ(AId shr 4)) as TStringTableResource;
+        result := stres.strings[AId];
+      except
+        on e: EResourceReaderWrongFormatException do
+        begin
+          deasherror('An error occured when trying to load a resource: Wrong Format Exception');
+          deasherror('Message: '+e.message);
+          exit;
         end;
-      finally
-        res.Free
       end;
-    {$ELSE}
-      SetClearString(result, 8192);
-      LoadString(FindResource(0, nil, RT_STRING), AId, @result[1], 8192);
-      result := Trim(result);
-    {$ENDIF}
+    finally
+      res.Free
+    end;
+  {$ELSE}
+    SetClearString(result, 8192);
+    LoadString(FindResource(0, nil, RT_STRING), AId, @result[1], 8192);
+    result := Trim(result);
+  {$ENDIF}
   end;
 end.

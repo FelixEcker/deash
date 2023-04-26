@@ -7,19 +7,19 @@ unit uInteractiveMode;
 {$H+}
 
 interface
-  uses Dos, {$IF defined(LINUX)} BaseUnix, {$ENDIF} SysUtils, StrUtils, Types, uDEASHConsts, uHelpers, uInternalProcs, uXDebug, uScriptEngine, uPathResolve, uTypes;
+  uses Dos, {$IF defined(UNIX)} BaseUnix, {$ENDIF} SysUtils, StrUtils, Types, uDEASHConsts, uHelpers, uInternalProcs, uXDebug, uScriptEngine, uPathResolve, uTypes;
 
   procedure LaunchShell;
 
   var
     history          : TextFile;
-    {$IF defined(LINUX)}
-      sig_int_handler  : PSigActionRec;
-      sig_quit_handler : PSigActionRec;
-    {$ENDIF}
+  {$IF defined(UNIX)}
+    sig_int_handler  : PSigActionRec;
+    sig_quit_handler : PSigActionRec;
+  {$ENDIF}
     should_quit      : Boolean;
 implementation
-  {$IF defined(LINUX)}
+{$IF defined(UNIX)}
   procedure HandleSigInterrupt(sig: cint); cdecl;
   begin
   end;
@@ -37,9 +37,9 @@ implementation
     fillchar(sig_int_handler^.Sa_Mask, sizeof(sig_int_handler^.sa_mask),#0);
     sig_int_handler^.Sa_Flags := 0;
     
-    {$IF defined(LINUX)}
-      sig_int_handler^.Sa_Restorer:=Nil;
-    {$ENDIF}
+  {$IF defined(LINUX)}
+    sig_int_handler^.Sa_Restorer:=Nil;
+  {$ENDIF}
     
     if fpSigAction(SIGINT, sig_int_handler, nil) <> 0 then
     begin
@@ -53,9 +53,9 @@ implementation
     fillchar(sig_quit_handler^.Sa_Mask, sizeof(sig_quit_handler^.sa_mask), #0);
     sig_quit_handler^.Sa_Flags := 0;
     
-    {$IF defined(LINUX)}
-      sig_quit_handler^.Sa_Restorer:=Nil;
-    {$ENDIF}
+  {$IF defined(LINUX)}
+    sig_quit_handler^.Sa_Restorer:=Nil;
+  {$ENDIF}
     
     if fpSigAction(SIGQUIT, sig_quit_handler, nil) <> 0 then
     begin
@@ -63,7 +63,7 @@ implementation
       halt(1);
     end;
   end;
-  {$ENDIF}
+{$ENDIF}
 
   procedure LaunchShell;
   var
@@ -75,9 +75,9 @@ implementation
     should_quit := False;
 
     debugwriteln('Launching shell');
-    {$IF defined(LINUX)}
-      InstallSignals;
-    {$ENDIF}
+  {$IF defined(LINUX)}
+    InstallSignals;
+  {$ENDIF}
     DoScriptExec(ResolveEnvsInPath('$HOME/.deashrc'));
 
     script.scriptpath := ResolveEnvsInPath('$HOME/.deash_history');
