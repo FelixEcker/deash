@@ -356,12 +356,12 @@ implementation
     end;
     PROCTYPE_EXP: begin
       SetLength(exported_procs, Length(exported_procs)+1);
-      AScript.procedures[HIGH(exported_procs)] := proc;
+      exported_procs[HIGH(exported_procs)] := proc;
       id := HIGH(exported_procs); 
     end;
     PROCTYPE_PREF: begin
       SetLength(preffered_exported_procs, Length(preffered_exported_procs)+1);
-      AScript.procedures[HIGH(preffered_exported_procs)] := proc;
+      preffered_exported_procs[HIGH(preffered_exported_procs)] := proc;
       id := HIGH(preffered_exported_procs); 
     end;
     end;
