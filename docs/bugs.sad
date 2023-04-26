@@ -11,9 +11,4 @@
 {$end-section}
 {$begin-section} execution
 {$head} Bugs during execution
-
-{$begin-section} macos
-{$sub-head} MacOS
-- Crashes when a Resource is attempted to be loaded with exception: EResourceReaderWrongFormatException
-{$end-section}
 {$end-section}

@@ -9,8 +9,14 @@ unit uHelpers;
 interface
   uses Dos, StrUtils, SysUtils, Types, uDEASHConsts,
        Resource, stringtableresource, 
-       {$IF defined(UNIX)} ElfReader, {$ELSE} Windows, {$ENDIF}
-       Classes;
+  {$IF defined(LINUX)}
+       ElfReader
+  {$ELSEIF defined(DARWIN)}
+       machoreader
+  {$ELSEIF defined(WINDOWS)}
+       Windows
+  {$ENDIF}
+       ;
 
   (* Print a shell error *)
   procedure DeashError(const AMsg: String);
