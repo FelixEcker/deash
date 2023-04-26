@@ -1,8 +1,27 @@
 {$mode fpc}
 program deash;
 
-{ deash.pp ; Entry Point for deash }
-{ author: Marie Eckert             }
+{***********************************************************}
+{                          DEASH                            }
+{***********************************************************}
+{                                                           }
+{ deash.pp ; Entry Point for deash                          }
+{ author: Marie Eckert                                      }
+{                                                           }
+{ ABOUT:                                                    }
+{ deash is a shell with ALGOL-like syntax for scripting,    }
+{ it is inteded to be compatible with most bash commands.   }
+{ If you're interested in learning more about deash see     }
+{ the specification & documentation in the docs/ directory. }
+{                                                           }
+{ Git-Repository: https://github.com/FelixEcker/deash       }
+{                                                           }
+{ Usage:                                                    }
+{ deash [script file] [options]                             }
+{ If no script file is provided, deash will enter interact- }
+{ ive mode. To get a list of valid options, run deash with  }
+{ the --help option.                                        }
+{***********************************************************}
 
 {$H+}
 {$R res/info.rc}
