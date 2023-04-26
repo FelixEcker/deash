@@ -5,6 +5,7 @@ unit uErrors;
 { Author: Marie Eckert                }
 
 {$R res/error_message.rc}
+{$H+}
 
 interface
   uses SysUtils, uTypes, uXDebug, uHelpers;
@@ -23,7 +24,7 @@ interface
     ERR_INTERNAL_UNKNOWN = 1001;
 
     ERR_SCRIPT_UNKNOWN_IDENTIFIER        = 2001;
-    ERR_SCRIPT_IF_MALFORMED_VALUE        = 2002;
+    ERR_SCRIPT_IF_MALFORMED_VALUE        = 2003;
     ERR_SCRIPT_IF_MALFORMED_VALOPVAL     = 2003;
     ERR_SCRIPT_IF_MISMATCHED_TYPES       = 2004;
     ERR_SCRIPT_IF_INVALID_OPERATOR       = 2005;
@@ -54,6 +55,8 @@ implementation
   end;
 
   procedure PrintErrorInfo(const AError: Integer);
+  var
+    fix_tmp: String;
   begin
     writeln(Format('Error manual for error E%.4d', [AError]));
     writeln;
@@ -65,6 +68,8 @@ implementation
     writeln(GetResourceString(AError+DESCRIPTION_PREFIX));
     writeln;
     writeln('Fixes:');
-    writeln(GetResourceString(AError+FIXES_PREFIX));
+    fix_tmp := GetResourceString(AError+FIXES_PREFIX);
+    if fix_tmp = '' then fix_tmp := 'Currently there are no fixes available for this error, sorry :(';
+    writeln(fix_tmp);
   end;
 end.

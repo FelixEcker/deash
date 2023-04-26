@@ -25,8 +25,6 @@ BEGIN
 11001 "Something broke internally, likely a bug."
 
 12001 "Deash tried to parse an identifier which could not be mapped to a keyword or command."
-12002 "A conditional must always be formatted like this: ""VALUE OPERATOR VALUE"", the only \n\
-exception to this syntax rule is the ""VALUE"" syntax, which only works if the value is a boolean."
 12003 "A conditional must always be formatted like this: ""VALUE OPERATOR VALUE"", the only \n\
 exception to this syntax rule is the ""VALUE"" syntax, which only works if the value is a boolean."
 12004 "Deash only supports comparisons between identical datatypes."
@@ -36,6 +34,21 @@ exception to this syntax rule is the ""VALUE"" syntax, which only works if the v
 12007 "Only procedures which have been previously marked with the ""export"" keyword can be preffered."
 
 // ERROR FIXES
+22003 "A conditional must always be formatted in the ""VALUE OPERATOR VALUE"" syntax, the only exception\n\
+to this is with Boolean values. With these the syntax ""VALUE"" is also allowed, this will simply\n\
+evaluate if the booleans value is true or false."
+22004 "You have compared two different datatypes, try casting one of the values to the othervalues\n\
+datatype using the built-in casting functions Bool(), Str() and Int()."
+22005 "The following operators are applicable for comparisons between the listed datatypes:\n\
+  <   Integers\n\
+  >   Integers\n\
+  <>  Integers, Strrings, Booleans\n\
+  =   Integers, Strings, Booleans\n\
+  and Booleans\n\
+  or  Booleans\n\
+  not Booleans"
+22006 "Deash supports the three datatypes Boolean, Integer and String, these data-types are\n\
+case-sensitive, so you may have miscapitalized them."
 22007 "When this error occurs your procedure declaration may look like this:\n\
   proc MyProc; preffered; \n\n\
 This error can be solved by inserting the ""export"" keyword before the preffered keyword like this:\n\
