@@ -3,6 +3,9 @@
 STRINGTABLE
 BEGIN
 // ERROR MESSAGES
+// ERROR MESSAGE IDS HAVE AN OFFSET OF +1000 TO THEIR
+// ACTUAL ID
+
 1001 "File ""%s"" not found"
 1002 "No deash config present!"
 1003 "Deash config is malformed!"
