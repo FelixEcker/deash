@@ -18,7 +18,7 @@ interface
       code: Integer;
       message: String;
     end;
-  
+
   function ExecBin(const ABinaryLocation: String; const AParameters: TStringDynArray): TInvokeResult;
 
   const
@@ -32,6 +32,7 @@ implementation
     ExecBin.code := 0;
     ExecBin.message := '';
 
+    writeln;
     process := TProcess.Create(nil);
     process.executable := ABinaryLocation;
     for parameter in AParameters do

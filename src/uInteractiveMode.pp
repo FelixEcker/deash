@@ -7,9 +7,20 @@ unit uInteractiveMode;
 {$H+}
 
 interface
-  uses Dos, {$IF defined(UNIX)} BaseUnix, {$ENDIF} SysUtils, StrUtils, Types, uDEASHConsts, uHelpers, uInternalProcs, uXDebug, uScriptEngine, uPathResolve, uTypes;
+  uses Crt, Dos,
+{$IF defined(UNIX)}
+       BaseUnix,
+{$ENDIF}
+       SysUtils, StrUtils, Types, uDEASHConsts, uHelpers, uInternalProcs,
+       uXDebug, uScriptEngine, uPathResolve, uTypes;
 
   procedure LaunchShell;
+
+  const
+    { INPUT ACTIONS }
+    IA_ENTER  = 0;
+    IA_CLEFT  = 1;
+    IA_CRIGHT = 2;
 
   var
     history          : TextFile;
@@ -36,14 +47,15 @@ implementation
     sig_int_handler^.sa_Handler := SigActionHandler(@HandleSigInterrupt);
     fillchar(sig_int_handler^.Sa_Mask, sizeof(sig_int_handler^.sa_mask),#0);
     sig_int_handler^.Sa_Flags := 0;
-    
+
   {$IF defined(LINUX)}
     sig_int_handler^.Sa_Restorer:=Nil;
   {$ENDIF}
-    
+
     if fpSigAction(SIGINT, sig_int_handler, nil) <> 0 then
     begin
-      deasherror('Error while installing SIGINT handler: ' + IntToStr(fpgeterrno) + '.');
+      deasherror('Error while installing SIGINT handler: '
+                    + IntToStr(fpgeterrno) + '.');
       halt(1);
     end;
 
@@ -52,24 +64,47 @@ implementation
     sig_quit_handler^.sa_Handler := SigActionHandler(@HandleSigQuit);
     fillchar(sig_quit_handler^.Sa_Mask, sizeof(sig_quit_handler^.sa_mask), #0);
     sig_quit_handler^.Sa_Flags := 0;
-    
+
   {$IF defined(LINUX)}
     sig_quit_handler^.Sa_Restorer:=Nil;
   {$ENDIF}
-    
+
     if fpSigAction(SIGQUIT, sig_quit_handler, nil) <> 0 then
     begin
-      deasherror('Error while installing SIGQUIT handler: ' + IntToStr(fpgeterrno) + '.');
+      deasherror('Error while installing SIGQUIT handler: '
+                    + IntToStr(fpgeterrno) + '.');
       halt(1);
     end;
   end;
 {$ENDIF}
+
+  procedure HandleKeypress(AKey: Char; var AInputBuff: String;
+                            var AAction: Integer);
+  begin
+    if AKey = #0 then AKey := readkey;
+
+    case Integer(AKey) of
+    13: AAction := IA_ENTER;
+    else
+    begin
+      write(AKey);
+      AInputBuff := AInputBuff + AKey;
+    end; end;
+  end;
+
+  procedure HandleInputAction(const AAction: Integer; var AInputBuff: String);
+  begin
+    case AAction of
+    IA_ENTER: write(#13#10);
+    end;
+  end;
 
   procedure LaunchShell;
   var
     eval_result: TEvalResult;
     script: TScript;
     inbuff: String;
+    action: Integer;
     rchar: Char;
   begin
     should_quit := False;
@@ -97,18 +132,21 @@ implementation
     while not script.exited and not should_quit do
     begin
       write('deash ', GetCurrentDir(), '> ');
-      
+
       inbuff := '';
       repeat
+        action := -1;
         if eof() then
         begin
           should_quit := True;
           break;
         end;
 
-        read(rchar);
-        inbuff := inbuff + rchar;
-      until (rchar = #10) or should_quit;
+        rchar := readkey;
+        HandleKeypress(rchar, inbuff, action);
+        HandleInputAction(action, inbuff);
+      until (action = IA_ENTER) or should_quit;
+
       if should_quit then break;
 
       script.cline := inbuff;
@@ -117,13 +155,11 @@ implementation
       if script.cline = 'debug_cbtrace' then
         DoInternalCmd(script.cline, [], script)
       else
-      begin
         eval_result := Eval(script);
-      end;
 
       script.nline := script.nline + 1;
     end;
-    
+
     Close(history);
   end;
 end.

@@ -8,7 +8,7 @@ unit uHelpers;
 
 interface
   uses Dos, StrUtils, SysUtils, Types, uDEASHConsts,
-       Resource, stringtableresource, 
+       Resource, stringtableresource,
   {$IF defined(LINUX)}
        ElfReader
   {$ELSEIF defined(DARWIN)}
@@ -24,19 +24,19 @@ interface
   (* Check if a binary with the name set in AName exists. If the result is True,
     its full path will be written to APath. *)
   function BinaryExists(AName: String; var APath: String): Boolean;
-  
+
   (* Add an int to given array *)
   procedure ArrPushInt(var AArr: TIntegerDynArray; const AVal: Integer);
-  
+
   (* Get and remove the last index of given array *)
   function ArrPopInt(var AArr: TIntegerDynArray): Integer;
-  
+
   (* Determine the datatype of a script statement / identifier *)
   function DetermineDatatype(const AString: String): Integer;
-  
+
   (* Convert a internal Datatype code to its string name *)
   function DatatypeToStr(const ADatatype: Integer): String;
-  
+
   (* Convert the string name of a Datatype to its internal code *)
   function StrToDatatype(const AStr: String): Integer;
 
@@ -140,18 +140,18 @@ implementation
     DATATYPE_RETURNVAL: DatatypeToStr := 'Procedure Return Value (String)';
     end;
   end;
-  
+
   function StrToDatatype(const AStr: String): Integer;
   begin
     StrToDatatype := DATATYPE_UNREAL;
-    
+
     case AStr of
     'Integer': StrToDatatype := DATATYPE_INTEGER;
     'Boolean': StrToDatatype := DATATYPE_BOOLEAN;
     'String':  StrToDatatype := DATATYPE_STRING;
     end;
   end;
-  
+
   function BlocktypeToStr(const ABlocktype: Integer): String;
   begin
     BlocktypeToStr := 'unknown';

@@ -39,7 +39,7 @@ interface
 
   (* Find an Preffered Exported Procedure with name AName and put its record into AProcRec.
      Returns True when an Preffered Exported Procedure of given name was found, False if not. *)
-  function FindPrefferedExpProc(const AName: String; var AProcRec: TProcedure): Boolean;  
+  function FindPrefferedExpProc(const AName: String; var AProcRec: TProcedure): Boolean;
 
   (* Find an Alias with name AName and put its record into AAliasRec.
      Returns True when an Alias of given name was found, False if not. *)
@@ -97,7 +97,7 @@ implementation
       if (ASrc[i] = ' ') or (ASrc[i] = '(') or (ASrc[i] = ';') then
         break
       else
-        ExtractProcName := ExtractProcName + ASrc[i];   
+        ExtractProcName := ExtractProcName + ASrc[i];
   end;
 
   function FindProcedure(const AName: String; var AScript: TScript; var ATargetRec: TProcedure): Integer;
@@ -133,7 +133,7 @@ implementation
     escaping := False;
     for i := 1 to Length(param_string) do
     begin
-      if (param_string[i] = '\') and not escaping then 
+      if (param_string[i] = '\') and not escaping then
       begin
         escaping := True;
         continue;
@@ -157,10 +157,10 @@ implementation
 
     for i := 0 to Length(params) - 1 do
       params[i] := trim(params[i]);
-    
+
     ExtractProcParams := params;
   end;
-  
+
   function FindExpProc(const AName: String; var AProcRec: TProcedure): Boolean;
   var
     i: Integer;
@@ -176,7 +176,7 @@ implementation
        end;
     end;
   end;
-  
+
   function FindPrefferedExpProc(const AName: String; var AProcRec: TProcedure): Boolean;
   var
     i: Integer;
@@ -315,8 +315,8 @@ implementation
         end;
 
         tmp := Copy(split[i+1], 1, Length(split[i+1])-1);
-        if (pos(')', tmp) <> 0) then 
-        begin 
+        if (pos(')', tmp) <> 0) then
+        begin
           tmp := Copy(tmp, 1, pos(')', tmp)-1);
           stop := True;
         end;
@@ -343,7 +343,7 @@ implementation
       for i := stopped + 1 to Length(split) - 1 do
       begin
         if pos('export', split[i]) <> 0 then proc_type := PROCTYPE_EXP;
-        if pos('preffered', split[i]) <> 0 then 
+        if pos('preffered', split[i]) <> 0 then
         begin
           if proc_type = PROCTYPE_EXP then
             proc_type := PROCTYPE_PREF
@@ -360,24 +360,24 @@ implementation
     PROCTYPE_PROC: begin
       SetLength(AScript.procedures, Length(AScript.procedures)+1);
       AScript.procedures[HIGH(AScript.procedures)] := proc;
-      id := HIGH(AScript.procedures); 
+      id := HIGH(AScript.procedures);
     end;
     PROCTYPE_EXP: begin
       SetLength(exported_procs, Length(exported_procs)+1);
       exported_procs[HIGH(exported_procs)] := proc;
-      id := HIGH(exported_procs); 
+      id := HIGH(exported_procs);
     end;
     PROCTYPE_PREF: begin
       SetLength(preffered_exported_procs, Length(preffered_exported_procs)+1);
       preffered_exported_procs[HIGH(preffered_exported_procs)] := proc;
-      id := HIGH(preffered_exported_procs); 
+      id := HIGH(preffered_exported_procs);
     end; { end PROCTYPE_PREF }
     end; { end case }
-    
+
     AScript.registering_proc := id;
     AScript.registering_proc_type := proc_type;
   end;
-  
+
   function ExecProc(const AProcedure: TProcedure; const AParameters: TStringDynArray; var AScript: TScript): TProcedureResult;
   var
     invoke_result: TInvokeResult;
@@ -419,7 +419,7 @@ implementation
       if not evalres.success then
       begin
         ExecProc.success := False;
-        ExecProc.return_value := Format(ERR_PROC_EVAL_FAIL_LINE, 
+        ExecProc.return_value := Format(ERR_PROC_EVAL_FAIL_LINE,
               [AProcedure.name, script.nline, sLineBreak, evalres.message]);
         break;
       end;
@@ -603,7 +603,7 @@ implementation
 
       exit;
     end;
-    
+
     if (curr_blocktype = BLOCKTYPE_IGNORE) and (AScript.registering_proc <> -1) then
     begin
       writeln('TODO: ADD PROCEDURE LINE "', AScript.cline, '"');
@@ -618,7 +618,7 @@ implementation
 
     stash := AScript.falseif;
     case tokens[0] of
-      'if': begin 
+      'if': begin
         ArrPushInt(AScript.codeblocks, BLOCKTYPE_IF);
         AScript.falseif := not EvalIf(AScript, ifeval_res);
         Eval := ifeval_res;
@@ -646,7 +646,7 @@ implementation
         evalled_if := True;
       end;
     end;
-    
+
     if not Eval.success then
     begin
       if evalled_if then ArrPopInt(AScript.codeblocks);
@@ -654,18 +654,18 @@ implementation
       exit;
     end;
 
-    if (evalled_if and Eval.success) 
-    or (AScript.codeblocks[HIGH(AScript.codeblocks)] = BLOCKTYPE_IGNORE) then 
+    if (evalled_if and Eval.success)
+    or (AScript.codeblocks[HIGH(AScript.codeblocks)] = BLOCKTYPE_IGNORE) then
       exit;
-    
+
     case tokens[0] of
     'env': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ENV); exit; end;
     'alias': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_ALIAS); exit; end;
     'var': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_VAR); exit; end;
-    'proc': begin 
+    'proc': begin
       RegisterProc(AScript.cline, AScript);
-      ArrPushInt(AScript.codeblocks, BLOCKTYPE_PROC); 
-      exit; 
+      ArrPushInt(AScript.codeblocks, BLOCKTYPE_PROC);
+      exit;
     end;
     'for': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_LOOP_FOR); exit; end;
     'loop': begin ArrPushInt(AScript.codeblocks, BLOCKTYPE_LOOP_LOOP); exit; end;
@@ -688,7 +688,7 @@ implementation
       end;
     end; { end else } end; { end case }
   end;
-  
+
   (* Internal function to resolve the operand of a if-condition to a Variable record *)
   function ResolveOperand(var AScript: TScript; const AOperand: String; var ADestination: TVariable): TEvalResult;
   var
@@ -697,10 +697,10 @@ implementation
   begin
     ADestination.identifier := '';
     datatype := DetermineDatatype(AOperand);
-    
+
     ResolveOperand.success := True;
     ResolveOperand.message := '';
-    
+
     if datatype = DATATYPE_VARIABLE then
     begin
       ADestination := ResolveVariable(AScript, AOperand);
@@ -726,7 +726,7 @@ implementation
       ADestination.value := AOperand;
       if datatype = DATATYPE_STRING then
         ADestination.value := Copy(ADestination.value, 2, Length(ADestination.value)-2);
-      
+
       exit;
     end;
   end;
@@ -765,11 +765,11 @@ implementation
       or (split[i+1] = 'and') or (split[i+1] = 'or') then
       begin
         { Do this to allow for checking if a boolean is true without a comparison }
-        if (i < Length(split)) then 
+        if (i < Length(split)) then
         begin
           AResult := ResolveOperand(AScript, split[i], lefthandVal);
           if not AResult.success then exit;
-        
+
           if lefthandVal.datatype <> DATATYPE_BOOLEAN then
           begin
             ThrowError(ERR_SCRIPT_IF_MALFORMED_VALUE, AScript, []);
@@ -780,7 +780,7 @@ implementation
           _operator := '=';
           righthandVal.datatype := DATATYPE_BOOLEAN;
           righthandVal.value := 'true';
-        end else 
+        end else
         begin
           debugwriteln(sLineBreak + 'Conditional evaluation failed on word: '+split[i]);
           ThrowError(ERR_SCRIPT_IF_MALFORMED_VALOPVAL, AScript, []);
@@ -799,7 +799,7 @@ implementation
 
         AResult := ResolveOperand(AScript, split[lefthand_end+1], righthandVal);
         if not AResult.success then exit;
-        
+
         { Check if the two values can be compared }
         if lefthandVal.datatype <> righthandVal.datatype then
         begin
@@ -812,7 +812,7 @@ implementation
 
       { Stash the current result incase we do a bitwise }
       res_stash := EvalIf;
-     
+
       debugwritef('Comparison: %s (%s) %s'+sLineBreak, [lefthandVal.value, _operator, righthandVal.value]);
       { Do an actual comparison of the values }
       case _operator of

@@ -7,7 +7,7 @@ unit uInternalProcs;
 { Author: Marie Eckert                                                       }
 
 interface
-  uses Dos, SysUtils, Types, uExecutor, uHelpers, uTypes, uPathResolve, uXDebug;  
+  uses Dos, SysUtils, Types, uExecutor, uHelpers, uTypes, uPathResolve, uXDebug;
 
   function DoInternalCmd(const AName: String; const AParams: TStringDynArray; var AScript: TScript): TInvokeResult;
 implementation
@@ -58,14 +58,14 @@ implementation
     writeln(CAT, ' deash version: ', GetShellEnv('SH_VERSION'));
     writeln(CAT, ' active for: ', TimeToStr(ProgramUptime()));
     writeln(CAT, ' user: ', GetEnv('USERNAME'));
-    
+
     write(CAT, ' preffered exported procedures: ');
     if Length(preffered_exported_procs) = 0 then
       write('[NONE]');
     for proc in preffered_exported_procs do
       write(sLineBreak, '   ', proc.name);
     writeln;
-    
+
     write(CAT, ' Aliases: ');
     if Length(aliases) = 0 then
       write('[NONE]');

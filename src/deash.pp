@@ -46,6 +46,7 @@ begin
   writeln(':: by ', GetResourceString(RSTRING_AUTHOR));
   writeln(':: git repository: https://github.com/FelixEcker/deash.git ');
   writeln(':: licensed under the bsd 3-clause license');
+  writeln(':: Thankings to the Lazarus/Freepascal forum for all the help');
 end;
 
 (* Display deash's license *)
@@ -86,7 +87,7 @@ begin
     deasherror('Provide an error code to show its manual page! (e.g. E0001');
     exit;
   end;
-  
+
   code := Copy(ParamStr(2), 2, Length(ParamStr(2)));
   if not TryStrToInt(code, acode) then
   begin
@@ -109,7 +110,7 @@ begin
     LaunchShell;
     halt;
   end;
-  
+
   case ParamStr(1) of
   '--info': DeashInfo;
   '--help': DeashHelp;
