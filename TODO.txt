@@ -6,3 +6,4 @@ TODO:
   Piping, process reowning and process splitting
   AUTOCOMPLETE PATHS
   custom prompts
+  load configs
