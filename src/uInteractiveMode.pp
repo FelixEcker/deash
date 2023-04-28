@@ -19,8 +19,9 @@ interface
   const
     { INPUT ACTIONS }
     IA_ENTER  = 0;
-    IA_CLEFT  = 1;
-    IA_CRIGHT = 2;
+    IA_DELETE = 1;
+    IA_CLEFT  = 2;
+    IA_CRIGHT = 3;
 
   var
     history          : TextFile;
@@ -78,22 +79,34 @@ implementation
   end;
 {$ENDIF}
 
-  procedure HandleKeypress(AKey: Char; var AInputBuff: String;
+  procedure HandleKeypress(AKey: Longword; var AInputBuff: String;
                             var AAction: Integer);
+  var
+    as_char: Char;
   begin
-    if AKey = #0 then AKey := GetKeyEventChar(TranslateKeyEvent(GetKeyEvent));
+    as_char := GetKeyEventChar(AKey);
+    if as_char = #0 then
+    begin
+      case AKey of
+      kbdLeft: AAction := IA_CLEFT;
+      kbdRight: AAction := IA_CRIGHT;
+      end;
+      exit;
+    end;
 
-    case Integer(AKey) of
+    case Integer(as_char) of
     13: AAction := IA_ENTER;
+    16: AAction := IA_DELETE;
     else
     begin
-      write(AKey);
-      AInputBuff := AInputBuff + AKey;
+      write(as_char);
+      AInputBuff := AInputBuff + as_char;
     end; end;
   end;
 
   procedure HandleInputAction(const AAction: Integer; var AInputBuff: String);
   begin
+    { TODO: Handle IA_DELETE, IA_CLEFT and IA_CRIGHT }
     case AAction of
     IA_ENTER: write(#13#10);
     end;
@@ -105,7 +118,6 @@ implementation
     script: TScript;
     inbuff: String;
     action: Integer;
-    rchar: Char;
   begin
     should_quit := False;
 
@@ -143,9 +155,9 @@ implementation
           break;
         end;
 
-        rchar := GetKeyEventChar(TranslateKeyEvent(GetKeyEvent));
-        HandleKeypress(rchar, inbuff, action);
-        HandleInputAction(action, inbuff);
+        HandleKeypress(TranslateKeyEvent(GetKeyEvent), inbuff, action);
+        if action <> -1 then
+          HandleInputAction(action, inbuff);
       until (action = IA_ENTER) or should_quit;
       DoneKeyboard;
 
