@@ -8,5 +8,5 @@ To build it simply run the `build.sh` script from this repo, if you wish to have
 
 ## Documentation
 See the `docs` directory for various documents such as the deash specification (`deash_spec.sad`).
-Documents in the `sad` format can be converted to html using [sadv](https://github.com/FelixEcker/sadv) with the command `sadv file.sad -x`.
+Documents in the `sad` format can be converted to html using [sadv](https://github.com/FelixEcker/sad) with the command `sadv file.sad -x`.
 
