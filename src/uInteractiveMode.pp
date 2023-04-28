@@ -7,7 +7,7 @@ unit uInteractiveMode;
 {$H+}
 
 interface
-  uses Crt, Dos,
+  uses Keyboard, Dos,
 {$IF defined(UNIX)}
        BaseUnix,
 {$ENDIF}
@@ -81,7 +81,7 @@ implementation
   procedure HandleKeypress(AKey: Char; var AInputBuff: String;
                             var AAction: Integer);
   begin
-    if AKey = #0 then AKey := readkey;
+    if AKey = #0 then AKey := GetKeyEventChar(TranslateKeyEvent(GetKeyEvent));
 
     case Integer(AKey) of
     13: AAction := IA_ENTER;
@@ -134,6 +134,7 @@ implementation
       write('deash ', GetCurrentDir(), '> ');
 
       inbuff := '';
+      InitKeyboard;
       repeat
         action := -1;
         if eof() then
@@ -142,10 +143,11 @@ implementation
           break;
         end;
 
-        rchar := readkey;
+        rchar := GetKeyEventChar(TranslateKeyEvent(GetKeyEvent));
         HandleKeypress(rchar, inbuff, action);
         HandleInputAction(action, inbuff);
       until (action = IA_ENTER) or should_quit;
+      DoneKeyboard;
 
       if should_quit then break;
 
