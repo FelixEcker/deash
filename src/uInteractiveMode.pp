@@ -14,9 +14,15 @@ interface
        SysUtils, StrUtils, Types, uDEASHConsts, uHelpers, uInternalProcs,
        uXDebug, uScriptEngine, uPathResolve, uTypes;
 
+  type
+    TCursorPos = array[0..1] of Integer;
+
   procedure LaunchShell;
 
   const
+    { KEY CODES NOT IN Keyboard UNIT }
+    KEY_ANSI_ESCAPE = $3081A00;
+
     { INPUT ACTIONS }
     IA_ENTER  = 0;
     IA_DELETE = 1;
@@ -24,6 +30,11 @@ interface
     IA_CRIGHT = 3;
 
   var
+    (* Column where the cursor originated from on the current line *)
+    cursor_origin    : Integer;
+
+    (* Current column of the cursor, relative to cursor_origin *)
+    cursor_pos       : Integer;
     history          : TextFile;
   {$IF defined(UNIX)}
     sig_int_handler  : PSigActionRec;
@@ -79,6 +90,39 @@ implementation
   end;
 {$ENDIF}
 
+  function GetCursorPos: TCursorPos;
+  var
+    r: LongWord;
+    r_char: Char;
+    hitescape: Boolean;
+    report: ShortString;
+  begin
+    r_char := Char(0);
+    hitescape := False;
+    report := '';
+    write(#27'[6n');
+
+    { Read the Response }
+    r := TranslateKeyEvent(GetKeyEvent);
+    repeat
+      if r = KEY_ANSI_ESCAPE then
+        hitescape := True
+      else if hitescape then
+      begin
+        r_char := GetKeyEventChar(r);
+        if r_char = 'R' then break;
+
+        report := report + r_char;
+      end;
+
+      r := TranslateKeyEvent(GetKeyEvent);
+    until False;
+
+    report := Copy(report, 2, Length(report));
+    GetCursorPos[0] := StrToInt(Copy(report, 2, pos(';', report)-2));
+    GetCursorPos[1] := StrToInt(Copy(report, pos(';', report)+1, Length(report)));
+  end;
+
   procedure HandleKeypress(AKey: Longword; var AInputBuff: String;
                             var AAction: Integer);
   var
@@ -122,7 +166,7 @@ implementation
     should_quit := False;
 
     debugwriteln('Launching shell');
-  {$IF defined(LINUX)}
+  {$IF defined(UNIX)}
     InstallSignals;
   {$ENDIF}
     DoScriptExec(ResolveEnvsInPath('$HOME/.deashrc'));
@@ -147,6 +191,10 @@ implementation
 
       inbuff := '';
       InitKeyboard;
+
+      { Init cursor data for new line}
+      cursor_origin := GetCursorPos[1];
+      cursor_pos := 0;
       repeat
         action := -1;
         if eof() then
