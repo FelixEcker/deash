@@ -8,7 +8,7 @@ unit uHelpers;
 
 interface
   uses Dos, StrUtils, SysUtils, Types, uDEASHConsts,
-       Resource, stringtableresource,
+       Keyboard, Resource, stringtableresource,
   {$IF defined(LINUX)}
        ElfReader
   {$ELSEIF defined(DARWIN)}
@@ -48,6 +48,15 @@ interface
 
   (* Get a Resource String from the binary *)
   function GetResourceString(const AId: Integer): String;
+
+  (* Get the corresponding ASCII char for the given scancode, 
+     the difference to the regular Keyboard.GetKeyEventChar is
+     that this function also supports non-keys like ascii 0x1b *)
+  function ASCIIGetKeyEventChar(const AKeyCode: LongWord): Char;
+  
+  const
+    { KEY CODES NOT IN Keyboard UNIT }
+    KEY_ANSI_ESCAPE = $3081A00;
 
   var
     program_start: TDateTime;
@@ -216,5 +225,14 @@ implementation
     LoadString(FindResource(0, nil, RT_STRING), AId, @result[1], 8192);
     result := Trim(result);
   {$ENDIF}
+  end;
+
+  function ASCIIGetKeyEventChar(const AKeyCode: LongWord): Char;
+  begin
+    case AKeyCode of
+      KEY_ANSI_ESCAPE: ASCIIGetKeyEventChar := Char(#27);
+    else
+      ASCIIGetKeyEventChar := GetKeyEventChar(AKeyCode);
+    end;
   end;
 end.

@@ -28,9 +28,6 @@ interface
   procedure LaunchShell;
 
   const
-    { KEY CODES NOT IN Keyboard UNIT }
-    KEY_ANSI_ESCAPE = $3081A00;
-
     { INPUT ACTIONS }
     IA_ENTER  = 0;
     IA_DELETE = 1;
@@ -102,32 +99,28 @@ implementation
   var
     r: LongWord;
     r_char: Char;
-    hitescape: Boolean;
     report: ShortString;
   begin
     r_char := Char(0);
-    hitescape := False;
     report := '';
     write(#27'[6n');
 
     { Read the Response }
-    r := TranslateKeyEvent(GetKeyEvent);
     repeat
-      if r = KEY_ANSI_ESCAPE then
-        hitescape := True
-      else if hitescape then
-      begin
-        r_char := GetKeyEventChar(r);
-        if r_char = 'R' then break;
-
-        report := report + r_char;
-      end;
-
       r := TranslateKeyEvent(GetKeyEvent);
+      r_char := ASCIIGetKeyEventChar(r);
+      
+      if ((Byte(r_char) > $39) or (Byte(r_char) < $30)) and (r_char <> ';')
+      then 
+        if r_char = 'R' then 
+          break
+        else
+          continue;
+
+      report := report + r_char;
     until False;
 
-    report := Copy(report, 2, Length(report));
-    GetCursorPos[0] := StrToInt(Copy(report, 2, pos(';', report)-2));
+    GetCursorPos[0] := StrToInt(Copy(report, 1, pos(';', report)-2));
     GetCursorPos[1] := StrToInt(
                         Copy(report, pos(';', report)+1, Length(report))
                        );
