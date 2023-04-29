@@ -202,7 +202,8 @@ implementation
       except
         on e: EResourceReaderWrongFormatException do
         begin
-          deasherror('An error occured when trying to load a resource: Wrong Format Exception');
+          deasherror('An error occured when trying to load a resource: '+
+                     'Wrong Format Exception');
           deasherror('Message: '+e.message);
           exit;
         end;

@@ -17,6 +17,14 @@ interface
   type
     TCursorPos = array[0..1] of Integer;
 
+    (* record type to store the current state of the input prompt *)
+    TPrompt = record
+      cursor_org : Integer;
+      cursor_pos : Integer;
+      in_action  : Integer;
+      in_buffer  : String;
+    end;
+
   procedure LaunchShell;
 
   const
@@ -120,7 +128,9 @@ implementation
 
     report := Copy(report, 2, Length(report));
     GetCursorPos[0] := StrToInt(Copy(report, 2, pos(';', report)-2));
-    GetCursorPos[1] := StrToInt(Copy(report, pos(';', report)+1, Length(report)));
+    GetCursorPos[1] := StrToInt(
+                        Copy(report, pos(';', report)+1, Length(report))
+                       );
   end;
 
   procedure HandleKeypress(AKey: Longword; var AInputBuff: String;
@@ -196,6 +206,7 @@ implementation
       cursor_origin := GetCursorPos[1];
       cursor_pos := 0;
       repeat
+        cursor_pos := GetCursorPos[1] - cursor_origin;
         action := -1;
         if eof() then
         begin

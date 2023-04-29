@@ -35,14 +35,30 @@ interface
     DESCRIPTION_PREFIX = 10000;
     FIXES_PREFIX       = 20000;
 
-  procedure ThrowError(const AError: Integer; var AScript: TScript; const AFormats: array of const);
+  procedure ThrowError(const AError: Integer; var AScript: TScript;
+                       const AFormats: array of const);
   procedure PrintErrorInfo(const AError: Integer);
 implementation
-  procedure ThrowError(const AError: Integer; var AScript: TScript; const AFormats: array of const);
+  procedure ThrowError(const AError: Integer; var AScript: TScript;
+                       const AFormats: array of const);
   begin
-    deasherror(Format('eval for script %s failed at line %d:', [AScript.scriptpath, AScript.nline]));
+    deasherror(Format('eval for script %s failed at line %d:',
+                  [
+                    AScript.scriptpath,
+                    AScript.nline
+                  ]
+                )
+              );
     deasherror(Format(GetResourceString(AError+MESSAGE_PREFIX), AFormats));
-    deasherror(Format('Error code E%.4d; Run "deash -e <error code>" for more information', [AError]));
+    deasherror(Format
+                (
+                  'Error code E%.4d; Run "deash -e <error code>" for'+
+                    'more information',
+                  [
+                    AError
+                  ]
+                )
+              );
   end;
 
   function GetErrorCategory(const AError: Integer): String;
@@ -69,7 +85,8 @@ implementation
     writeln;
     writeln('Fixes:');
     fix_tmp := GetResourceString(AError+FIXES_PREFIX);
-    if fix_tmp = '' then fix_tmp := 'Currently there are no fixes available for this error, sorry :(';
+    if fix_tmp = '' then fix_tmp := 'Currently there are no fixes available'+
+                                    'for this error, sorry :(';
     writeln(fix_tmp);
   end;
 end.

@@ -53,7 +53,8 @@ interface
       (* Sets if the script is currently in a block comment *)
       incomment        : Boolean;
 
-      (* If this is true, all lines will be ignored until the script leaves the current if-block *)
+      (* If this is true, all lines will be ignored until the script leaves
+         the current if-block *)
       falseif          : Boolean;
 
       (* Has the script stopped? *)
@@ -68,7 +69,8 @@ interface
       (* The scripts local procedures *)
       procedures       : TProcedureDynArray;
 
-      (* The index of the procedure the script is currently registering, -1 if no procedure is registering *)
+      (* The index of the procedure the script is currently registering,
+         -1 if no procedure is registering *)
       registering_proc : Integer;
 
       (* The type of procedure which is currently being registered *)

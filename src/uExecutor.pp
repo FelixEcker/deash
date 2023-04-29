@@ -19,12 +19,14 @@ interface
       message: String;
     end;
 
-  function ExecBin(const ABinaryLocation: String; const AParameters: TStringDynArray): TInvokeResult;
+  function ExecBin(const ABinaryLocation: String;
+                   const AParameters: TStringDynArray): TInvokeResult;
 
   const
     BUF_SIZE = 2048;
 implementation
-  function ExecBin(const ABinaryLocation: String; const AParameters: TStringDynArray): TInvokeResult;
+  function ExecBin(const ABinaryLocation: String;
+                   const AParameters: TStringDynArray): TInvokeResult;
   var
     process: TProcess;
     parameter: String;
