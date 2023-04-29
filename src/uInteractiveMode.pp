@@ -19,10 +19,10 @@ interface
 
     (* record type to store the current state of the input prompt *)
     TPrompt = record
-      cursor_org : Integer;
-      cursor_pos : Integer;
-      in_action  : Integer;
-      in_buffer  : String;
+      cursor_org : TCursorPos;
+      cursor_pos : TCursorPos;
+      action     : Integer;
+      inbuff     : String;
     end;
 
   procedure LaunchShell;
@@ -35,11 +35,6 @@ interface
     IA_CRIGHT = 3;
 
   var
-    (* Column where the cursor originated from on the current line *)
-    cursor_origin    : Integer;
-
-    (* Current column of the cursor, relative to cursor_origin *)
-    cursor_pos       : Integer;
     history          : TextFile;
   {$IF defined(UNIX)}
     sig_int_handler  : PSigActionRec;
@@ -126,8 +121,7 @@ implementation
                        );
   end;
 
-  procedure HandleKeypress(AKey: Longword; var AInputBuff: String;
-                            var AAction: Integer);
+  procedure HandleKeypress(AKey: Longword; var APrompt: TPrompt);
   var
     as_char: Char;
   begin
@@ -135,36 +129,43 @@ implementation
     if as_char = #0 then
     begin
       case AKey of
-      kbdLeft: AAction := IA_CLEFT;
-      kbdRight: AAction := IA_CRIGHT;
+      kbdLeft: APrompt.action := IA_CLEFT;
+      kbdRight: APrompt.action := IA_CRIGHT;
       end;
       exit;
     end;
 
     case Integer(as_char) of
-    13: AAction := IA_ENTER;
-    16: AAction := IA_DELETE;
+    13: APrompt.action := IA_ENTER;
+    16: APrompt.action := IA_DELETE;
     else
     begin
       write(as_char);
-      AInputBuff := AInputBuff + as_char;
+      APrompt.inbuff := APrompt.inbuff + as_char;
     end; end;
   end;
 
-  procedure HandleInputAction(const AAction: Integer; var AInputBuff: String);
+  procedure HandleInputAction(var APrompt: TPrompt);
   begin
     { TODO: Handle IA_DELETE, IA_CLEFT and IA_CRIGHT }
-    case AAction of
+    case APrompt.action of
     IA_ENTER: write(#13#10);
     end;
+  end;
+  
+  procedure InitPrompt(var APrompt: TPrompt);
+  begin
+    APrompt.cursor_pos := GetCursorPos;
+    FillDWord(APrompt.cursor_org, Length(APrompt.cursor_org), DWord(0));
+    APrompt.action := -1;
+    APrompt.inbuff := '';
   end;
 
   procedure LaunchShell;
   var
+    prompt: TPrompt;
     eval_result: TEvalResult;
     script: TScript;
-    inbuff: String;
-    action: Integer;
   begin
     should_quit := False;
 
@@ -192,30 +193,29 @@ implementation
     begin
       write('deash ', GetCurrentDir(), '> ');
 
-      inbuff := '';
+      prompt.inbuff := '';
       InitKeyboard;
 
-      { Init cursor data for new line}
-      cursor_origin := GetCursorPos[1];
-      cursor_pos := 0;
+      { Init prompt record for new line }
+      InitPrompt(prompt);
+
       repeat
-        cursor_pos := GetCursorPos[1] - cursor_origin;
-        action := -1;
+        prompt.cursor_pos[1] := GetCursorPos[1] - prompt.cursor_org[1];
         if eof() then
         begin
           should_quit := True;
           break;
         end;
 
-        HandleKeypress(TranslateKeyEvent(GetKeyEvent), inbuff, action);
-        if action <> -1 then
-          HandleInputAction(action, inbuff);
-      until (action = IA_ENTER) or should_quit;
+        HandleKeypress(TranslateKeyEvent(GetKeyEvent), prompt);
+        if prompt.action <> -1 then
+          HandleInputAction(prompt);
+      until (prompt.action = IA_ENTER) or should_quit;
       DoneKeyboard;
 
       if should_quit then break;
 
-      script.cline := inbuff;
+      script.cline := prompt.inbuff;
       write(history, script.cline);
 
       if script.cline = 'debug_cbtrace' then
