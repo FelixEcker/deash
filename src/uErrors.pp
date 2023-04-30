@@ -85,7 +85,7 @@ implementation
     writeln;
     writeln('Fixes:');
     fix_tmp := GetResourceString(AError+FIXES_PREFIX);
-    if fix_tmp = '' then 
+    if fix_tmp = '' then
       fix_tmp := 'Currently there are no fixes available'+
                  ' for this error, sorry :(';
     writeln(fix_tmp);

@@ -104,10 +104,10 @@ implementation
     repeat
       r := TranslateKeyEvent(GetKeyEvent);
       r_char := ASCIIGetKeyEventChar(r);
-      
+
       if ((Byte(r_char) > $39) or (Byte(r_char) < $30)) and (r_char <> ';')
-      then 
-        if r_char = 'R' then 
+      then
+        if r_char = 'R' then
           break
         else
           continue;
@@ -152,7 +152,7 @@ implementation
     IA_ENTER: write(#13#10);
     end;
   end;
-  
+
   procedure InitPrompt(var APrompt: TPrompt);
   begin
     APrompt.cursor_pos := GetCursorPos;

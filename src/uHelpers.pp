@@ -49,11 +49,11 @@ interface
   (* Get a Resource String from the binary *)
   function GetResourceString(const AId: Integer): String;
 
-  (* Get the corresponding ASCII char for the given scancode, 
+  (* Get the corresponding ASCII char for the given scancode,
      the difference to the regular Keyboard.GetKeyEventChar is
      that this function also supports non-keys like ascii 0x1b *)
   function ASCIIGetKeyEventChar(const AKeyCode: LongWord): Char;
-  
+
   const
     { KEY CODES NOT IN Keyboard UNIT }
     KEY_ANSI_ESCAPE = $3081A00;
