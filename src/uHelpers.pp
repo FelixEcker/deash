@@ -1,8 +1,8 @@
 {$mode objfpc}
 unit uHelpers;
 
-{ uHelpers.pp ; Helper functions for deash     }
-{ Author: Marie Eckert                         }
+{ uHelpers.pp ; Helper functions for deash }
+{ Author: Marie Eckert                     }
 
 {$R+}{$H+}
 
@@ -21,8 +21,8 @@ interface
   (* Print a shell error *)
   procedure DeashError(const AMsg: String);
 
-  (* Check if a binary with the name set in AName exists. If the result is True,
-    its full path will be written to APath. *)
+  (* Check if a binary with the name set in AName exists. 
+     If the result is True, its full path will be written to APath. *)
   function BinaryExists(AName: String; var APath: String): Boolean;
 
   (* Add an int to given array *)
@@ -127,7 +127,8 @@ implementation
     if (AString = BOOLEAN_STR_TRUE) or (AString = BOOLEAN_STR_FALSE) then
       DetermineDatatype := DATATYPE_BOOLEAN;
 
-    if (Byte(AString[1]) >= Byte('0')) and (Byte(AString[1]) <= Byte('9')) then
+    if (Byte(AString[1]) >= Byte('0')) 
+    and (Byte(AString[1]) <= Byte('9')) then
       DetermineDatatype := DATATYPE_INTEGER;
 
     if AString[1] = '''' then
@@ -206,7 +207,10 @@ implementation
     try
       try
         res.loadfromfile(ParamStr(0));
-        stres := res.find(RT_STRING, succ(AId shr 4)) as TStringTableResource;
+        stres := res.find(
+                    RT_STRING, 
+                    succ(AId shr 4)
+                 ) as TStringTableResource;
         result := stres.strings[AId];
       except
         on e: EResourceReaderWrongFormatException do

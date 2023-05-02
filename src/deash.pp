@@ -26,7 +26,8 @@ program deash;
 {$H+}
 {$R res/info.rc}
 
-uses SysUtils, StrUtils, Types, uXDebug, uDEASHConsts, uInteractiveMode, uScriptEngine, uHelpers, uErrors;
+uses SysUtils, StrUtils, Types, uXDebug, uDEASHConsts, uInteractiveMode,
+     uScriptEngine, uHelpers, uErrors;
 
 const
   RSTRING_LICENSE = 1;
@@ -84,7 +85,8 @@ var
 begin
   if ParamCount < 2 then
   begin
-    deasherror('Provide an error code to show its manual page! (e.g. E0001');
+    deasherror('Provide an error code to show its manual page! (e.g.'+
+               ' E0001');
     exit;
   end;
 
