@@ -34,6 +34,12 @@ interface
     IA_CLEFT  = 2;
     IA_CRIGHT = 3;
 
+    { CURSOR DIRECTIONS }
+    CDIR_LEFT  = 0;
+    CDIR_RIGHT = 1;
+    CDIR_UP    = 2;
+    CDIR_DOWN  = 3;
+
   var
     history          : TextFile;
   {$IF defined(UNIX)}
@@ -121,7 +127,21 @@ implementation
                        );
   end;
 
-  procedure HandleKeypress(AKey: Longword; var APrompt: TPrompt);
+  procedure MoveCursor(const AAmount: Integer; const ADirection: Integer);
+  var
+    dir_char: Char;
+  begin
+    case ADirection of
+    CDIR_LEFT:  dir_char := 'D';
+    CDIR_RIGHT: dir_char := 'C';
+    CDIR_UP:    dir_char := 'A';
+    CDIR_DOWN:  dir_char := 'B';
+    end;
+
+    write(#27'[', IntToStr(AAmount), dir_char);
+  end;
+
+  procedure HandleKeypress(const AKey: Longword; var APrompt: TPrompt);
   var
     as_char: Char;
   begin
@@ -129,8 +149,8 @@ implementation
     if as_char = #0 then
     begin
       case AKey of
-      kbdLeft: APrompt.action := IA_CLEFT;
-      kbdRight: APrompt.action := IA_CRIGHT;
+      KEY_LEFT:  APrompt.action := IA_CLEFT;
+      KEY_RIGHT: APrompt.action := IA_CRIGHT;
       end;
       exit;
     end;
@@ -150,13 +170,24 @@ implementation
     { TODO: Handle IA_DELETE, IA_CLEFT and IA_CRIGHT }
     case APrompt.action of
     IA_ENTER: write(#13#10);
+    IA_DELETE: exit;
+    IA_CLEFT: begin
+      if APrompt.cursor_pos[1] = 0 then exit;
+      APrompt.cursor_pos[1] := APrompt.cursor_pos[1]-1;
+      MoveCursor(1, CDIR_LEFT);
     end;
+    IA_CRIGHT: begin
+      if APrompt.cursor_pos[1] = Length(APrompt.inbuff) then exit;
+      APrompt.cursor_pos[1] := APrompt.cursor_pos[1]+1;
+      MoveCursor(1, CDIR_RIGHT);
+    end; { end IA_CRIGHT }
+    end; { end case }
   end;
 
   procedure InitPrompt(var APrompt: TPrompt);
   begin
     APrompt.cursor_pos := GetCursorPos;
-    FillDWord(APrompt.cursor_org, Length(APrompt.cursor_org), DWord(0));
+    APrompt.cursor_org := GetCursorPos;
     APrompt.action := -1;
     APrompt.inbuff := '';
   end;
@@ -193,7 +224,6 @@ implementation
     begin
       write('deash ', GetCurrentDir(), '> ');
 
-      prompt.inbuff := '';
       InitKeyboard;
 
       { Init prompt record for new line }

@@ -57,6 +57,10 @@ interface
   const
     { KEY CODES NOT IN Keyboard UNIT }
     KEY_ANSI_ESCAPE = $3081A00;
+    KEY_UP          = 33619745;
+    KEY_DOWN        = 33619751;
+    KEY_LEFT        = 33619747;
+    KEY_RIGHT       = 33619749;
 
   var
     program_start: TDateTime;
