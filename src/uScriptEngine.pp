@@ -37,9 +37,10 @@ interface
   function ExtractProcParams(const AInvoke: String): TStringDynArray;
 
   (* Find an Exported Procedure with name AName and put its record into
-     AProcRec. Returns True when an Exported Procedure of given name was found,
-     False if not. *)
-  function FindExpProc(const AName: String; var AProcRec: TProcedure): Boolean;
+     AProcRec. Returns True when an Exported Procedure of given name 
+     was found, False if not. *)
+  function FindExpProc(const AName: String; 
+                       var AProcRec: TProcedure): Boolean;
 
   (* Find an Preffered Exported Procedure with name AName and put its record
      into AProcRec. Returns True when an Preffered Exported Procedure of
@@ -55,7 +56,8 @@ interface
      False if not *)
   function IsInternalCmd(const ACmd: String): Boolean;
 
-  (* Set a Shell Environment Variable, see deash_spec.sad#builtin-cmds-vars *)
+  (* Set a Shell Environment Variable, 
+     see deash_spec.sad#builtin-cmds-vars *)
   procedure SetShellEnv(const AName, AVal: String);
 
   (* Get the value of a Shell Environment Variable *)
@@ -175,7 +177,8 @@ implementation
     ExtractProcParams := params;
   end;
 
-  function FindExpProc(const AName: String; var AProcRec: TProcedure): Boolean;
+  function FindExpProc(const AName: String; 
+                       var AProcRec: TProcedure): Boolean;
   var
     i: Integer;
   begin
@@ -346,8 +349,11 @@ implementation
         end;
 
         SetLength(proc.parameters, Length(proc.parameters)+1);
-        proc.parameters[HIGH(proc.parameters)].name := Copy(split[i], 1,
-                                                            Length(split[i])-1);
+        proc.parameters[HIGH(proc.parameters)].name := Copy(
+                                                         split[i], 
+                                                         1,
+                                                         Length(split[i])-1
+                                                      );
         proc.parameters[HIGH(proc.parameters)].ptype := ptype;
 
         if stop then begin stopped := i; break; end;
@@ -386,7 +392,8 @@ implementation
       id := HIGH(exported_procs);
     end;
     PROCTYPE_PREF: begin
-      SetLength(preffered_exported_procs, Length(preffered_exported_procs)+1);
+      SetLength(preffered_exported_procs, 
+                Length(preffered_exported_procs)+1);
       preffered_exported_procs[HIGH(preffered_exported_procs)] := proc;
       id := HIGH(preffered_exported_procs);
     end; { end PROCTYPE_PREF }
@@ -536,7 +543,8 @@ implementation
     INVOKETYPE_BINARY: DoInvoke := ExecBin(AInvoke.location,
                                            AInvoke.parameters);
     INVOKETYPE_INTERNAL: DoInvoke := DoInternalCmd(AInvoke.location,
-                                                   AInvoke.parameters, AScript);
+                                                   AInvoke.parameters,
+                                                   AScript);
     end;
   end;
 
@@ -594,7 +602,8 @@ implementation
         exit;
       end;
       if (AScript.registering_proc <> -1) then
-        if (AScript.codeblocks[HIGH(AScript.codeblocks)] <> BLOCKTYPE_PROC) then
+        if (AScript.codeblocks[HIGH(AScript.codeblocks)] 
+        <> BLOCKTYPE_PROC) then
           writeln('TODO: ADD PROCEDURE LINE "', AScript.cline, '"')
         else
           AScript.registering_proc := -1;
@@ -682,7 +691,8 @@ implementation
     end;
 
     if (evalled_if and Eval.success)
-    or (AScript.codeblocks[HIGH(AScript.codeblocks)] = BLOCKTYPE_IGNORE) then
+    or (AScript.codeblocks[HIGH(AScript.codeblocks)] 
+     = BLOCKTYPE_IGNORE) then
       exit;
 
     case tokens[0] of
@@ -836,7 +846,7 @@ implementation
           righthandVal.value := 'true';
         end else
         begin
-          debugwriteln(sLineBreak + 'Conditional evaluation failed on word: '
+          debugwriteln(sLineBreak +'Conditional evaluation failed on word: '
                                   + split[i]);
           ThrowError(ERR_SCRIPT_IF_MALFORMED_VALOPVAL, AScript, []);
           AResult.success := False;
@@ -852,7 +862,9 @@ implementation
         lefthand_end := i+1;
         _operator := split[lefthand_end];
 
-        AResult := ResolveOperand(AScript, split[lefthand_end+1], righthandVal);
+        AResult := ResolveOperand(AScript, 
+                                  split[lefthand_end+1], 
+                                  righthandVal);
         if not AResult.success then exit;
 
         { Check if the two values can be compared }
@@ -894,7 +906,8 @@ implementation
             exit;
           end;
 
-          EvalIf := StrToInt(lefthandVal.value) >  StrToInt(righthandVal.value);
+          EvalIf := StrToInt(lefthandVal.value) 
+                    >  StrToInt(righthandVal.value);
           if _operator = '<' then EvalIf := not EvalIf;
         end;
       end;
@@ -902,13 +915,23 @@ implementation
       debugwritef('Comparison Result: %s'+sLineBreak,
                   [BoolToStr(EvalIf, True)]);
       case perform_bitwise of
-      'and': begin EvalIf := EvalIf and res_stash; perform_bitwise := ''; end;
-      'or': begin EvalIf := EvalIf or res_stash; perform_bitwise := ''; end;
+      'and': begin 
+        EvalIf := EvalIf and res_stash; 
+        perform_bitwise := ''; 
       end;
+      'or': begin 
+        EvalIf := EvalIf or res_stash; 
+        perform_bitwise := ''; 
+      end; { end 'or' }
+      end; { end case }
       debugwritef('Comparison Result after bitwise: %s'+sLineBreak,
                   [BoolToStr(EvalIf, True)]);
     end;
 
-    debugwritef('Evaluation Result: %s'+sLineBreak, [BoolToStr(EvalIf, True)]);
+    debugwritef('Evaluation Result: %s'+sLineBreak, 
+      [
+        BoolToStr(EvalIf, True)
+      ]
+    );
   end;
 end.

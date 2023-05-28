@@ -3,20 +3,26 @@ unit uInternalProcs;
 
 {$H+}
 
-{ uInternalProcs.pp ; Implementations for DEASH internal commands/procedures }
-{ Author: Marie Eckert                                                       }
-
+{ uInternalProcs.pp ; Implementations for internal commands/procedures }
+{ Author: Marie Eckert                                                 }
 interface
-  uses Dos, SysUtils, Types, uExecutor, uHelpers, uTypes, uPathResolve, uXDebug;
+  uses Dos, SysUtils, Types, uExecutor, uHelpers, uTypes, uPathResolve,
+       uXDebug;
 
-  function DoInternalCmd(const AName: String; const AParams: TStringDynArray;
+  function DoInternalCmd(const AName: String; 
+                         const AParams: TStringDynArray;
                          var AScript: TScript): TInvokeResult;
 implementation
   uses uScriptEngine;
 
   function Cd(const AParams: TStringDynArray): TInvokeResult;
   const
-    ROOTDIR = {$IF defined(UNIX)} '/' {$ELSEIF defined(WINDOWS)} 'C:\' {$ENDIF};
+    ROOTDIR = 
+    {$IF defined(UNIX)} 
+      '/' 
+    {$ELSEIF defined(WINDOWS)} 
+      'C:\' 
+    {$ENDIF};
   var
     dir: String;
   begin
@@ -91,7 +97,8 @@ implementation
       writeln(':: ', BlocktypeToStr(AScript.codeblocks[i]));
   end;
 
-  function DoInternalCmd(const AName: String; const AParams: TStringDynArray;
+  function DoInternalCmd(const AName: String; 
+                         const AParams: TStringDynArray;
                          var AScript: TScript): TInvokeResult;
   begin
     DoInternalCmd.code := 0;
