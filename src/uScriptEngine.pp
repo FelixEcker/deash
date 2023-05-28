@@ -37,9 +37,9 @@ interface
   function ExtractProcParams(const AInvoke: String): TStringDynArray;
 
   (* Find an Exported Procedure with name AName and put its record into
-     AProcRec. Returns True when an Exported Procedure of given name 
+     AProcRec. Returns True when an Exported Procedure of given name
      was found, False if not. *)
-  function FindExpProc(const AName: String; 
+  function FindExpProc(const AName: String;
                        var AProcRec: TProcedure): Boolean;
 
   (* Find an Preffered Exported Procedure with name AName and put its record
@@ -56,7 +56,7 @@ interface
      False if not *)
   function IsInternalCmd(const ACmd: String): Boolean;
 
-  (* Set a Shell Environment Variable, 
+  (* Set a Shell Environment Variable,
      see deash_spec.sad#builtin-cmds-vars *)
   procedure SetShellEnv(const AName, AVal: String);
 
@@ -177,7 +177,7 @@ implementation
     ExtractProcParams := params;
   end;
 
-  function FindExpProc(const AName: String; 
+  function FindExpProc(const AName: String;
                        var AProcRec: TProcedure): Boolean;
   var
     i: Integer;
@@ -350,7 +350,7 @@ implementation
 
         SetLength(proc.parameters, Length(proc.parameters)+1);
         proc.parameters[HIGH(proc.parameters)].name := Copy(
-                                                         split[i], 
+                                                         split[i],
                                                          1,
                                                          Length(split[i])-1
                                                       );
@@ -392,7 +392,7 @@ implementation
       id := HIGH(exported_procs);
     end;
     PROCTYPE_PREF: begin
-      SetLength(preffered_exported_procs, 
+      SetLength(preffered_exported_procs,
                 Length(preffered_exported_procs)+1);
       preffered_exported_procs[HIGH(preffered_exported_procs)] := proc;
       id := HIGH(preffered_exported_procs);
@@ -602,7 +602,7 @@ implementation
         exit;
       end;
       if (AScript.registering_proc <> -1) then
-        if (AScript.codeblocks[HIGH(AScript.codeblocks)] 
+        if (AScript.codeblocks[HIGH(AScript.codeblocks)]
         <> BLOCKTYPE_PROC) then
           writeln('TODO: ADD PROCEDURE LINE "', AScript.cline, '"')
         else
@@ -691,7 +691,7 @@ implementation
     end;
 
     if (evalled_if and Eval.success)
-    or (AScript.codeblocks[HIGH(AScript.codeblocks)] 
+    or (AScript.codeblocks[HIGH(AScript.codeblocks)]
      = BLOCKTYPE_IGNORE) then
       exit;
 
@@ -862,8 +862,8 @@ implementation
         lefthand_end := i+1;
         _operator := split[lefthand_end];
 
-        AResult := ResolveOperand(AScript, 
-                                  split[lefthand_end+1], 
+        AResult := ResolveOperand(AScript,
+                                  split[lefthand_end+1],
                                   righthandVal);
         if not AResult.success then exit;
 
@@ -906,7 +906,7 @@ implementation
             exit;
           end;
 
-          EvalIf := StrToInt(lefthandVal.value) 
+          EvalIf := StrToInt(lefthandVal.value)
                     >  StrToInt(righthandVal.value);
           if _operator = '<' then EvalIf := not EvalIf;
         end;
@@ -915,20 +915,20 @@ implementation
       debugwritef('Comparison Result: %s'+sLineBreak,
                   [BoolToStr(EvalIf, True)]);
       case perform_bitwise of
-      'and': begin 
-        EvalIf := EvalIf and res_stash; 
-        perform_bitwise := ''; 
+      'and': begin
+        EvalIf := EvalIf and res_stash;
+        perform_bitwise := '';
       end;
-      'or': begin 
-        EvalIf := EvalIf or res_stash; 
-        perform_bitwise := ''; 
+      'or': begin
+        EvalIf := EvalIf or res_stash;
+        perform_bitwise := '';
       end; { end 'or' }
       end; { end case }
       debugwritef('Comparison Result after bitwise: %s'+sLineBreak,
                   [BoolToStr(EvalIf, True)]);
     end;
 
-    debugwritef('Evaluation Result: %s'+sLineBreak, 
+    debugwritef('Evaluation Result: %s'+sLineBreak,
       [
         BoolToStr(EvalIf, True)
       ]

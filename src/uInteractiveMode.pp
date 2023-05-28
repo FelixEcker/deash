@@ -81,8 +81,8 @@ implementation
     new(sig_quit_handler);
     sig_quit_handler^.sa_Handler := SigActionHandler(@HandleSigQuit);
     fillchar(
-      sig_quit_handler^.Sa_Mask, 
-      sizeof(sig_quit_handler^.sa_mask), 
+      sig_quit_handler^.Sa_Mask,
+      sizeof(sig_quit_handler^.sa_mask),
       #0
     );
     sig_quit_handler^.Sa_Flags := 0;
