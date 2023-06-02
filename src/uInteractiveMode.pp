@@ -12,11 +12,9 @@ interface
        BaseUnix,
 {$ENDIF}
        SysUtils, StrUtils, Types, uDEASHConsts, uHelpers, uInternalProcs,
-       uXDebug, uScriptEngine, uPathResolve, uTypes;
+       uXDebug, uScriptEngine, uPathResolve, uTypes, uTerminal;
 
   type
-    TCursorPos = array[0..1] of Integer;
-
     (* record type to store the current state of the input prompt *)
     TPrompt = record
       cursor_org : TCursorPos;
@@ -33,12 +31,6 @@ interface
     IA_DELETE = 1;
     IA_CLEFT  = 2;
     IA_CRIGHT = 3;
-
-    { CURSOR DIRECTIONS }
-    CDIR_LEFT  = 0;
-    CDIR_RIGHT = 1;
-    CDIR_UP    = 2;
-    CDIR_DOWN  = 3;
 
   var
     history          : TextFile;
@@ -100,49 +92,9 @@ implementation
   end;
 {$ENDIF}
 
-  function GetCursorPos: TCursorPos;
-  var
-    r: LongWord;
-    r_char: Char;
-    report: ShortString;
+  procedure DisplayPrompt(const APrompt: TPrompt);
   begin
-    r_char := Char(0);
-    report := '';
-    write(#27'[6n');
-
-    { Read the Response }
-    repeat
-      r := TranslateKeyEvent(GetKeyEvent);
-      r_char := ASCIIGetKeyEventChar(r);
-
-      if ((Byte(r_char) > $39) or (Byte(r_char) < $30)) and (r_char <> ';')
-      then
-        if r_char = 'R' then
-          break
-        else
-          continue;
-
-      report := report + r_char;
-    until False;
-
-    GetCursorPos[0] := StrToInt(Copy(report, 1, pos(';', report)-2));
-    GetCursorPos[1] := StrToInt(
-                        Copy(report, pos(';', report)+1, Length(report))
-                       );
-  end;
-
-  procedure MoveCursor(const AAmount: Integer; const ADirection: Integer);
-  var
-    dir_char: Char;
-  begin
-    case ADirection of
-    CDIR_LEFT:  dir_char := 'D';
-    CDIR_RIGHT: dir_char := 'C';
-    CDIR_UP:    dir_char := 'A';
-    CDIR_DOWN:  dir_char := 'B';
-    end;
-
-    write(#27'[', IntToStr(AAmount), dir_char);
+    {write(#13, ManufacturePrompt(APrompt.template), APrompt.inbuff);}
   end;
 
   procedure HandleKeypress(const AKey: Longword; var APrompt: TPrompt);
@@ -164,8 +116,8 @@ implementation
     16: APrompt.action := IA_DELETE;
     else
     begin
-      write(as_char);
-      APrompt.inbuff := APrompt.inbuff + as_char;
+      InsertChar(APrompt.inbuff, as_char, APrompt.cursor_pos[1]);
+      DisplayPrompt(APrompt);
     end; end;
   end;
 
@@ -191,7 +143,7 @@ implementation
   procedure InitPrompt(var APrompt: TPrompt);
   begin
     APrompt.cursor_pos := GetCursorPos;
-    APrompt.cursor_org := GetCursorPos;
+    APrompt.cursor_org := APrompt.cursor_pos;
     APrompt.action := -1;
     APrompt.inbuff := '';
   end;
@@ -228,10 +180,11 @@ implementation
     begin
       write('deash ', GetCurrentDir(), '> ');
 
-      InitKeyboard;
+      SetKeyboardDriverState(True);
 
       { Init prompt record for new line }
       InitPrompt(prompt);
+      DisplayPrompt(prompt);
 
       repeat
         prompt.cursor_pos[1] := GetCursorPos[1] - prompt.cursor_org[1];
@@ -245,11 +198,14 @@ implementation
         if prompt.action <> -1 then
           HandleInputAction(prompt);
       until (prompt.action = IA_ENTER) or should_quit;
-      DoneKeyboard;
+      SetKeyboardDriverState(False);
 
       if should_quit then break;
 
-      script.cline := prompt.inbuff;
+      { Reversing the inputbuffer is to solve chars being inserted at the wrong
+        indexes. Really stupid solution but could not be bothered to find the
+        actual bug... }
+      script.cline := ReverseString(prompt.inbuff);
       write(history, script.cline);
 
       if script.cline = 'debug_cbtrace' then

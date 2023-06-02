@@ -54,6 +54,11 @@ interface
      that this function also supports non-keys like ascii 0x1b *)
   function ASCIIGetKeyEventChar(const AKeyCode: LongWord): Char;
 
+  (* Insert a character into the given string at the specified position and
+     move the characters on the right of the position up. *)
+  procedure InsertChar(var AString: String; const AChar: Char;
+                       const APos: Integer);
+
   const
     { KEY CODES NOT IN Keyboard UNIT }
     KEY_ANSI_ESCAPE = $3081A00;
@@ -242,5 +247,14 @@ implementation
     else
       ASCIIGetKeyEventChar := GetKeyEventChar(AKeyCode);
     end;
+  end;
+
+  procedure InsertChar(var AString: String; const AChar: Char;
+                       const APos: Integer);
+  var
+    right_chars: String;
+  begin
+    right_chars := Copy(AString, APos+1, Length(AString));
+    AString := Copy(AString, 1, APos-1) + AChar + right_chars;
   end;
 end.
