@@ -17,6 +17,7 @@ interface
   type
     (* record type to store the current state of the input prompt *)
     TPrompt = record
+      template   : String;
       cursor_org : TCursorPos;
       cursor_pos : TCursorPos;
       action     : Integer;
@@ -41,6 +42,8 @@ interface
     should_quit      : Boolean;
 implementation
 {$IF defined(UNIX)}
+  { TODO: This can probably be rewritten, also need windows compatability for
+          Ctrl+C and such }
   procedure HandleSigInterrupt(sig: cint); cdecl;
   begin
   end;
@@ -92,9 +95,15 @@ implementation
   end;
 {$ENDIF}
 
+  function ManufacturePrompt(const ATemplate: String): String;
+  begin
+    { TODO: Create a Prompt format and parse it here }
+    ManufacturePrompt := 'deash@' + GetCurrentDir() + ' > ';
+  end;
+
   procedure DisplayPrompt(const APrompt: TPrompt);
   begin
-    {write(#13, ManufacturePrompt(APrompt.template), APrompt.inbuff);}
+    write(#13, ManufacturePrompt(APrompt.template), APrompt.inbuff);
   end;
 
   procedure HandleKeypress(const AKey: Longword; var APrompt: TPrompt);
@@ -202,10 +211,7 @@ implementation
 
       if should_quit then break;
 
-      { Reversing the inputbuffer is to solve chars being inserted at the wrong
-        indexes. Really stupid solution but could not be bothered to find the
-        actual bug... }
-      script.cline := ReverseString(prompt.inbuff);
+      script.cline := prompt.inbuff;
       write(history, script.cline);
 
       if script.cline = 'debug_cbtrace' then

@@ -35,10 +35,12 @@ interface
     (* Is the keyboard driver active or not *)
     keyboard_state: Boolean;
 implementation
+  uses uErrors;
+
   procedure SetKeyboardDriverState(const AState: Boolean);
   begin
     if keyboard_state = AState then exit;
-    if keyboard_state then
+    if AState then
       InitKeyboard
     else
       DoneKeyboard;
@@ -86,7 +88,11 @@ implementation
     CDIR_RIGHT: dir_char := 'C';
     CDIR_UP:    dir_char := 'A';
     CDIR_DOWN:  dir_char := 'B';
-    end;
+    else
+    begin
+      ThrowNonScriptError(ERR_INTERNAL_INVALID_CURSOR_DIRECTION, []);
+      dir_char := 'D';
+    end; { end else } end; { end case }
 
     write(#27'[', IntToStr(AAmount), dir_char);
   end;
