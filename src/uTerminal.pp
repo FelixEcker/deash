@@ -7,7 +7,7 @@ unit uTerminal;
 {$H+}
 
 interface
-  uses SysUtils, StrUtils, uHelpers, Keyboard;
+  uses SysUtils, StrUtils, uASCII, uHelpers, Keyboard;
 
   type
     TCursorPos = array[0..1] of Integer;
@@ -23,6 +23,11 @@ interface
   (* Move the cursor by AAmount in direction ADirection, see constants
      in this unit for directions. *)
   procedure MoveCursor(const AAmount: Integer; const ADirection: Integer);
+
+  function GetWidth: Integer;
+
+  (* Clears the current line *)
+  procedure ClearLine;
 
   const
     { CURSOR DIRECTIONS }
@@ -95,6 +100,26 @@ implementation
     end; { end else } end; { end case }
 
     write(#27'[', IntToStr(AAmount), dir_char);
+  end;
+
+  function GetWidth: Integer;
+  begin
+    GetWidth := 100;
+  end;
+
+  procedure ClearLine;
+  var
+    ws_string: String;
+    i: Integer;
+  begin
+    ws_string := '';
+
+    { Originally used fillchar here, but because I don't exactly understand it
+      and I want to go to sleep I have done this ugly for-loop instead
+      - Marie }
+    for i := 0 to GetWidth - 1 do
+      ws_string := ws_string + ' ';
+    write(#13, ws_string);
   end;
 initialization
   keyboard_state := False;

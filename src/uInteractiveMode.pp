@@ -4,8 +4,6 @@ unit uInteractiveMode;
 { uInteractiveMode.pp ; Interactive Shell for DEASH }
 { author: Marie Eckert                              }
 
-{ NOTE TO SELF: IA_DELETE seems to not be sent, atleast under MacOS }
-
 {$H+}
 
 interface
@@ -13,8 +11,8 @@ interface
 {$IF defined(UNIX)}
        BaseUnix,
 {$ENDIF}
-       SysUtils, StrUtils, Types, uDEASHConsts, uHelpers, uInternalProcs,
-       uXDebug, uScriptEngine, uPathResolve, uTypes, uTerminal;
+       SysUtils, StrUtils, Types, uASCII, uDEASHConsts, uHelpers,
+       uInternalProcs, uXDebug, uScriptEngine, uPathResolve, uTypes, uTerminal;
 
   type
     (* record type to store the current state of the input prompt *)
@@ -100,11 +98,12 @@ implementation
   function ManufacturePrompt(const ATemplate: String): String;
   begin
     { TODO: Create a Prompt format and parse it here }
-    ManufacturePrompt := 'deash@' + GetCurrentDir() + ' > ';
+    ManufacturePrompt := 'deash@' + GetCurrentDir() + '> ';
   end;
 
   procedure DisplayPrompt(const APrompt: TPrompt);
   begin
+    ClearLine;
     write(#13, ManufacturePrompt(APrompt.template), APrompt.inbuff);
   end;
 
@@ -123,8 +122,8 @@ implementation
     end;
 
     case Integer(as_char) of
-    13: APrompt.action := IA_ENTER;
-    16: APrompt.action := IA_DELETE;
+    CHR_CR: APrompt.action := IA_ENTER;
+    CHR_BS: APrompt.action := IA_DELETE;
     else
     begin
       Insert(as_char, APrompt.inbuff, APrompt.cursor_pos[1]);
@@ -139,6 +138,7 @@ implementation
     IA_ENTER: write(#13#10);
     IA_DELETE: begin
       { Delete index is 1-based }
+      writeln('test');
       Delete(APrompt.inbuff, APrompt.cursor_pos[1] + 1, 1);
       DisplayPrompt(APrompt);
     end;
