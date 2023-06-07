@@ -11,9 +11,11 @@ BEGIN
 1003 "Deash config is malformed!"
 
 2001 "An unknown internal error occured!"
+2002 "An invalid direction for procedure MoveCursor was passed!"
 
 3001 "Unrecognized identifier: %s"
-3002 "malformed conditional: expected VALUE OPERATOR VALUE, got VALUE. This syntax is only allowed if the Variable/Value is of type Boolean!"
+3002 "malformed conditional: expected VALUE OPERATOR VALUE, got VALUE.\n\
+This syntax is only allowed if the Variable/Value is of type Boolean!"
 3003 "malformed conditional: expected VALUE OPERATOR VALUE"
 3004 "mismatched datatypes for comparison (%s and %s)"
 3005 "Invalid operator for comparison"
@@ -26,10 +28,15 @@ BEGIN
 10003 "There is a formatting error or missing fields within the deash config"
 
 11001 "Something broke internally, likely a bug."
+11002 "Something caused an invalid direction code to be passed to the\n\ 
+MoveCursor procedure. This is error is recoverable and shouldn't cause\n\
+further issues or a crash."
 
-12001 "Deash tried to parse an identifier which could not be mapped to a keyword or command."
-12003 "A conditional must always be formatted like this: ""VALUE OPERATOR VALUE"", the only \n\
-exception to this syntax rule is the ""VALUE"" syntax, which only works if the value is a boolean."
+12001 "Deash tried to parse an identifier which could not be mapped\n\
+to a keyword or command."
+12003 "A conditional must always be formatted like this:\n\
+  ""VALUE OPERATOR VALUE"",\n\
+the only exception to this syntax rule is the ""VALUE"" syntax, which only works if the value is a boolean."
 12004 "Deash only supports comparisons between identical datatypes."
 12005 "A comparison was made where the provided operator is not applicable, e.g. \n\
   'foo' > 'bar'."

@@ -21,7 +21,8 @@ interface
     ERR_GENERAL_NO_CONFIG        = 0002;
     ERR_GENERAL_MALFORMED_CONFIG = 0003;
 
-    ERR_INTERNAL_UNKNOWN = 1001;
+    ERR_INTERNAL_UNKNOWN                  = 1001;
+    ERR_INTERNAL_INVALID_CURSOR_DIRECTION = 1002;
 
     ERR_SCRIPT_UNKNOWN_IDENTIFIER        = 2001;
     ERR_SCRIPT_IF_MALFORMED_VALUE        = 2003;
@@ -37,18 +38,12 @@ interface
 
   procedure ThrowError(const AError: Integer; var AScript: TScript;
                        const AFormats: array of const);
+  procedure ThrowNonScriptError(const AError: Integer; 
+                                const AFormats: array of const);
   procedure PrintErrorInfo(const AError: Integer);
 implementation
-  procedure ThrowError(const AError: Integer; var AScript: TScript;
-                       const AFormats: array of const);
+  procedure ErrorText(const AError: Integer; const AFormats: array of const);
   begin
-    deasherror(Format('eval for script %s failed at line %d:',
-                  [
-                    AScript.scriptpath,
-                    AScript.nline
-                  ]
-                )
-              );
     deasherror(Format(GetResourceString(AError+MESSAGE_PREFIX), AFormats));
     deasherror(Format
                 (
@@ -59,6 +54,25 @@ implementation
                   ]
                 )
               );
+  end;
+
+  procedure ThrowError(const AError: Integer; var AScript: TScript;
+                       const AFormats: array of const);
+  begin
+    deasherror(Format('eval for script %s failed at line %d:',
+                  [
+                    AScript.scriptpath,
+                    AScript.nline
+                  ]
+                )
+              );
+    ErrorText(AError, AFormats);
+  end;
+  procedure ThrowNonScriptError(const AError: Integer; 
+                                const AFormats: array of const);
+  begin
+    deasherror('eval failed due to an internal error:');
+    ErrorText(AError, AFormats);
   end;
 
   function GetErrorCategory(const AError: Integer): String;
