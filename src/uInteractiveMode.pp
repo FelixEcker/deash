@@ -4,6 +4,8 @@ unit uInteractiveMode;
 { uInteractiveMode.pp ; Interactive Shell for DEASH }
 { author: Marie Eckert                              }
 
+{ NOTE TO SELF: IA_DELETE seems to not be sent, atleast under MacOS }
+
 {$H+}
 
 interface
@@ -125,17 +127,21 @@ implementation
     16: APrompt.action := IA_DELETE;
     else
     begin
-      InsertChar(APrompt.inbuff, as_char, APrompt.cursor_pos[1]);
+      Insert(as_char, APrompt.inbuff, APrompt.cursor_pos[1]);
       DisplayPrompt(APrompt);
     end; end;
   end;
 
   procedure HandleInputAction(var APrompt: TPrompt);
   begin
-    { TODO: Handle IA_DELETE, IA_CLEFT and IA_CRIGHT }
+    { TODO: Handle IA_DELETE }
     case APrompt.action of
     IA_ENTER: write(#13#10);
-    IA_DELETE: exit;
+    IA_DELETE: begin
+      { Delete index is 1-based }
+      Delete(APrompt.inbuff, APrompt.cursor_pos[1] + 1, 1);
+      DisplayPrompt(APrompt);
+    end;
     IA_CLEFT: begin
       if APrompt.cursor_pos[1] = 0 then exit;
       APrompt.cursor_pos[1] := APrompt.cursor_pos[1]-1;
