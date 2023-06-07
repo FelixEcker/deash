@@ -4,7 +4,6 @@ unit uErrors;
 { uErrors.pp ; Error System for deash }
 { Author: Marie Eckert                }
 
-{$R res/error_message.rc}
 {$H+}
 
 interface

@@ -24,7 +24,10 @@ program deash;
 {***********************************************************}
 
 {$H+}
+
+{*** All windres resource files should be included below this comment }
 {$R res/info.rc}
+{$R res/error_message.rc}
 
 uses SysUtils, StrUtils, Types, uXDebug, uDEASHConsts, uInteractiveMode,
      uScriptEngine, uHelpers, uErrors;
