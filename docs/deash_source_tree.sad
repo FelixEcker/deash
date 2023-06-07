@@ -1,0 +1,26 @@
+{$start}
+{$title} The DEASH Source Tree - Short Description
+
+{$begin-section} source-tree
+This document gives a short description of the source tree of deash, so that
+order is kept among the source files.
+
+{$style bold} src/ {$reset-all}
+  The root of the sources, this directory should only ever contain the
+  main file, in this case "deash.pp"
+
+  {$style bold} deash_core/ {$reset-all}
+    This directory holds files which make up the core of deash and are not
+    used for utility functions.
+
+  {$style bold} extra/ {$reset-all}
+    This directory holds units which hold utility functions/procedures or
+    constants.
+  
+  {$style bold} inc/ {$reset-all}
+    This directory holds 3rd-party and other units which were not created as
+    part of deash
+
+  {$style bold} res/ {$reset-all}
+    This directory only contains windres resource files.
+{$end-section}
