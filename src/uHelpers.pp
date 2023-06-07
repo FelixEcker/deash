@@ -229,6 +229,11 @@ implementation
           deasherror('Message: '+e.message);
           exit;
         end;
+        on e: EResourceNotFoundException do
+        begin
+          result := '';
+          exit;
+        end;
       end;
     finally
       res.Free
