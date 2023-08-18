@@ -15,4 +15,4 @@ clean:
 build_debug:
 	fpc $(MAIN) -FE"$(OUT)" -Fu"$(INC)" -g -dDEBUG
 build:
-	fpc $(MAIN) -FE"$(OUT)" -Fu"$(INC)" -O4 -XX -Xs
+	fpc $(MAIN) -FE"$(OUT)" -Fu"$(INC)" -O4 -XX -Xs -n @fpc_linux.cfg

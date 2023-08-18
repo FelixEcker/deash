@@ -126,7 +126,7 @@ implementation
     CHR_BS: APrompt.action := IA_DELETE;
     else
     begin
-      Insert(as_char, APrompt.inbuff, APrompt.cursor_pos[1]);
+      Insert(as_char, APrompt.inbuff, APrompt.cursor_pos[1]+1);
       DisplayPrompt(APrompt);
     end; end;
   end;
@@ -138,7 +138,6 @@ implementation
     IA_ENTER: write(#13#10);
     IA_DELETE: begin
       { Delete index is 1-based }
-      writeln('test');
       Delete(APrompt.inbuff, APrompt.cursor_pos[1] + 1, 1);
       DisplayPrompt(APrompt);
     end;
