@@ -24,6 +24,9 @@ interface
      in this unit for directions. *)
   procedure MoveCursor(const AAmount: Integer; const ADirection: Integer);
 
+  (* Move the Cursor to the provided position *)
+  procedure MoveCursorTo(const ACursorPos: TCursorPos);
+
   function GetWidth: Integer;
 
   (* Clears the current line *)
@@ -100,6 +103,11 @@ implementation
     end; { end else } end; { end case }
 
     write(#27'[', IntToStr(AAmount), dir_char);
+  end;
+  
+  procedure MoveCursorTo(const ACursorPos: TCursorPos);
+  begin
+    write(#27'[', IntToStr(ACursorPos[0]), ';', IntToStr(ACursorPos[1]), 'f');
   end;
 
   function GetWidth: Integer;

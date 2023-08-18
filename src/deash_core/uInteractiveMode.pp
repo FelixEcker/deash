@@ -17,11 +17,12 @@ interface
   type
     (* record type to store the current state of the input prompt *)
     TPrompt = record
-      template   : String;
-      cursor_org : TCursorPos;
-      cursor_pos : TCursorPos;
-      action     : Integer;
-      inbuff     : String;
+      template       : String;
+      cursor_org     : TCursorPos;
+      cursor_pos     : TCursorPos;
+      abs_cursor_pos : TCursorPos;
+      action         : Integer;
+      inbuff         : String;
     end;
 
   procedure LaunchShell;
@@ -138,8 +139,10 @@ implementation
     IA_ENTER: write(#13#10);
     IA_DELETE: begin
       { Delete index is 1-based }
-      Delete(APrompt.inbuff, APrompt.cursor_pos[1] + 1, 1);
+      Delete(APrompt.inbuff, APrompt.cursor_pos[1], 1);
       DisplayPrompt(APrompt);
+      MoveCursorTo(APrompt.abs_cursor_pos);
+      MoveCursor(1, CDIR_LEFT);
     end;
     IA_CLEFT: begin
       if APrompt.cursor_pos[1] = 0 then exit;
@@ -201,6 +204,8 @@ implementation
       DisplayPrompt(prompt);
 
       repeat
+        prompt.action := -1;
+        prompt.abs_cursor_pos := GetCursorPos;
         prompt.cursor_pos[1] := GetCursorPos[1] - prompt.cursor_org[1];
         if eof() then
         begin
