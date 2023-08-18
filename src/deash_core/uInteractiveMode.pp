@@ -129,6 +129,8 @@ implementation
     begin
       Insert(as_char, APrompt.inbuff, APrompt.cursor_pos[1]+1);
       DisplayPrompt(APrompt);
+      MoveCursorTo(APrompt.abs_cursor_pos);
+      MoveCursor(1, CDIR_RIGHT);
     end; end;
   end;
 
