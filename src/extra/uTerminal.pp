@@ -60,10 +60,13 @@ implementation
   var
     r: LongWord;
     r_char: Char;
-    report: ShortString;
+    report: array[0..1] of ShortString;
+    report_ix: Integer;
   begin
     r_char := Char(0);
-    report := '';
+    report[0] := '';
+    report[1] := '';
+    report_ix := 0;
     write(#27'[6n');
 
     { Read the Response }
@@ -74,17 +77,22 @@ implementation
       if ((Byte(r_char) > $39) or (Byte(r_char) < $30)) and (r_char <> ';')
       then
         if r_char = 'R' then
-          break
-        else
-          continue;
+          break;
 
-      report := report + r_char;
+      if r_char = ';' then
+      begin
+        report_ix := 1;
+        continue;
+      end;
+
+      if Byte(r_char) = 27 then
+        continue;
+
+      report[report_ix] := report[report_ix] + r_char;
     until False;
 
-    GetCursorPos[0] := StrToInt(Copy(report, 1, pos(';', report)-2));
-    GetCursorPos[1] := StrToInt(
-                        Copy(report, pos(';', report)+1, Length(report))
-                       );
+    GetCursorPos[0] := StrToInt(report[0]);
+    GetCursorPos[1] := StrToInt(report[1]);
   end;
 
   procedure MoveCursor(const AAmount: Integer; const ADirection: Integer);
