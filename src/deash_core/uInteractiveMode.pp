@@ -102,10 +102,14 @@ implementation
     ManufacturePrompt := 'deash@' + GetCurrentDir() + '> ';
   end;
 
-  procedure DisplayPrompt(const APrompt: TPrompt);
+  function DisplayPrompt(const APrompt: TPrompt): Integer;
+  var
+    prompt: String;
   begin
     ClearLine;
-    write(#13, ManufacturePrompt(APrompt.template), APrompt.inbuff);
+    prompt := ManufacturePrompt(APrompt.template);
+    write(#13, prompt, APrompt.inbuff);
+    exit(Length(prompt));
   end;
 
   procedure HandleKeypress(const AKey: Longword; var APrompt: TPrompt);
@@ -135,15 +139,20 @@ implementation
   end;
 
   procedure HandleInputAction(var APrompt: TPrompt);
+  var
+    prompt_len: Integer;
   begin
     { TODO: Handle IA_DELETE }
     case APrompt.action of
     IA_ENTER: write(#13#10);
     IA_DELETE: begin
+      if (APrompt.inbuff = '') then exit;
       { Delete index is 1-based }
       Delete(APrompt.inbuff, APrompt.cursor_pos[1], 1);
-      DisplayPrompt(APrompt);
+      prompt_len := DisplayPrompt(APrompt);
       MoveCursorTo(APrompt.abs_cursor_pos);
+
+      if (GetCursorPos[1] = prompt_len+1) then exit;
       MoveCursor(1, CDIR_LEFT);
     end;
     IA_CLEFT: begin
