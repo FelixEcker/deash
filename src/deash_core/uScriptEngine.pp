@@ -403,6 +403,17 @@ implementation
     AScript.registering_proc_type := proc_type;
   end;
 
+  procedure RegisterProcLine(const ALine: String; const AScript: TScript);
+  var
+    dest: PString;
+  begin
+    case AScript.registering_proc_type of
+    PROCTYPE_PROC: dest := @AScript.procedures[AScript.registering_proc].lines;
+    PROCTYPE_EXP: exit;
+    PROCTYPE_PREF: exit;
+    end;
+  end;
+
   function ExecProc(const AProcedure: TProcedure;
                     const AParameters: TStringDynArray;
                     var AScript: TScript): TProcedureResult;
@@ -604,7 +615,7 @@ implementation
       if (AScript.registering_proc <> -1) then
         if (AScript.codeblocks[HIGH(AScript.codeblocks)]
         <> BLOCKTYPE_PROC) then
-          writeln('TODO: ADD PROCEDURE LINE "', AScript.cline, '"')
+          RegisterProcLine(AScript.cline, AScript)
         else
           AScript.registering_proc := -1;
       ArrPopInt(AScript.codeblocks);
@@ -632,9 +643,7 @@ implementation
 
       if (curr_blocktype = BLOCKTYPE_PROC) and
          (AScript.registering_proc <> -1) then
-      begin
-        writeln('TODO: ADD PROCEDURE LINE "', AScript.cline, '"');
-      end;
+        RegisterProcLine(AScript.cline, AScript);
 
       exit;
     end;
@@ -642,7 +651,7 @@ implementation
     if (curr_blocktype = BLOCKTYPE_IGNORE) and
        (AScript.registering_proc <> -1) then
     begin
-      writeln('TODO: ADD PROCEDURE LINE "', AScript.cline, '"');
+      RegisterProcLine(AScript.cline, AScript);
       exit;
     end;
 
